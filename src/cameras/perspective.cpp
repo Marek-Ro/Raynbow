@@ -12,8 +12,16 @@ namespace lightwave {
  */
 class Perspective : public Camera {
 public:
+
+    float fov;
+    float aspect_ratio;
+    float angle; // stores: tan(fov / 2)
+
     Perspective(const Properties &properties)
     : Camera(properties) {
+        fov = properties.get<float>("fov");
+        aspect_ratio = (float)properties.get<int>("width") / (float)properties.get<int>("height");
+        angle = tan(fov * 0.5); // TODO check if degree vs radiant
         //NOT_IMPLEMENTED
 
         // hints:
@@ -22,11 +30,31 @@ public:
     }
 
     CameraSample sample(const Point2 &normalized, Sampler &rng) const override {
+        // 1. multiply coordinates by $tan(fov / 2)$
+            // normal fov = 90
+        // 2. $x * image aspect ratio$ 
+        // 3.
+        float x = normalized.x() * angle * aspect_ratio;
+        float y = normalized.y() * aspect_ratio;
+        
+        // normalize x and y
+        Vector xy = Vector(x,y, 0.f).normalized();
+
+        Ray ray = Ray(Vector(0.f, 0.f, 0.f), xy); // TODO
+        ray = m_transform->apply(ray);
+
+        Color weight = Color(1.0f);
+        return CameraSample{
+            ray, weight
+        };
+        
+        // Example 0
+        /*
         return CameraSample{
         .ray = Ray(Vector(normalized.x(), normalized.x(), 0.f),
             Vector(0.f, 0.f, 1.f)),
-        .weight = Color(1.0f)};
-}
+        .weight = Color(1.0f)}; */
+    }
 
     std::string toString() const override {
         return tfm::format(
