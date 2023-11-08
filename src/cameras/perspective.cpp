@@ -14,7 +14,7 @@ class Perspective : public Camera {
 public:
     Perspective(const Properties &properties)
     : Camera(properties) {
-        NOT_IMPLEMENTED
+        //NOT_IMPLEMENTED
 
         // hints:
         // * precompute any expensive operations here (most importantly trigonometric functions)
@@ -22,11 +22,11 @@ public:
     }
 
     CameraSample sample(const Point2 &normalized, Sampler &rng) const override {
-        NOT_IMPLEMENTED
-
-        // hints:
-        // * use m_transform to transform the local camera coordinate system into the world coordinate system
-    }
+        return CameraSample{
+        .ray = Ray(Vector(normalized.x(), normalized.x(), 0.f),
+            Vector(0.f, 0.f, 1.f)),
+        .weight = Color(1.0f)};
+}
 
     std::string toString() const override {
         return tfm::format(
