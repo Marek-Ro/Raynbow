@@ -1,4 +1,5 @@
 #include <lightwave.hpp>
+#include <numbers>
 
 namespace lightwave {
 
@@ -16,13 +17,19 @@ public:
     float fov;
     float aspect_ratio;
     float angle; // stores: tan(fov / 2)
+    int width;
+    int height;
 
     Perspective(const Properties &properties)
     : Camera(properties) {
         fov = properties.get<float>("fov");
         aspect_ratio = (float)properties.get<int>("width") / (float)properties.get<int>("height");
-        angle = tan(fov * 0.5); // TODO check if degree vs radiant
-        //NOT_IMPLEMENTED
+        float bogenmass = fov / (float)360 * (float)std::numbers::pi;
+        angle = tan(bogenmass); // TODO check if degree vs radiant
+        
+        width = properties.get<int>("width");
+        height = properties.get<int>("height");
+        
 
         // hints:
         // * precompute any expensive operations here (most importantly trigonometric functions)
@@ -34,11 +41,11 @@ public:
             // normal fov = 90
         // 2. $x * image aspect ratio$ 
         // 3.
-        float x = normalized.x() * angle * aspect_ratio;
-        float y = normalized.y() * aspect_ratio;
+        float x = (2 * normalized.x() - 1) * angle * aspect_ratio;
+        float y = (1 - 2 * normalized.y()) * aspect_ratio;
         
         // normalize x and y
-        Vector xy = Vector(x,y, 0.f).normalized();
+        Vector xy = Vector(x,y, 1.f).normalized();
 
         Ray ray = Ray(Vector(0.f, 0.f, 0.f), xy); // TODO
         ray = m_transform->apply(ray);
