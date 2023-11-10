@@ -19,17 +19,20 @@ public:
     float angle; // stores: tan(fov / 2)
     int width;
     int height;
+    float alt_angle;
+    std::string fov_axis;
 
     Perspective(const Properties &properties)
     : Camera(properties) {
         fov = properties.get<float>("fov");
-        aspect_ratio = (float)properties.get<int>("width") / (float)properties.get<int>("height");
-        float bogenmass = fov / (float)360 * (float)std::numbers::pi;
-        angle = tan(bogenmass); // TODO check if degree vs radiant
-        
         width = properties.get<int>("width");
         height = properties.get<int>("height");
-        
+        aspect_ratio = (float)width / (float)height;
+        float alt_bogenmass = (fov / ((float)std::numbers::pi * (float)2)) * (float)180 ;
+        float bogenmass = fov / (float)360 * (float)std::numbers::pi;
+        angle = tan(bogenmass); // TODO check if degree vs radiant
+        alt_angle = tan(alt_bogenmass);
+        fov_axis = properties.get<std::string>("fovAxis");
 
         // hints:
         // * precompute any expensive operations here (most importantly trigonometric functions)
@@ -41,14 +44,19 @@ public:
             // normal fov = 90
         // 2. $x * image aspect ratio$ 
         // 3.
-        float x = normalized.x() * angle * aspect_ratio;
-        float y = normalized.y() * aspect_ratio;
-        
-        // normalize x and y
-        Vector xy = Vector(x,y, 1.f).normalized();
 
-        Ray ray = Ray(Vector(0.f, 0.f, 0.f), xy); // TODO
+        // Transforming normalized image coordinates to normalized camera coordinates
+        float x = normalized.x() * angle * aspect_ratio;
+        float y = normalized.y() * angle;
+        
+        // create direction vector, remap on imaginary plane z=1 (camera direction is [0,0,1])
+        Vector xy = Vector(x,y, 1.f);
+        xy = xy.normalized();
+
+        // ray with origin (0,0,0) and direction vector
+        Ray ray = Ray(Vector(0.f, 0.f, 0.f), xy);
         ray = m_transform->apply(ray);
+        ray = ray.normalized();
 
         Color weight = Color(1.0f);
         return CameraSample{
