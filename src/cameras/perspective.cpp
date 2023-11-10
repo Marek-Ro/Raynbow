@@ -41,8 +41,8 @@ public:
             // normal fov = 90
         // 2. $x * image aspect ratio$ 
         // 3.
-        float x = (2 * normalized.x() - 1) * angle * aspect_ratio;
-        float y = (1 - 2 * normalized.y()) * aspect_ratio;
+        float x = normalized.x() * angle * aspect_ratio;
+        float y = normalized.y() * aspect_ratio;
         
         // normalize x and y
         Vector xy = Vector(x,y, 1.f).normalized();
