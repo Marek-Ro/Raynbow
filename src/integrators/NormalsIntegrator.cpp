@@ -6,13 +6,13 @@ namespace lightwave {
 class NormalsIntegrator : public SamplingIntegrator {
     /// @brief Whether to remap the normals from [-1;1] to [0;1]
     bool remap;
-
-    Scene scene;
+    /// @brief the scene we check for intersections
+    //Scene scene;
 
 public:
     NormalsIntegrator(const Properties &properties)
-        : SamplingIntegrator(properties), scene(Scene(properties)) {
-        
+        : SamplingIntegrator(properties)/*, scene(Scene(properties))*/ {
+        //scene = samplingIntegrator.scene();
         //scene = Scene(properties);
         // Task 1.2.1 "The normal integrator takes a single parameter remap"
         try {
@@ -33,13 +33,13 @@ public:
         // Intersect the ray against the scene and get the intersection information
         // If an intersection occurs, store the normal at that intersection or 0 if no intersection
         Vector normal = ray.direction;
-        if (scene.intersect(ray, 10000000000000, rng)) { //TODO what should tmax be?
-            normal = scene.intersect(ray,rng).frame.normal; // TODO how to get the normal from the intersection
+        //bool test = scene().get()->intersect(ray, 10, rng);
+        if (scene().get()->intersect(ray, 10, rng)) { //TODO what should tmax be?
+            normal = scene().get()->intersect(ray,rng).frame.normal;
         }
         else {
-            normal = Vector(0); // Vector cant be just zero
+            normal = Vector(0);
         }
-        //Intersection intersection = scene.intersect(ray, rng);
         
         // Map values from [-1;1] to [0;1] -> add 1 and divide by 2 
         if (remap) {
