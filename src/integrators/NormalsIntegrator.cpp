@@ -11,7 +11,8 @@ class NormalsIntegrator : public SamplingIntegrator {
 
 public:
     NormalsIntegrator(const Properties &properties)
-        : SamplingIntegrator(properties), scene(properties) {
+        : SamplingIntegrator(properties), scene(Scene(properties)) {
+        
         //scene = Scene(properties);
         // Task 1.2.1 "The normal integrator takes a single parameter remap"
         try {
