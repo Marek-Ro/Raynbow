@@ -16,18 +16,20 @@ Sphere(const Properties &properties) {
         (2 * ray_origin_vector.dot(ray_direction)) - 
         4 * ray_direction.dot(ray_direction) * 
         (ray_origin_vector.dot(ray_origin_vector) - 1);
-        // check here
+        // check here if intersection happens at all
         if (hit_value < 0) {
             return false;
         }
 
-
+        // 2 possible intersection points
         float t1;
         float t2;
+        // t_candidate is the earliest intersection point we find
+        float t_candidate;
+        // in case of hit value == 0 there is only one
         if (hit_value == 0) {
-            t1 = - 1 * ray_origin_vector.dot(ray_direction) / 
+            t_candidate = - 1 * ray_origin_vector.dot(ray_direction) / 
             ray_direction.dot(ray_direction);
-            its.t = t1;
         } else {
             t1 = (- 2 * ray_origin_vector.dot(ray_direction) + hit_value) / 
             ray_direction.dot(ray_direction);
@@ -37,12 +39,20 @@ Sphere(const Properties &properties) {
             // if both t are negative return false
             // we look for the smallest t which is greater than 0
             if (min(t1, t2) >= 0) {
-                its.t = min(t1, t2);
+                t_candidate = min(t1, t2);
             } else if (max(t1, t2) >= 0) {
-                its.t = max(t1, t2);
+                t_candidate = max(t1, t2);
             } else {
+                // in this case both t1 and t2 are < 0 so we have no t_candidate
                 return false;
             }
+        }
+        
+        // compare our intersection point to the closest intersection so far
+        if (t_candidate > its.t) {
+            return false;
+        } else {
+            its.t = t_candidate;
         }
 
         // position is the hit point
