@@ -12,8 +12,14 @@ class NormalsIntegrator : public SamplingIntegrator {
 public:
     NormalsIntegrator(const Properties &properties)
         : SamplingIntegrator(properties), scene(properties) {
+        //scene = Scene(properties);
         // Task 1.2.1 "The normal integrator takes a single parameter remap"
-        remap = properties.get<bool>("remap");
+        try {
+            remap = properties.get<bool>("remap");
+        }
+        catch (...) {
+            remap = true;
+        }
     }
 
 
@@ -26,20 +32,21 @@ public:
         // Intersect the ray against the scene and get the intersection information
         // If an intersection occurs, store the normal at that intersection or 0 if no intersection
         Vector normal = ray.direction;
-        if (scene.intersect(ray, 10, rng)) { //TODO what should tmax be?
-            normal = scene.intersect(ray,rng).wo; // TODO how to get the normal from the intersection
+        if (scene.intersect(ray, 10000000000000, rng)) { //TODO what should tmax be?
+            normal = scene.intersect(ray,rng).frame.normal; // TODO how to get the normal from the intersection
         }
         else {
             normal = Vector(0); // Vector cant be just zero
         }
-        Intersection intersection = scene.intersect(ray, rng);
+        //Intersection intersection = scene.intersect(ray, rng);
         
-
         // Map values from [-1;1] to [0;1] -> add 1 and divide by 2 
-
+        if (remap) {
+            normal[0] = (normal[0] + 1) / 2;
+            normal[1] = (normal[1] + 1) / 2;
+            normal[2] = (normal[2] + 1) / 2;
+        }
         // Return the (potentially remapped) normal.
-        
-        
         return Color(normal[0], normal[1], normal[2]);
     }
 
