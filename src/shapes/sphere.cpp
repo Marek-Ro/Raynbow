@@ -16,6 +16,7 @@ Sphere(const Properties &properties) {
         (2 * ray_origin_vector.dot(ray_direction)) - 
         4 * ray_direction.dot(ray_direction) * 
         (ray_origin_vector.dot(ray_origin_vector) - 1);
+        //std::cout << hit_value << std::endl;
         // check here if intersection happens at all
         if (hit_value < 0) {
             return false;
@@ -31,9 +32,9 @@ Sphere(const Properties &properties) {
             t_candidate = - 1 * ray_origin_vector.dot(ray_direction) / 
             ray_direction.dot(ray_direction);
         } else {
-            t1 = (- 2 * ray_origin_vector.dot(ray_direction) + hit_value) / 
+            t1 = ((- 2 * ray_origin_vector.dot(ray_direction)) + sqrt(hit_value)) / 
             ray_direction.dot(ray_direction);
-            t2 = (- 2 * ray_origin_vector.dot(ray_direction) - hit_value) / 
+            t2 = ((- 2 * ray_origin_vector.dot(ray_direction)) - sqrt(hit_value)) / 
             ray_direction.dot(ray_direction);
             
             // if both t are negative return false

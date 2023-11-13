@@ -3,27 +3,26 @@
 namespace lightwave {
 
 
-class NormalsIntegrator : public SamplingIntegrator {
+class NormalIntegrator : public SamplingIntegrator {
     /// @brief Whether to remap the normals from [-1;1] to [0;1]
     bool remap;
     /// @brief the scene we check for intersections
     //Scene scene;
 
 public:
-    NormalsIntegrator(const Properties &properties)
+    NormalIntegrator(const Properties &properties)
         : SamplingIntegrator(properties)/*, scene(Scene(properties))*/ {
         //scene = samplingIntegrator.scene();
         //scene = Scene(properties);
         // Task 1.2.1 "The normal integrator takes a single parameter remap"
+        remap = true;
         try {
             remap = properties.get<bool>("remap");
         }
         catch (...) {
-            remap = true;
+//            remap = true;
         }
     }
-
-
 
     /**
      * @brief The job of an integrator is to return a color for a ray produced by the camera model.
@@ -32,13 +31,16 @@ public:
     Color Li(const Ray &ray, Sampler &rng) override {
         // Intersect the ray against the scene and get the intersection information
         // If an intersection occurs, store the normal at that intersection or 0 if no intersection
-        Vector normal = ray.direction;
+        Vector normal; //  = ray.direction
         //bool test = scene().get()->intersect(ray, 10, rng);
-        if (scene().get()->intersect(ray, 10, rng)) { //TODO what should tmax be?
-            normal = scene().get()->intersect(ray,rng).frame.normal;
+        
+        Intersection its = scene().get()->intersect(ray,rng);
+        if (!its) { //TODO what should tmax be?
+            normal = Vector(0);
         }
         else {
-            normal = Vector(0);
+            normal = its.frame.normal;
+            normal = normal.normalized();
         }
         
         // Map values from [-1;1] to [0;1] -> add 1 and divide by 2 
@@ -67,4 +69,4 @@ public:
 }
 
 // this informs lightwave to use our class CameraIntegrator whenever a <integrator type="camera" /> is found in a scene file
-REGISTER_INTEGRATOR(NormalsIntegrator, "normals")
+REGISTER_INTEGRATOR(NormalIntegrator, "normals")
