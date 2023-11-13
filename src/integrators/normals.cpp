@@ -20,42 +20,40 @@ namespace lightwave {
  * @endcode
  */
 class NormalsIntegrator : public SamplingIntegrator {
-    /// @brief Whether to show the grid, or only output the ray's direction as color.
-    bool m_showGrid;
-    /// @brief The color of the grid, if the grid is shown.
-    Color m_gridColor;
-    /// @brief The frequency of the grid spacing, if the grid is shown.
-    float m_gridFrequency;
+    /// @brief Whether to remap the normals from [-1;1] to [0;1]
+    bool remap;
+
+    Scene scene;
 
 public:
     NormalsIntegrator(const Properties &properties)
-    : SamplingIntegrator(properties) {
-        // to parse properties from the scene description, use properties.get(name, default_value)
-        // you can also omit the default value if you want to require the user to specify a value
-
-        m_showGrid = properties.get<bool>("grid", true);
-        m_gridColor = properties.get<Color>("gridColor", Color::black());
-        m_gridFrequency = properties.get<float>("gridFrequency", 10);
+        : SamplingIntegrator(properties), scene(properties) {
+        // Task 1.2.1 "The normal integrator takes a single parameter remap"
+        remap = properties.get<bool>("remap");
     }
+
+
 
     /**
      * @brief The job of an integrator is to return a color for a ray produced by the camera model.
      * This will be run for each pixel of the image, potentially with multiple samples for each pixel.
      */
     Color Li(const Ray &ray, Sampler &rng) override {
-        Vector d = ray.direction;
-        if (m_showGrid) {
-            // intersect the ray with a grid at z=+1
-
-            // (this code is intentionally obscure to not spoil other exercises ;-) )
-            Point o = ray.origin;
-            if (std::fmod(abs(d.x() * (1 - o.z()) / d.z() + o.x()) * m_gridFrequency, 1.0f) < 0.1f) return m_gridColor;
-            if (std::fmod(abs(d.y() * (1 - o.z()) / d.z() + o.y()) * m_gridFrequency, 1.0f) < 0.1f) return m_gridColor;
+        // Intersect the ray against the scene and get the intersection information
+        float normal;
+        if (scene.intersect(ray, 10, rng)) { //what should tmax be?
             
-            // remap the direction from [-1,+1]^3 to [0,+1]^3 so that colors channels are never negative
-            d = (d + Vector(1)) / 2;
         }
-        return Color(d);
+        else {
+            normal = 0;
+        }
+        Intersection intersection = scene.intersect(ray, rng);
+        // If an intersection occurs, store the normal at that intersection or 0 if no intersection
+
+        // Map values from [-1;1] to [0;1] -> add 1 and divide by 2 
+
+        // Return the (potentially remapped) normal.
+        //return Color(d);
     }
 
     /// @brief An optional textual representation of this class, which can be useful for debugging. 
