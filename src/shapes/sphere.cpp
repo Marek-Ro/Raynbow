@@ -1,76 +1,70 @@
 #include <lightwave.hpp>
-
 namespace lightwave {
 class Sphere : public Shape {
-
-    /**
-     * @brief Constructs a surface event for a given position, used by @ref intersect to populate the @ref Intersection
-     * and by @ref sampleArea to populate the @ref AreaSample .
-     * @param surf The surface event to populate with texture coordinates, shading frame and area pdf
-     * @param position The hitpoint (i.e., point in [-1,-1,0] to [+1,+1,0]), found via intersection or area sampling
-     */
-    inline void populate(SurfaceEvent &surf, const Point &position) const {
-        surf.position = position;
-        
-        // map the position from [-1,-1,0]..[+1,+1,0] to [0,0]..[1,1] by discarding the z component and rescaling
-        surf.uv.x() = (position.x() + 1) / 2;
-        surf.uv.y() = (position.y() + 1) / 2;
-
-        // the tangent always points in positive x direction
-        surf.frame.tangent = Vector(1, 0, 0);
-        // the bitagent always points in positive y direction
-        surf.frame.bitangent = Vector(0, 1, 0);
-        // and accordingly, the normal always points in the positive z direction
-        surf.frame.normal = Vector(0, 0, 1);
-
-        // since we sample the area uniformly, the pdf is given by 1/surfaceArea
-        surf.pdf = 1.0f / 4;
-    }
-
-
 public:
-    Sphere(const Properties &properties) {
-        //NOT_IMPLEMENTED
+Sphere(const Properties &properties) {
     }
     bool intersect(const Ray &ray, Intersection &its, Sampler &rng) const override {
-        // if the ray travels in the xy-plane, we report no intersection
-        // (we ignore the edge case - pun intended - that the ray might have infinite intersections with the rectangle)
-        if (ray.direction.z() == 0)
-            return false;
         
-        // ray.origin.z + t * ray.direction.z = 0
-        // <=> t = -ray.origin.z / ray.direction.z
-        const float t = -ray.origin.z() / ray.direction.z();
-
-        // note that we never report an intersection closer than Epsilon (to avoid self-intersections)!
-        // we also do not update the intersection if a closer intersection already exists (i.e., its.t is lower than our own t)
-        if (t < Epsilon || t > its.t)
+        Vector ray_origin_vector = ray.origin - Point(0.0f);
+        Vector ray_direction = ray.direction;
+        // Check if the ray hits the sphere
+        // based on "Mitternachtsformel"
+        // if the following term is smaller than 0 that would correspond
+        // to sqrt of a negative number which means no intersection
+        float hit_value = (2 * ray_origin_vector.dot(ray_direction)) *
+        (2 * ray_origin_vector.dot(ray_direction)) - 
+        4 * ray_direction.dot(ray_direction) * 
+        (ray_origin_vector.dot(ray_origin_vector) - 1);
+        // check here
+        if (hit_value < 0) {
             return false;
-        
-        // compute the hitpoint
-        const Point position = ray(t);
-        // we have intersected an infinite plane at z=0; now dismiss anything outside of the [-1,-1,0]..[+1,+1,0] domain.
-        if (std::abs(position.x()) > 1 || std::abs(position.y()) > 1)
-            return false;
+        }
 
-        // we have determined there was an intersection! we are now free to change the intersection object and return true.
-        its.t = t;
-        populate(its, position); // compute the shading frame, texture coordinates and area pdf (same as sampleArea)
+
+        float t1;
+        float t2;
+        if (hit_value == 0) {
+            t1 = - 1 * ray_origin_vector.dot(ray_direction) / 
+            ray_direction.dot(ray_direction);
+            its.t = t1;
+        } else {
+            t1 = (- 2 * ray_origin_vector.dot(ray_direction) + hit_value) / 
+            ray_direction.dot(ray_direction);
+            t2 = (- 2 * ray_origin_vector.dot(ray_direction) - hit_value) / 
+            ray_direction.dot(ray_direction);
+            
+            // if both t are negative return false
+            // we look for the smallest t which is greater than 0
+            if (min(t1, t2) >= 0) {
+                its.t = min(t1, t2);
+            } else if (max(t1, t2) >= 0) {
+                its.t = max(t1, t2);
+            } else {
+                return false;
+            }
+        }
+
+        // position is the hit point
+        its.position = ray(its.t);
+
+        // calculate the normal vector of the hit point
+        its.frame = Frame((ray(its.t) - Point(0)).normalized());
+
+                
+        its.wo = - ray_direction;
+
+
         return true;
     }
     Bounds getBoundingBox() const override {
-        return Bounds(Point { -1, -1, 0 }, Point { +1, +1, 0 });
+        return Bounds(Point{-1, -1, -1}, Point{1, 1, 1});
     }
     Point getCentroid() const override {
-        return Point(0);
+        return Point{0, 0, 0};
     }
     AreaSample sampleArea(Sampler &rng) const override {
-        Point2 rnd = rng.next2D(); // sample a random point in [0,0]..[1,1]
-        Point position { 2 * rnd.x() - 1, 2 * rnd.y() - 1, 0 }; // stretch the random point to [-1,-1]..[+1,+1] and set z=0
-
-        AreaSample sample;
-        populate(sample, position); // compute the shading frame, texture coordinates and area pdf (same as intersection)
-        return sample;
+        NOT_IMPLEMENTED
     }
     std::string toString() const override {
     return "Sphere[]";
