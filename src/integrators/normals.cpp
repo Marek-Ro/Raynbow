@@ -40,20 +40,21 @@ public:
      */
     Color Li(const Ray &ray, Sampler &rng) override {
         // Intersect the ray against the scene and get the intersection information
-        float normal;
-        if (scene.intersect(ray, 10, rng)) { //what should tmax be?
-            
+        // If an intersection occurs, store the normal at that intersection or 0 if no intersection
+        Vector normal = ray.direction;
+        if (scene.intersect(ray, 10, rng)) { //TODO what should tmax be?
+            normal = scene.intersect(ray,rng).wo; // TODO how to get the normal from the intersection
         }
         else {
-            normal = 0;
+            //normal = 0; // Vector cant be just zero
         }
         Intersection intersection = scene.intersect(ray, rng);
-        // If an intersection occurs, store the normal at that intersection or 0 if no intersection
+        
 
         // Map values from [-1;1] to [0;1] -> add 1 and divide by 2 
 
         // Return the (potentially remapped) normal.
-        //return Color(d);
+        //return normal;
     }
 
     /// @brief An optional textual representation of this class, which can be useful for debugging. 
