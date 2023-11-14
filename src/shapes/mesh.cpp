@@ -35,10 +35,68 @@ protected:
     }
 
     bool intersect(int primitiveIndex, const Ray &ray, Intersection &its, Sampler &rng) const override {
-        NOT_IMPLEMENTED
+        // weights:
+        // man kann ja mit zwei Vektoren einen dritten darstellen 
+        // (vector a, vector b, vector zu Punkt c ist a + b)
+        // wir haben nur genormte Vektoren a und b
+        // diese multiplizieren wir mit dem weight w
+
+        const float EPSILON = 0.0000001;
+
+        Vector ray_origin_vector = ray.origin - Point(0.0f);
+        Vector ray_direction = ray.direction;
+
+        Vector3i vertices_indices = m_triangles[primitiveIndex];
+        Vertex v0 = m_vertices[vertices_indices.x()];
+        Vertex v1 = m_vertices[vertices_indices.y()];
+        Vertex v2 = m_vertices[vertices_indices.z()];
+
+        Vector v0v1 = v1.position - v0.position;
+        Vector v0v2 = v2.position - v0.position;
+
+        Vector pvec = ray_direction.cross(v0v2);
+        float determinant = v0v1.dot(pvec);
+
+        // if the determinant is negative, the triangle is 'back facing.'
+        // if the determinant is close to 0, the ray misses the triangle
+        // ray and triangle are parallel if det is close to 0
+        if (determinant < EPSILON) {
+            return false;
+        } else if (fabs(determinant) < EPSILON) {               // fabs is float absolute value I guess
+            return false;
+        }
+
+        float invDet = 1 / determinant;
+
+        Vector tvec = ray_origin_vector - v0.position;
+        float u = tvec.dot(pvec) * invDet;
+        if (u > 1 || u < 0) {
+            return false;
+        }
+
+        Vector qvec = tvec.cross(v0v1);
+        float v = ray_direction.dot(qvec) * invDet;
+        if (v < 0 || u + v > 1) {
+            return false;
+        }
 
 
+        float t_candidate = v0v2.dot(qvec) * invDet;
 
+
+        if (its.t > t_candidate) {
+            its.t = t_candidate;
+
+            Point hit_point = ray(its.t);
+            its.position = hit_point;
+
+            // calculate the normal vector of the hit point
+            its.frame = Frame((hit_point - Point(0)).normalized());
+            its.wo = -ray_direction;
+            return true;
+        } else {
+            return false;
+        }
 
 
         // hints:
