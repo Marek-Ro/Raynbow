@@ -90,8 +90,15 @@ protected:
             Point hit_point = ray(its.t);
             its.position = hit_point;
 
-            // calculate the normal vector of the hit point
-            its.frame = Frame((hit_point - Point(0)).normalized());
+            // calculate the face_normal vector of the hit point
+            Vector face_normal = v0v1.cross(v0v2).normalized();
+
+            // Gouraud shading
+            if (m_smoothNormals) {
+                // v0.interpolate();
+            }
+
+            its.frame = Frame(face_normal);
             its.wo = -ray_direction;
             return true;
         } else {
