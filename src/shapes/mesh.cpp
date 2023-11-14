@@ -49,7 +49,15 @@ protected:
     }
 
     Point getCentroid(int primitiveIndex) const override {
-        NOT_IMPLEMENTED
+        // (A_x + B_x + C_x) / 3, (A_y + B_y + C_y) / 3 ...
+        Vertex A = m_vertices[m_triangles[primitiveIndex].x()];
+        Vertex B = m_vertices[m_triangles[primitiveIndex].y()];
+        Vertex C = m_vertices[m_triangles[primitiveIndex].z()];
+        Point centroid;
+        centroid.x() = (A.position.x() + B.position.x() + C.position.x()) / 3;
+        centroid.y() = (A.position.y() + B.position.y() + C.position.y()) / 3;
+        centroid.z() = (A.position.z() + B.position.z() + C.position.z()) / 3;
+        return centroid;
     }
 
 public:
