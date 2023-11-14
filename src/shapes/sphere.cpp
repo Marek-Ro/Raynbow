@@ -8,23 +8,24 @@ Sphere(const Properties &properties) {
         
         Vector ray_origin_vector = ray.origin - Point(0.0f);
         Vector ray_direction = ray.direction;
-        // Check if the ray hits the sphere
-        // based on "Mitternachtsformel"
-        // if the following term is smaller than 0 that would correspond
-        // to sqrt of a negative number which means no intersection
+        /* 
+        Check if the ray hits the sphere
+        based on "Mitternachtsformel"
+        if the following term is smaller than 0 that would correspond
+        to sqrt of a negative number which means no intersection 
+        */
         float hit_value = (2 * ray_origin_vector.dot(ray_direction)) *
         (2 * ray_origin_vector.dot(ray_direction)) - 
         4 * ray_direction.dot(ray_direction) * 
         (ray_origin_vector.dot(ray_origin_vector) - 1);
-        //std::cout << hit_value << std::endl;
+        
         // check here if intersection happens at all
         if (hit_value < 0) {
             return false;
         }
 
         // 2 possible intersection points
-        float t1;
-        float t2;
+        float t1, t2;
         // t_candidate is the earliest intersection point we find
         float t_candidate;
         // in case of hit value == 0 there is only one
@@ -60,12 +61,8 @@ Sphere(const Properties &properties) {
         its.position = ray(its.t);
 
         // calculate the normal vector of the hit point
-        its.frame = Frame((ray(its.t) - Point(0)).normalized());
-
-                
+        its.frame = Frame((ray(its.t) - Point(0)).normalized());        
         its.wo = - ray_direction;
-
-
         return true;
     }
     Bounds getBoundingBox() const override {
