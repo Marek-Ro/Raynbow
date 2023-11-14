@@ -33,9 +33,9 @@ Sphere(const Properties &properties) {
             ray_direction.dot(ray_direction);
         } else {
             t1 = ((- 2 * ray_origin_vector.dot(ray_direction)) + sqrt(hit_value)) / 
-            ray_direction.dot(ray_direction);
+            2*ray_direction.dot(ray_direction);
             t2 = ((- 2 * ray_origin_vector.dot(ray_direction)) - sqrt(hit_value)) / 
-            ray_direction.dot(ray_direction);
+            2*ray_direction.dot(ray_direction);
             
             // if both t are negative return false
             // we look for the smallest t which is greater than 0
