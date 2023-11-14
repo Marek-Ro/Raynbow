@@ -37,6 +37,10 @@ protected:
     bool intersect(int primitiveIndex, const Ray &ray, Intersection &its, Sampler &rng) const override {
         NOT_IMPLEMENTED
 
+
+
+
+
         // hints:
         // * use m_triangles[primitiveIndex] to get the vertex indices of the triangle that should be intersected
         // * if m_smoothNormals is true, interpolate the vertex normals from m_vertices
@@ -45,7 +49,30 @@ protected:
     }
 
     Bounds getBoundingBox(int primitiveIndex) const override {
-        NOT_IMPLEMENTED
+        Vector3i vertices_indices = m_triangles[primitiveIndex];
+        Vertex p1 = m_vertices[vertices_indices.x()];
+        Vertex p2 = m_vertices[vertices_indices.y()];
+        Vertex p3 = m_vertices[vertices_indices.z()];
+
+        float x1 = p1.position.x();
+        float x2 = p2.position.x();
+        float x3 = p3.position.x();
+        float min_x = min(x1, min(x2, x3));
+        float max_x = max(x1, max(x2, x3));
+
+        float y1 = p1.position.y();
+        float y2 = p2.position.y();
+        float y3 = p3.position.y();
+        float min_y = min(y1, min(y2, y3));
+        float max_y = max(y1, max(y2, y3));
+
+        float z1 = p1.position.z();
+        float z2 = p2.position.z();
+        float z3 = p3.position.z();
+        float min_z = min(z1, min(z2, z3));
+        float max_z = max(z1, max(z2, z3));
+
+        return Bounds(Point{min_x, min_y, min_z}, Point{max_x, max_y, max_z});
     }
 
     Point getCentroid(int primitiveIndex) const override {
