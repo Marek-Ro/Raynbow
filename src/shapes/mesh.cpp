@@ -95,7 +95,8 @@ protected:
 
             // Gouraud shading
             if (m_smoothNormals) {
-                // v0.interpolate();
+                Vector2 uv = Vector2(u,v);
+                face_normal = v0.interpolate(uv, v0 , v1, v2).normal;
             }
 
             its.frame = Frame(face_normal);
