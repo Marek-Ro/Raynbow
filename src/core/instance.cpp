@@ -6,6 +6,23 @@
 namespace lightwave {
 
 void Instance::transformFrame(SurfaceEvent &surf) const {
+
+    m_transform->apply(surf.position);
+
+    if (m_flipNormal) {
+        Vector tangent = surf.frame.tangent;
+        Vector bitangent = surf.frame.bitangent;
+        Vector normal = surf.frame.normal;
+
+        Vector new_bitangent = tangent.cross(normal);
+        Vector new_normal = new_bitangent.cross(tangent);
+
+        surf.frame.bitangent = new_bitangent;
+        surf.frame.normal = new_normal;
+        
+    }
+
+
     // hints:
     // * transform the hitpoint and frame here
     // * if m_flipNormal is true, flip the direction of the bitangent (which in effect flips the normal)
@@ -27,7 +44,11 @@ bool Instance::intersect(const Ray &worldRay, Intersection &its, Sampler &rng) c
 
     const float previousT = its.t;
     Ray localRay;
-    NOT_IMPLEMENTED
+
+    localRay = m_transform->inverse(worldRay);
+    localRay = localRay.normalized();
+    Point transformed_hitpoint = m_transform->inverse(worldRay(its.t));
+        
 
     // hints:
     // * transform the ray (do not forget to normalize!)
