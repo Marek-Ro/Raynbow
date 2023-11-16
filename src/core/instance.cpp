@@ -7,9 +7,10 @@ namespace lightwave {
 
 void Instance::transformFrame(SurfaceEvent &surf) const {
 
-    m_transform->apply(surf.position);
+    surf.position = m_transform->apply(surf.position);
 
-    Vector tangent = surf.frame.tangent;
+    Vector tangent = m_transform->apply(surf.frame.tangent);
+    //Vector tangent = surf.frame.tangent;
     Vector bitangent = surf.frame.bitangent;
     Vector normal = surf.frame.normal;
 
@@ -20,12 +21,12 @@ void Instance::transformFrame(SurfaceEvent &surf) const {
     }
 
 
-    Vector new_normal = new_bitangent.cross(tangent);
-        
+    //Vector new_normal = new_bitangent.cross(tangent);
+    Vector new_normal = m_transform->inverse(normal);
     //surf.frame.bitangent = new_bitangent.normalized();
     
-    surf.frame.normal = m_transform->apply(new_normal).normalized();
-
+    //surf.frame.normal = m_transform->apply(new_normal).normalized();
+    surf.frame.normal = new_normal.normalized();
 
 
 
@@ -57,7 +58,7 @@ bool Instance::intersect(const Ray &worldRay, Intersection &its, Sampler &rng) c
     localRay = m_transform->inverse(worldRay);
     localRay = localRay.normalized();
     float t_factor = previous_hitpoint_x / new_hitpoint_x;
-    its.t = previousT * t_factor;
+    //its.t = previousT * t_factor;
 
 
     // hints:
