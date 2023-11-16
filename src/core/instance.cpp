@@ -9,21 +9,22 @@ void Instance::transformFrame(SurfaceEvent &surf) const {
 
     m_transform->apply(surf.position);
 
-        Vector tangent = surf.frame.tangent;
-        Vector bitangent = surf.frame.bitangent;
-        Vector normal = surf.frame.normal;
+    Vector tangent = surf.frame.tangent;
+    Vector bitangent = surf.frame.bitangent;
+    Vector normal = surf.frame.normal;
 
-        Vector new_bitangent = tangent.cross(normal);
+    Vector new_bitangent = tangent.cross(normal);
 
-        if (m_flipNormal) {
-            surf.frame.bitangent = - new_bitangent.normalized();
-        }
+    if (m_flipNormal) {
+        surf.frame.bitangent = - new_bitangent.normalized();
+    }
 
 
-        Vector new_normal = new_bitangent.cross(tangent);
+    Vector new_normal = new_bitangent.cross(tangent);
         
-        //surf.frame.bitangent = new_bitangent.normalized();
-        surf.frame.normal = new_normal.normalized();
+    //surf.frame.bitangent = new_bitangent.normalized();
+    
+    surf.frame.normal = m_transform->apply(new_normal).normalized();
 
 
 
@@ -48,11 +49,16 @@ bool Instance::intersect(const Ray &worldRay, Intersection &its, Sampler &rng) c
     }
 
     const float previousT = its.t;
+    Vector previous_hitpoint_vector = its.position - Point(0);
     Ray localRay;
-
+    float previous_hitpoint_x = previous_hitpoint_vector.x();
+    Vector new_hitpoint_vector = m_transform->apply(previous_hitpoint_vector);
+    float new_hitpoint_x = new_hitpoint_vector.x();
     localRay = m_transform->inverse(worldRay);
     localRay = localRay.normalized();
-        
+    float t_factor = previous_hitpoint_x / new_hitpoint_x;
+    its.t = previousT * t_factor;
+
 
     // hints:
     // * transform the ray (do not forget to normalize!)
