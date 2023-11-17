@@ -7,9 +7,6 @@ namespace lightwave {
 
 void Instance::transformFrame(SurfaceEvent &surf) const {
 
-    Vector t = m_transform->apply(surf.frame.tangent).normalized();
-    Vector b = m_transform->apply(surf.frame.bitangent).normalized();
-
     surf.position = m_transform->apply(surf.position);
 
     Vector tangent = m_transform->apply(surf.frame.tangent);
@@ -47,23 +44,28 @@ bool Instance::intersect(const Ray &worldRay, Intersection &its, Sampler &rng) c
 
     const float previousT = its.t;
 
-    Ray localRay = m_transform->inverse(worldRay).normalized();
-    //localRay.direction = localRay.direction.normalized();
+    Ray localRay = m_transform->inverse(worldRay);
 
-    
-    Point h_trans = m_transform->inverse(its.position);
-    its.t = (h_trans - localRay.origin).length();
+    // The length of the direction vector changes by factor localRay.direction.length() / worldRay.direction.length()
+    // when going from world space to local space. The localRay is not normalized but the worldRay is so the length is 1.
+    float scaling = localRay.direction.length();
+
+    localRay.direction = localRay.direction.normalized();
+
+    // The t changes by the same factor the direction vector length changed
+    // Now its.t is in according to the localRay
+    its.t = previousT * scaling;
+
     const bool wasIntersected = m_shape->intersect(localRay, its, rng);
 
-    
     if (wasIntersected) {
-        Point transformed_hitpoint = m_transform->apply(localRay(its.t));
-        //its.t = compute_t(worldRay.origin, worldRay.direction, transformed_hitpoint);
-        its.t = (transformed_hitpoint - worldRay.origin).length();
+        // Transform its.t back to world space
+        its.t = its.t / scaling;
         its.instance = this;
         transformFrame(its);
         return true;
     } else {
+        // We got no intersection so we assign the previousT, which was already correct for world space
         its.t = previousT;
         return false;
     }
