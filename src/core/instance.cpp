@@ -46,32 +46,20 @@ bool Instance::intersect(const Ray &worldRay, Intersection &its, Sampler &rng) c
     }
 
     const float previousT = its.t;
-    //Vector previous_hitpoint_vector = its.position - Point(0);
-    //Ray localRay;
-    //float previous_hitpoint_x = previous_hitpoint_vector.x();
-    //Vector new_hitpoint_vector = m_transform->apply(previous_hitpoint_vector);
-    //float new_hitpoint_x = new_hitpoint_vector.x();
-    Ray localRay = m_transform->inverse(worldRay);
-    localRay.direction = localRay.direction.normalized();
-    //localRay = localRay.normalized();
-    //float t_factor = previous_hitpoint_x / new_hitpoint_x;
-    //its.t = previousT * t_factor;
 
+    Ray localRay = m_transform->inverse(worldRay).normalized();
+    //localRay.direction = localRay.direction.normalized();
 
-    // hints:
-    // * transform the ray (do not forget to normalize!)
-    // * how does its.t need to change?
-
-// P = O + tD
-// P - 0 = tD
-
+    
+    Point h_trans = m_transform->inverse(its.position);
+    its.t = (h_trans - localRay.origin).length();
     const bool wasIntersected = m_shape->intersect(localRay, its, rng);
+
+    
     if (wasIntersected) {
-        //Point transformed_hitpoint = m_transform->inverse(worldRay(its.t));
         Point transformed_hitpoint = m_transform->apply(localRay(its.t));
-        its.t = (transformed_hitpoint - worldRay.origin).x() / worldRay.direction.x();
-        //float new_t = p_o.y() / worldRay.direction.y();
-        //its.t = new_t;
+        //its.t = compute_t(worldRay.origin, worldRay.direction, transformed_hitpoint);
+        its.t = (transformed_hitpoint - worldRay.origin).length();
         its.instance = this;
         transformFrame(its);
         return true;
