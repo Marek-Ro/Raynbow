@@ -11,34 +11,21 @@ void Instance::transformFrame(SurfaceEvent &surf) const {
     Vector b = m_transform->apply(surf.frame.bitangent).normalized();
 
     surf.position = m_transform->apply(surf.position);
-    /*
 
     Vector tangent = m_transform->apply(surf.frame.tangent);
-    //Vector tangent = surf.frame.tangent;
-    Vector bitangent = surf.frame.bitangent;
-    Vector normal = surf.frame.normal;
-
-    Vector new_bitangent = tangent.cross(normal); */
+    Vector bitangent = m_transform->apply(surf.frame.bitangent);
 
     if (m_flipNormal) {
-        //surf.frame.bitangent = - new_bitangent.normalized();
-        b = -b;
+        bitangent = - bitangent;
     }
-    Vector n = t.cross(b).normalized();
-    buildOrthonormalBasis(n,t,b);
-    surf.frame.normal = n;
-    surf.frame.tangent = t;
-    surf.frame.bitangent = b;
 
-    //Vector new_normal = new_bitangent.cross(tangent);
-   // Vector new_normal = m_transform->inverse(normal);
-    //surf.frame.bitangent = new_bitangent.normalized();
+    Vector normal = tangent.cross(bitangent);
+    bitangent = normal.cross(tangent);
+
+    surf.frame.tangent = tangent.normalized();
+    surf.frame.bitangent = bitangent.normalized();
+    surf.frame.normal = normal.normalized();
     
-    //surf.frame.normal = m_transform->apply(new_normal).normalized();
-    //surf.frame.normal = new_normal.normalized();
-
-
-
     // hints:
     // * transform the hitpoint and frame here
     // * if m_flipNormal is true, flip the direction of the bitangent (which in effect flips the normal)
