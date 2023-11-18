@@ -12,8 +12,6 @@ class NormalIntegrator : public SamplingIntegrator {
 public:
     NormalIntegrator(const Properties &properties)
         : SamplingIntegrator(properties)/*, scene(Scene(properties))*/ {
-        //scene = samplingIntegrator.scene();
-        //scene = Scene(properties);
         // Task 1.2.1 "The normal integrator takes a single parameter remap"
         remap = true;
         try {
@@ -31,8 +29,7 @@ public:
     Color Li(const Ray &ray, Sampler &rng) override {
         // Intersect the ray against the scene and get the intersection information
         // If an intersection occurs, store the normal at that intersection or 0 if no intersection
-        Vector normal; //  = ray.direction
-        //bool test = scene().get()->intersect(ray, 10, rng);
+        Vector normal;
         
         Intersection its = scene().get()->intersect(ray,rng);
         if (!its) { //TODO what should tmax be?

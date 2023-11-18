@@ -16,7 +16,7 @@ public:
 
     float fov;
     float aspect_ratio;
-    float angle; // stores: tan(fov / 2)
+    float BC; // stores: tan(fov / 2)
     int width;
     int height;
     std::string fov_axis;
@@ -26,9 +26,9 @@ public:
         fov = properties.get<float>("fov");
         width = properties.get<int>("width");
         height = properties.get<int>("height");
-        // look into that again to be able to explain it better
-        float bogenmass = fov / (float)360 * (float)std::numbers::pi;
-        angle = tan(bogenmass);
+        // From degree to radian 
+        float radian = fov / (float)360 * 2 * (float)std::numbers::pi;
+        BC = tan(radian / 2);
         fov_axis = properties.get<std::string>("fovAxis");
         // aspect ratio depends on fov_axis
         aspect_ratio = fov_axis == "y" ? (float)width / (float)height : (float)height / (float)width;
@@ -41,8 +41,8 @@ public:
     CameraSample sample(const Point2 &normalized, Sampler &rng) const override {
 
         // Transforming normalized image coordinates to normalized camera coordinates
-        float x = normalized.x() * angle;
-        float y = normalized.y() * angle;
+        float x = normalized.x() * BC;
+        float y = normalized.y() * BC;
         
         // apply aspect_ratio depending on the fov_axis
         if (fov_axis == "y") {
@@ -65,13 +65,6 @@ public:
         return CameraSample{
             ray, weight
         };
-        
-        // Example 0
-        /*
-        return CameraSample{
-        .ray = Ray(Vector(normalized.x(), normalized.x(), 0.f),
-            Vector(0.f, 0.f, 1.f)),
-        .weight = Color(1.0f)}; */
     }
 
     std::string toString() const override {
