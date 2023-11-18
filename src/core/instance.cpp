@@ -22,12 +22,6 @@ void Instance::transformFrame(SurfaceEvent &surf) const {
     surf.frame.tangent = tangent.normalized();
     surf.frame.bitangent = bitangent.normalized();
     surf.frame.normal = normal.normalized();
-    
-    // hints:
-    // * transform the hitpoint and frame here
-    // * if m_flipNormal is true, flip the direction of the bitangent (which in effect flips the normal)
-    // * make sure that the frame is orthonormal (you are free to change the bitangent for this, but keep
-    //   the direction of the transformed tangent the same)
 }
 
 bool Instance::intersect(const Ray &worldRay, Intersection &its, Sampler &rng) const {
