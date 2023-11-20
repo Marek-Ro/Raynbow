@@ -17,11 +17,11 @@ namespace lightwave
                           Sampler &rng) const override{
             // TODO
             Vector v = squareToCosineHemisphere(uv);
-            float density = cos(acos((v.dot(Vector(0,0,1)) / (v.length() * Vector(0,0,1).length()))));
-            
+            float density = cos(safe_acos((v.dot(Vector(0,0,1)) / (v.length() * Vector(0,0,1).length()))));
+
             BsdfSample sample2 = {
                 .wi = v,
-                .weight = m_albedo.get()->evaluate(uv)// * (density * (1/(2 * Pi)))
+                .weight = m_albedo.get()->evaluate(uv)
             };
             return sample2;
         }

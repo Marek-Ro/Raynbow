@@ -27,12 +27,21 @@ public:
         }
         // intersection
         else {
-            //scene().get()->evaluateBackground();
 
             BsdfSample bsdfsample = its.sampleBsdf(rng);        
-            bsdfsample.weight;
+            Color bsdf_color = bsdfsample.weight;
+
+            Ray secondary_ray = Ray(its.position, bsdfsample.wi);
+            Intersection secondary_its = scene().get()->intersect(secondary_ray, rng);
+            if (secondary_its) {
+                scene().get()->evaluateBackground(bsdfsample.wi);
+                BsdfSample secondary_bsdfsample = secondary_its.sampleBsdf(rng);
+                return Color((bsdf_color + secondary_bsdfsample.weight) / 2);
+            }
+//            BsdfSample secondary_bsdfsample = secondary_its.sampleBsdf(rng);
             
-            return Color(bsdfsample.weight);
+
+            return Color(bsdf_color);
         }
         
         return Color(m_scene->evaluateBackground(ray.direction).value);
