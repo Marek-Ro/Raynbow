@@ -21,17 +21,21 @@ public:
     Color Li(const Ray &ray, Sampler &rng) override {
         // Compute the intersection object
         Intersection its = scene().get()->intersect(ray,rng);
-        
+
         // no intersection
         if (!its)  { 
-        
         }
         // intersection
         else {
+            //scene().get()->evaluateBackground();
 
+            BsdfSample bsdfsample = its.sampleBsdf(rng);        
+            bsdfsample.weight;
+            
+            return Color(bsdfsample.weight);
         }
         
-        return Color();
+        return Color(m_scene->evaluateBackground(ray.direction).value);
     }
 
     /// @brief An optional textual representation of this class, which can be useful for debugging. 
