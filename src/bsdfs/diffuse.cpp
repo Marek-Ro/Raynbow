@@ -1,32 +1,46 @@
 #include <lightwave.hpp>
 
-namespace lightwave {
+namespace lightwave
+{
 
-class Diffuse : public Bsdf {
-    ref<Texture> m_albedo;
+    class Diffuse : public Bsdf
+    {
+        ref<Texture> m_albedo;
 
-public:
-    Diffuse(const Properties &properties) {
-        m_albedo = properties.get<Texture>("albedo");
-    }
+    public:
+        Diffuse(const Properties &properties)
+        {
+            m_albedo = properties.get<Texture>("albedo");
+        }
 
-    BsdfEval evaluate(const Point2 &uv, const Vector &wo,
-                      const Vector &wi) const override {
-        NOT_IMPLEMENTED
-    }
+        BsdfEval evaluate(const Point2 &uv, const Vector &wo,
+                        const Vector &wi) const override {
+            NOT_IMPLEMENTED
+        }
 
-    BsdfSample sample(const Point2 &uv, const Vector &wo,
-                      Sampler &rng) const override {
-        NOT_IMPLEMENTED
-    }
 
-    std::string toString() const override {
-        return tfm::format("Diffuse[\n"
-                           "  albedo = %s\n"
-                           "]",
-                           indent(m_albedo));
-    }
-};
+        BsdfSample sample(const Point2 &uv, const Vector &wo,
+                        Sampler &rng) const override{
+                        // TODO
+                        Vector v = squareToCosineHemisphere(uv);
+                        float density = cos(acos((v.dot(Vector(0,0,1)) / (v.length() * Vector(0,0,1).length()))));
+                        
+                        BsdfSample sample2 = {
+                            .wi = v,
+                            .weight = m_albedo.get()->evaluate(uv) * (density * (1/(2 * Pi)))
+                        };
+                        return sample2;
+
+        }
+
+        std::string toString() const override
+        {
+            return tfm::format("Diffuse[\n"
+                               "  albedo = %s\n"
+                               "]",
+                               indent(m_albedo));
+        }
+    };
 
 } // namespace lightwave
 
