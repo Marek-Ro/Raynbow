@@ -30,6 +30,8 @@ public:
         // intersection
         else {
 
+            
+            first_ray_color += its.evaluateEmission();
             BsdfSample bsdfsample = its.sampleBsdf(rng);
             first_ray_color *= bsdfsample.weight;
 

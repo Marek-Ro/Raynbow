@@ -11,7 +11,8 @@ public:
     }
 
     EmissionEval evaluate(const Point2 &uv, const Vector &wo) const override {
-        NOT_IMPLEMENTED
+        EmissionEval result = {.value = m_emission->evaluate(uv)};        
+        return result;
     }
 
     std::string toString() const override {
