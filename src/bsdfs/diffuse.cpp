@@ -15,15 +15,18 @@ namespace lightwave
 
         BsdfSample sample(const Point2 &uv, const Vector &wo,
                           Sampler &rng) const override{
-            // TODO
-            Vector v = squareToCosineHemisphere(uv);
-            float density = cos(safe_acos((v.dot(Vector(0,0,1)) / (v.length() * Vector(0,0,1).length()))));
+                        // Sample a random ray
+                        Vector wi = squareToCosineHemisphere(rng.next2D()).normalized();
+                        // probability of that sampled ray
+                        float p_for_this_sampled_ray = cosineHemispherePdf(wi);
 
-            BsdfSample sample2 = {
-                .wi = v,
-                .weight = m_albedo.get()->evaluate(uv)
-            };
-            return sample2;
+                        BsdfSample sample2 = {
+                            .wi = wi,
+                            .weight = ((m_albedo.get()->evaluate(uv) / Pi) * p_for_this_sampled_ray) * wi.dot(Vector(0,0,1))
+//                                .weight = m_albedo.get()->evaluate(uv)
+                        };
+                        return sample2;
+
         }
 
         std::string toString() const override
@@ -35,6 +38,6 @@ namespace lightwave
         }
     };
 
-} // namespace lightwave
+}
 
 REGISTER_BSDF(Diffuse, "diffuse")
