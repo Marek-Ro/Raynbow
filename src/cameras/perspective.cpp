@@ -58,7 +58,7 @@ public:
 
         // ray with origin (0,0,0) and direction vector xy
         Ray ray = Ray(Vector(0.f, 0.f, 0.f), xy);
-        ray = m_transform->apply(ray);
+        ray = m_transform->apply(ray).normalized();
         
 
         Color weight = Color(1.0f);
