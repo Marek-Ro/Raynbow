@@ -88,15 +88,16 @@ protected:
 
             // calculate the face_normal vector of the hit point
             Vector face_normal = v0v1.cross(v0v2).normalized();
+            Vector2 uv = Vector2(u,v);
 
             // Gouraud shading
             if (m_smoothNormals) {
-                Vector2 uv = Vector2(u,v);
                 face_normal = Vertex::interpolate(uv, v0 , v1, v2).normal;
             }
 
             its.frame = Frame(face_normal);
             its.wo = -ray_direction;
+            its.uv = Point2(u, v);
             return true;
         } else {
             return false;
