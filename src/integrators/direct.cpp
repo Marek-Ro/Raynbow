@@ -20,12 +20,12 @@ public:
      */
     Color Li(const Ray &ray, Sampler &rng) override {
         // Compute the intersection object
-        Intersection its = scene().get()->intersect(ray,rng);
+        Intersection its = m_scene->intersect(ray,rng);
         Color first_ray_color = Color(1.0f);
 
         // no intersection
         if (!its) {
-            first_ray_color *= m_scene.get()->evaluateBackground(ray.direction).value;
+            first_ray_color *= m_scene->evaluateBackground(ray.direction).value;
         }
         // intersection
         else {
@@ -33,15 +33,15 @@ public:
             BsdfSample bsdfsample = its.sampleBsdf(rng);
             first_ray_color *= bsdfsample.weight;
 
-            Ray secondary_ray = Ray(its.position, its.frame.toWorld(bsdfsample.wi).normalized());
-            Intersection secondary_its = m_scene.get()->intersect(secondary_ray, rng);
+            Ray secondary_ray = Ray(its.position, bsdfsample.wi);
+            Intersection secondary_its = m_scene->intersect(secondary_ray, rng);
             // Intersection of the secondary ray
             if (secondary_its) {
                 // no light source, since we found a new intersection with an object
-                first_ray_color *= secondary_its.sampleBsdf(rng).weight;
+                return first_ray_color * secondary_its.evaluateEmission();
             } else {
                 // Secondary ray escapes
-                first_ray_color *= m_scene.get()->evaluateBackground(secondary_ray.direction).value;
+                return first_ray_color * (Color(1.0f) * m_scene->evaluateBackground(secondary_ray.direction).value);
             }
         }
         return first_ray_color;

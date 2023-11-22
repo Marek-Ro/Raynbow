@@ -80,7 +80,7 @@ protected:
         float t_candidate = v0v2.dot(qvec) * invDet;
 
 
-        if (its.t > t_candidate) {
+        if (t_candidate > Epsilon && its.t > t_candidate) {
             its.t = t_candidate;
 
             Point hit_point = ray(its.t);
@@ -92,7 +92,7 @@ protected:
             // Gouraud shading
             if (m_smoothNormals) {
                 Vector2 uv = Vector2(u,v);
-                face_normal = v0.interpolate(uv, v0 , v1, v2).normal;
+                face_normal = Vertex::interpolate(uv, v0 , v1, v2).normal;
             }
 
             its.frame = Frame(face_normal);
