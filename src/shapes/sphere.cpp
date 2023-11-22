@@ -9,6 +9,8 @@ namespace lightwave
         }
         bool intersect(const Ray &ray, Intersection &its, Sampler &rng) const override
         {
+            // define a new epsilon to pass furnace
+            float Epsilon = 1e-4f; 
 
             Vector ray_origin_vector = ray.origin - Point(0.0f);
             Vector ray_direction = ray.direction;
@@ -64,7 +66,7 @@ namespace lightwave
             }
 
             // compare our intersection point to the closest intersection so far
-            if (t_candidate > its.t)
+            if (t_candidate > its.t || (t_candidate < Epsilon && t_candidate > -Epsilon))
             {
                 return false;
             }
