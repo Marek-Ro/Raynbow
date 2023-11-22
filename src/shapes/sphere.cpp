@@ -34,7 +34,7 @@ namespace lightwave
             // t_candidate is the earliest intersection point we find
             float t_candidate;
             // in case of hit value == 0 there is only one
-            if (hit_value == 0)
+            if (hit_value < Epsilon && hit_value > -Epsilon)
             {
                 t_candidate = -1 * ray_origin_vector.dot(ray_direction) /
                               ray_direction.dot(ray_direction);
