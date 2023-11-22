@@ -30,8 +30,11 @@ public:
         // intersection
         else {
 
-            
-            first_ray_color += its.evaluateEmission();
+            // Wenn emission returnen wir, weil wir würden ja keinen Schatten auf ne Lampe werfen
+            if (its.evaluateEmission() != Color(0)) {
+                return first_ray_color * its.evaluateEmission();
+            }
+
             BsdfSample bsdfsample = its.sampleBsdf(rng);
             first_ray_color *= bsdfsample.weight;
 
