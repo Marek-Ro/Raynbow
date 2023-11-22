@@ -22,7 +22,7 @@ public:
         my_uv.y() = fabs(std::floor(my_uv.y() * scale.y()));
 
     
-        Color result = (std::fmodf(my_uv.x(), 2.0f) + std::fmodf(my_uv.y(), 2.0f)) != 1 ? color0 : color1;
+        Color result = ((int)my_uv.x() % 2) + ((int)my_uv.y() % 2) != 1 ? color0 : color1;
 
         return result;
     }
