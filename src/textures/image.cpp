@@ -78,7 +78,7 @@ private:
 
         for positiv numbers:
         mod 1 works almost everywhere
-        but not for 2 -> 1 and -1 ->0
+        but not for 2 -> 1
         hence use if(i > 0 && i mod 1 == 0)
         BUT this will result in problems with floating point numbers
         
