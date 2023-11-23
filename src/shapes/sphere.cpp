@@ -83,7 +83,7 @@ namespace lightwave
             its.wo = -ray_direction;
 
             // uv coordinates between 0 and 1            
-            float u = 0.5 + (atan2(its.position.z(), its.position.x()) / (2 * Pi));
+            float u = 0.5 + (atan2(its.position.x(), its.position.z()) / (2 * Pi));
             float v = 0.5 - (asin(its.position.y()) / Pi);
             its.uv = Point2(u, v);
 
