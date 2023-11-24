@@ -54,8 +54,11 @@ public:
         point.y() = 1 - point.y();
 
         // scale the point according to the image resolution
-        point.x() = point.x() * (m_image->resolution().x()-1);
-        point.y() = point.y() * (m_image->resolution().y()-1);
+        point.x() = point.x() * (m_image->resolution().x());
+        point.y() = point.y() * (m_image->resolution().y());
+
+        // ensure that the point is in range
+
 
         //pixelFromNormalized(point);
 
@@ -69,7 +72,7 @@ public:
         }
 
         // making sure pixel is in image
-        pixel = in_range(pixel);
+        pixel = pixel_in_range(pixel);
 
         return m_exposure * m_image->operator()(pixel);
     }
@@ -116,18 +119,27 @@ private:
     }
 
     // ensures that the given pixel is inside the valid range
-    Point2i in_range(Point2i pixel) const {
+    Point2i pixel_in_range(Point2i pixel) const {
         pixel.x() = pixel.x() % m_image->resolution().x();
         pixel.y() = pixel.y() % m_image->resolution().y();
         return pixel;
     }
-    Color filter_mode_bilinear(const Point2 point) const {
+
+    // ensures that the given point is inside the valid range
+    Point2 point_in_range(Point2 pixel) const {
+        pixel.x() = fmod(pixel.x(), m_image->resolution().x());
+        pixel.y() = fmod(pixel.y(), m_image->resolution().y());
+        return pixel;
+    }
+
+    Color filter_mode_bilinear(const Point2 point2) const {
+        Point2 point = point_in_range(point2);
         // create the 4 neighboring points
         Point2i Q11, Q12, Q21, Q22;
-        Q11 = in_range(Point2i(floor(point.x()), floor(point.y())));
-        Q12 = in_range(Point2i(floor(point.x()),floor(point.y()+1.0f)));
-        Q21 = in_range(Point2i(floor(point.x()+1.0f),floor(point.y())));
-        Q22 = in_range(Point2i(floor(point.x()+1.0f),floor(point.y()+1.0f)));
+        Q11 = pixel_in_range(Point2i(floor(point.x()), floor(point.y())));
+        Q12 = pixel_in_range(Point2i(floor(point.x()),floor(point.y()+1.0f)));
+        Q21 = pixel_in_range(Point2i(floor(point.x()+1.0f),floor(point.y())));
+        Q22 = pixel_in_range(Point2i(floor(point.x()+1.0f),floor(point.y()+1.0f)));
         
         
         /*Q11.x() = floor(point.x());
