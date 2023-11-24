@@ -142,19 +142,19 @@ private:
         Q22.y() = floor(point.y()+1.0f); */
         
         //x1
-        float f = Q11.x() - point.x();
+        float f = fabs(Q11.x() - point.x());
         Color a = m_image->operator()(Q11);
         Color b = m_image->operator()(Q21);
         Color c1 = lin_interpolate(a,b,f);
         
         //x2
-        f = Q12.x() - point.x();
+        f = fabs(Q12.x() - point.x());
         a = m_image->operator()(Q12);
         b = m_image->operator()(Q22);
         Color c2 = lin_interpolate(a,b,f);
         
         // y1
-        f = Q11.y() - point.y();
+        f = fabs(Q11.y() - point.y());
         Color c3 = lin_interpolate(c1,c2,f);
 
 
