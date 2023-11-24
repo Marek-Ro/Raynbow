@@ -57,6 +57,8 @@ public:
         point.x() = point.x() * (m_image->resolution().x()-1);
         point.y() = point.y() * (m_image->resolution().y()-1);
 
+        //pixelFromNormalized(point);
+
         Point2i pixel;
 
         if (m_filter == FilterMode::Nearest) {
@@ -67,8 +69,7 @@ public:
         }
 
         // making sure pixel is in image
-        pixel.x() = pixel.x() % m_image->resolution().x();
-        pixel.y() = pixel.y() % m_image->resolution().y();
+        pixel = in_range(pixel);
 
         return m_exposure * m_image->operator()(pixel);
     }
@@ -114,16 +115,31 @@ private:
         return pixel;
     }
 
+    // ensures that the given pixel is inside the valid range
+    Point2i in_range(Point2i pixel) const {
+        pixel.x() = pixel.x() % m_image->resolution().x();
+        pixel.y() = pixel.y() % m_image->resolution().y();
+        return pixel;
+    }
     Color filter_mode_bilinear(const Point2 point) const {
+        // create the 4 neighboring points
         Point2i Q11, Q12, Q21, Q22;
-        Q11.x() = floor(point.x());
+        Q11 = in_range(Point2i(floor(point.x()), floor(point.y())));
+        Q12 = in_range(Point2i(floor(point.x()),floor(point.y()+1.0f)));
+        Q21 = in_range(Point2i(floor(point.x()+1.0f),floor(point.y())));
+        Q22 = in_range(Point2i(floor(point.x()+1.0f),floor(point.y()+1.0f)));
+        
+        
+        /*Q11.x() = floor(point.x());
         Q11.y() = floor(point.y());
+
         Q12.x() = floor(point.x());
         Q12.y() = floor(point.y()+1.0f);
+
         Q21.x() = floor(point.x()+1.0f);
         Q21.y() = floor(point.y());
         Q22.x() = floor(point.x()+1.0f);
-        Q22.y() = floor(point.y()+1.0f);
+        Q22.y() = floor(point.y()+1.0f); */
         
         //x1
         float f = Q11.x() - point.x();
