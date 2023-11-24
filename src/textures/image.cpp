@@ -44,14 +44,16 @@ public:
 
     Color evaluate(const Point2 &uv) const override {
         Point2 point;
+        Point2 uv2 = uv;
+        uv2.y() = 1-uv2.y();
         if (m_border == BorderMode::Clamp) {
-            point = border_mode_clamp(uv);
+            point = border_mode_clamp(uv2);
         }
         else {
-            point = border_mode_repeat(uv);
+            point = border_mode_repeat(uv2);
         }
 
-        point.y() = 1 - point.y();
+        //point.y() = 1 - point.y();
 
         // scale the point according to the image resolution
         point.x() = point.x() * (m_image->resolution().x());
@@ -120,16 +122,37 @@ private:
 
     // ensures that the given pixel is inside the valid range
     Point2i pixel_in_range(Point2i pixel) const {
-        pixel.x() = pixel.x() % m_image->resolution().x();
-        pixel.y() = pixel.y() % m_image->resolution().y();
+        if (pixel.x() > m_image->resolution().x()-1) {
+            pixel.x() = m_image->resolution().x()-1;
+        }
+        if (pixel.y() > m_image->resolution().y()-1) {
+            pixel.y() = m_image->resolution().y()-1;
+        }
+        if (pixel.x() < 0) {
+            pixel.x() = 0;
+        }
+        if (pixel.y() < 0) {
+            pixel.y() = 0;
+        }
+
         return pixel;
     }
 
     // ensures that the given point is inside the valid range
-    Point2 point_in_range(Point2 pixel) const {
-        pixel.x() = fmod(pixel.x(), m_image->resolution().x());
-        pixel.y() = fmod(pixel.y(), m_image->resolution().y());
-        return pixel;
+    Point2 point_in_range(Point2 point) const {
+        if (point.x() > m_image->resolution().x()-1) {
+            point.x() = m_image->resolution().x()-1;
+        }
+        if (point.y() > m_image->resolution().y()-1) {
+            point.y() = m_image->resolution().y()-1;
+        }
+        if (point.x() < 0) {
+            point.x() = 0;
+        }
+        if (point.y() < 0) {
+            point.y() = 0;
+        }
+        return point;
     }
 
     Color filter_mode_bilinear(const Point2 point2) const {
