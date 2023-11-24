@@ -52,8 +52,8 @@ public:
         }
 
         // scale the point according to the image resolution
-        point.x() = point.x() * m_image->resolution().x();
-        point.y() = point.y() * m_image->resolution().y();
+        point.x() = point.x() * (m_image->resolution().x()-1);
+        point.y() = point.y() * (m_image->resolution().y()-1);
 
         Point2i pixel;
 
@@ -111,15 +111,13 @@ private:
         */
         float u = fmod(uv.x(), 1.0); 
         float v = fmod(uv.y(), 1.0);
-        //float u = 1.0;
-        //float v = 1.0;
         return Point2(u,v);
     }
 
     Point2i filter_mode_nearest(const Point2 point) const {
         // round the floating point number to the nearest integer 
-        int x = (int)(point.x() + 0.5f);
-        int y = (int)(point.x() + 0.5f);
+        int x = floor(point.x() + 0.5f);
+        int y = floor(point.x() + 0.5f);
         Point2i pixel = Point2i(x,y);
         return pixel;
     }
@@ -135,21 +133,30 @@ private:
         
         // TODO evt. direkt zu point2i machen weil rounding error später
         Point2 Q11, Q12, Q21, Q22  = point;
-        Q11.x() = (int)Q11.x();
-        Q11.y() = (int)Q11.y();
+        Q11.x() = floor(Q11.x());
+        Q11.y() = floor(Q11.y());
 
-        Q12.x() = (int)Q12.x();
-        Q12.y() = (int)(Q12.y()+1.0f);
+        Q12.x() = floor(Q12.x());
+        Q12.y() = floor(Q12.y()+1.0f);
 
-        Q21.x() = (int)(Q21.x()+1.0f);
-        Q21.y() = (int)Q21.y();
+        Q21.x() = floor(Q21.x()+1.0f);
+        Q21.y() = floor(Q21.y());
 
-        Q22.x() = (int)(Q22.x()+1.0f);
-        Q22.y() = (int)(Q22.y()+1.0f);
+        Q22.x() = floor(Q22.x()+1.0f);
+        Q22.y() = floor(Q22.y()+1.0f);
+
+
         // linear interpolation in the x-Direction
-
+        Point2 FX1 = ((Q21.x() - point.x())/(Q21.x() - Q11.x()))* (Q11-Point2(0)) + ((point.x() - Q11.x())/(Q21.x() - Q11.x()))* (Q21-Point2(0));
+        Point2 FX2 = ((Q21.x() - point.x())/(Q21.x() - Q11.x()))* (Q12-Point2(0)) + ((point.x() - Q11.x())/(Q21.x() - Q11.x()))* (Q22-Point2(0));
+        
         // linear interpolation in the y-Direction
-        return Point2i(0,0);
+        Point2 FXY = ((Q22.y() - point.y())/(Q22.y() - Q11.y()))* (FX1-Point2(0)) + ((point.y() - Q11.y())/(Q22.y() - Q11.y()))* (FX2-Point2(0));
+
+
+        Point2i pixel = Point2i(Q11.x(), Q11.y());
+        //return filter_mode_nearest(point);
+        return pixel;
     }
 
 };
