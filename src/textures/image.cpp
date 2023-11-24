@@ -81,6 +81,16 @@ private:
         return Point2(u,v);
     }
 
+    float help_mod_1(float x) const {
+        if (x >= 0 && x <= 1) {
+            return x;
+        } else if (x < 0) {
+            return help_mod_1(x + 1);
+        } else if (x > 1) {
+            return help_mod_1(x - 1);
+        }
+    }
+
     Point2 border_mode_repeat(const Point2 &uv) const {
         // TODO
 
@@ -109,8 +119,12 @@ private:
         BUT this will result in problems with floating point numbers
         
         */
-        float u = fmod(uv.x(), 1.0); 
-        float v = fmod(uv.y(), 1.0);
+//        float u = fmod(uv.x(), 1.0); 
+//        float v = fmod(uv.y(), 1.0);
+
+        float u = help_mod_1(uv.x()); 
+        float v = help_mod_1(uv.y());
+
         return Point2(u,v);
     }
 
@@ -154,7 +168,7 @@ private:
         Point2 FXY = ((Q22.y() - point.y())/(Q22.y() - Q11.y()))* (FX1-Point2(0)) + ((point.y() - Q11.y())/(Q22.y() - Q11.y()))* (FX2-Point2(0));
 
 
-        Point2i pixel = Point2i(Q11.x(), Q11.y());
+        Point2i pixel = Point2i(FXY.x(), FXY.y());
         //return filter_mode_nearest(point);
         return pixel;
     }
