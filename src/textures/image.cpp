@@ -110,12 +110,38 @@ private:
     }
 
     Point2i filter_mode_nearest(const Point2 point) const {
-        // TODO
+        // round the floating point number to the nearest integer 
+        int x = (int)(point.x() + 0.5f);
+        int y = (int)(point.x() + 0.5f);
+        Point2i pixel = Point2i(x,y);
         return Point2i(0,0);
     }
 
     Point2i filter_mode_bilinear(const Point2 point) const {
-        // TODO
+        // from: https://en.wikipedia.org/wiki/Bilinear_interpolation
+        //
+        // we got a point that lies between four other pixels
+        // round x and y down and up 
+        // Example:
+        // (1.2, 2,9) -> Q11(1,2), Q12(1,3), Q21(2,2), Q22(2,3)
+        //            -> Q11(x1,y1), Q12(x1,y2), Q21(x2,y1), Q22(x2,y2)
+        
+        // TODO evt. direkt zu point2i machen weil rounding error später
+        Point2 Q11, Q12, Q21, Q22  = point;
+        Q11.x() = (int)Q11.x();
+        Q11.y() = (int)Q11.y();
+
+        Q12.x() = (int)Q12.x();
+        Q12.y() = (int)(Q12.y()+1.0f);
+
+        Q21.x() = (int)(Q21.x()+1.0f);
+        Q21.y() = (int)Q21.y();
+
+        Q22.x() = (int)(Q22.x()+1.0f);
+        Q22.y() = (int)(Q22.y()+1.0f);
+        // linear interpolation in the x-Direction
+
+        // linear interpolation in the y-Direction
         return Point2i(0,0);
     }
 
