@@ -51,6 +51,9 @@ public:
             point = border_mode_repeat(uv);
         }
 
+        // scale the point according to the image resolution
+        point.x() = point.x() * m_image->resolution().x();
+        point.y() = point.y() * m_image->resolution().y();
 
         Point2i pixel;
 
@@ -89,10 +92,14 @@ private:
         0 -> 0
         0.5 -> 0.5
         1 -> 1
-        1.000...1 -> 0
+        1.000...1 -> 0.00000001
         1.5 -> 0.5
-        2 -> 1
 
+        1.99999999 -> 0.99999999 = 1
+        2 -> 1
+        2 - 1
+        2.00000000000001 -> 0.0000000001 = 0
+        10,9 - 10
         for negativ numbers this is just mod 1
 
         for positiv numbers:
@@ -102,10 +109,10 @@ private:
         BUT this will result in problems with floating point numbers
         
         */
-        //float u = fmod(uv.x(), 1.0); 
-        //float v = fmod(uv.y(), 1.0);
-        float u = 1.0;
-        float v = 1.0;
+        float u = fmod(uv.x(), 1.0); 
+        float v = fmod(uv.y(), 1.0);
+        //float u = 1.0;
+        //float v = 1.0;
         return Point2(u,v);
     }
 
@@ -114,7 +121,7 @@ private:
         int x = (int)(point.x() + 0.5f);
         int y = (int)(point.x() + 0.5f);
         Point2i pixel = Point2i(x,y);
-        return Point2i(0,0);
+        return pixel;
     }
 
     Point2i filter_mode_bilinear(const Point2 point) const {
