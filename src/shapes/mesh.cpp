@@ -41,6 +41,10 @@ protected:
         // wir haben nur genormte Vektoren a und b
         // diese multiplizieren wir mit dem weight w
 
+        float Epsilon = 1e-8f;
+        // self intersections
+        float Epsilon2 = 1e-5f;
+
         Vector ray_origin_vector = ray.origin - Point(0.0f);
         Vector ray_direction = ray.direction;
 
@@ -80,7 +84,7 @@ protected:
         float t_candidate = v0v2.dot(qvec) * invDet;
 
 
-        if (t_candidate > Epsilon && its.t > t_candidate) {
+        if (t_candidate > Epsilon2 && its.t > t_candidate) {
             its.t = t_candidate;
 
             Point hit_point = ray(its.t);

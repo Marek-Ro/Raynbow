@@ -51,6 +51,8 @@ public:
             point = border_mode_repeat(uv);
         }
 
+        point.y() = 1 - point.y();
+
         // scale the point according to the image resolution
         point.x() = point.x() * (m_image->resolution().x()-1);
         point.y() = point.y() * (m_image->resolution().y()-1);
