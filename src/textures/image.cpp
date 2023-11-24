@@ -61,14 +61,14 @@ public:
             pixel = filter_mode_nearest(point);
         }
         else {
-            return filter_mode_bilinear(point);
+            return m_exposure * filter_mode_bilinear(point);
         }
 
         // making sure pixel is in image
         pixel.x() = pixel.x() % m_image->resolution().x();
         pixel.y() = pixel.y() % m_image->resolution().y();
 
-        return m_image->operator()(pixel);
+        return m_exposure * m_image->operator()(pixel);
     }
 
     std::string toString() const override {
