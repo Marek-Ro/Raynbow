@@ -63,6 +63,11 @@ public:
         else {
             pixel = filter_mode_bilinear(point);
         }
+
+        // making sure pixel is in image
+        pixel.x() = pixel.x() % m_image->resolution().x();
+        pixel.y() = pixel.y() % m_image->resolution().y();
+
         return m_image->operator()(pixel);
     }
 
@@ -131,7 +136,7 @@ private:
     Point2i filter_mode_nearest(const Point2 point) const {
         // round the floating point number to the nearest integer 
         int x = floor(point.x() + 0.5f);
-        int y = floor(point.x() + 0.5f);
+        int y = floor(point.y() + 0.5f);
         Point2i pixel = Point2i(x,y);
         return pixel;
     }
