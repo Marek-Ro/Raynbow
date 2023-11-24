@@ -97,7 +97,7 @@ protected:
 
             its.frame = Frame(face_normal);
             its.wo = -ray_direction;
-            its.uv = Point2(u, v);
+            its.uv = Vertex::interpolate(uv, v0 , v1, v2).texcoords;
             return true;
         } else {
             return false;
