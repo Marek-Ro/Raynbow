@@ -45,38 +45,73 @@ public:
     Color evaluate(const Point2 &uv) const override {
         Point2 point;
         Point2 uv2 = uv;
-        uv2.y() = 1-uv2.y();
-        if (m_border == BorderMode::Clamp) {
-            point = border_mode_clamp(uv2);
-        }
-        else {
-            point = border_mode_repeat(uv2);
-        }
+        uv2.y() = 1 - uv2.y();
 
-        //point.y() = 1 - point.y();
+        int width = m_image->resolution().x();
+        int height = m_image->resolution().y();
 
         // scale the point according to the image resolution
-        point.x() = point.x() * (m_image->resolution().x());
-        point.y() = point.y() * (m_image->resolution().y());
-
-        // ensure that the point is in range
+        point.x() = uv2.x() * width;
+        point.y() = uv2.y() * height;
 
 
-        //pixelFromNormalized(point);
+        Point2 p_abgerundet = Point2(std::floor(point.x()), std::floor(point.y()));
 
-        Point2i pixel;
+        Point2 position_im_pixel = point - p_abgerundet;
 
-        if (m_filter == FilterMode::Nearest) {
-            pixel = filter_mode_nearest(point);
+        Point2i p11 = Point2i((int)p_abgerundet.x(), (int)p_abgerundet.y());
+        Point2i p12 = Point2i((int)p_abgerundet.x(), (int)p_abgerundet.y() + 1);
+        Point2i p21 = Point2i((int)p_abgerundet.x() + 1, (int)p_abgerundet.y());
+        Point2i p22 = Point2i((int)p_abgerundet.x() + 1, (int)p_abgerundet.y() + 1);
+
+        // Border Handling
+
+        if (m_border == BorderMode::Clamp) {
+            // Clamp
+            p11 = clamp_point(p11, width, height);
+            p12 = clamp_point(p12, width, height);
+            p21 = clamp_point(p21, width, height);
+            p22 = clamp_point(p22, width, height);
+
+        } else {
+            // Repeat
+            p11 = repeat_point(p11, width, height);
+            p12 = repeat_point(p12, width, height);
+            p21 = repeat_point(p21, width, height);
+            p22 = repeat_point(p22, width, height);
+            
         }
-        else {
-            return m_exposure * filter_mode_bilinear(point);
+
+
+        if (m_filter == FilterMode::Bilinear) {
+
+            // Bilinear Interpolation
+
+            //x1
+            Color a = m_image->operator()(p11);
+            Color b = m_image->operator()(p21);
+            Color c1 = lin_interpolate(a, b, position_im_pixel.x());
+
+            //x2
+            a = m_image->operator()(p12);
+            b = m_image->operator()(p22);
+            Color c2 = lin_interpolate(a, b, position_im_pixel.x());
+
+            // y1
+            Color c3 = lin_interpolate(c1, c2, position_im_pixel.y());
+
+            return m_exposure * c3;
+
+        } else {
+
+            // FilterMode Nearest
+
+            Point2i p_nearest;
+
+            p_nearest = find_closest_point(point, p11, p12, p21, p22, position_im_pixel);
+
+            return m_exposure * m_image->operator()(p_nearest);
         }
-
-        // making sure pixel is in image
-        pixel = pixel_in_range(pixel);
-
-        return m_exposure * m_image->operator()(pixel);
     }
 
     std::string toString() const override {
@@ -87,6 +122,48 @@ public:
                            indent(m_image), m_exposure);
     }
 private:
+
+    Point2i clamp_point(Point2i p, int width, int height) const {
+        return Point2i(max(0, min(p.x(), width - 1)), max(0, min(p.y(), height - 1)));
+    }
+
+    Point2i repeat_point(Point2i p, int width, int height) const {
+        p.x() = p.x() % width;
+        p.y() = p.y() % height;
+        // make sure it is positive, so no out of bounds
+        p.x() = p.x() < 0 ? p.x() + width : p.x();
+        p.y() = p.y() < 0 ? p.y() + height : p.y();
+        return p;
+    }
+
+    Point2i find_closest_point(Point2 point, Point2i p11, Point2i p12, Point2i p21, Point2i p22, Point2 position_im_pixel) const {
+
+        Point2 p11_f = Point2(p11.x(), p11.y());
+        Point2 p12_f = Point2(p12.x(), p12.y());
+        Point2 p21_f = Point2(p21.x(), p21.y());
+        Point2 p22_f = Point2(p22.x(), p22.y());
+
+        if ((p11_f - point).length() < (p12_f - point).length() &&
+                    (p11_f - point).length() < (p21_f - point).length() &&
+                    (p11_f - point).length() < (p22_f - point).length()) {
+            return p11;
+        }
+
+        if ((p12_f - point).length() < (p11_f - point).length() &&
+                    (p12_f - point).length() < (p21_f - point).length() &&
+                    (p12_f - point).length() < (p22_f - point).length()) {
+            return p12;
+        }
+
+        if ((p21_f - point).length() < (p11_f - point).length() &&
+                    (p21_f - point).length() < (p12_f - point).length() &&
+                    (p21_f - point).length() < (p22_f - point).length()) {
+            return p21;
+        }
+
+        return p22;
+    }
+
     // Maps from [-infinity, +infinity] to [0,1]
     Point2 border_mode_clamp(const Point2 &uv) const {
         float u = saturate(uv.x());
