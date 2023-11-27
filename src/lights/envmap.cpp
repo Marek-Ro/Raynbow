@@ -22,6 +22,26 @@ public:
         // coordinates }
         // * find the corresponding pixel coordinate for the given local
         // direction
+
+        if (m_transform) {
+            Vector direction = m_transform->inverse(direction);
+        }
+        // to spherical
+        // TODO can be simplified
+        float theta, phi;
+        theta = (Pi*safe_acos(direction.z() / safe_sqrt(direction.x() * direction.x() + direction.y() * direction.y() + direction.z() * direction.z()))) / 180;
+        if (direction.y() > 0) {
+             phi = (Pi*safe_acos(direction.x() / safe_sqrt(direction.x() * direction.x() + direction.y() * direction.y()))) / 180;
+        }
+        else {
+            phi = - (Pi * safe_acos(direction.x() / safe_sqrt(direction.x() * direction.x() + direction.y() * direction.y()))) / 180;
+        }
+        // to [0;1]
+        phi = phi / (2* Pi);
+        theta = theta / Pi;
+        warped.x() = phi;
+        warped.y() = theta;
+
         return {
             .value = m_texture->evaluate(warped),
         };
