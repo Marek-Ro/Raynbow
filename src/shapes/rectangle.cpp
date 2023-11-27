@@ -54,19 +54,11 @@ public:
         if (t < Epsilon || t > its.t)
             return false;
         
-        //logger(EError, "%s", std::to_string(t));
-
-        assert(!isnan(its.t));
-        assert(!isnan(t));
-
         // compute the hitpoint
         const Point position = ray(t);
         // we have intersected an infinite plane at z=0; now dismiss anything outside of the [-1,-1,0]..[+1,+1,0] domain.
         if (std::abs(position.x()) > 1 || std::abs(position.y()) > 1)
             return false;
-
-        assert(!isnan(position.x()));
-        assert(!isnan(position.y()));
 
         // we have determined there was an intersection! we are now free to change the intersection object and return true.
         its.t = t;
