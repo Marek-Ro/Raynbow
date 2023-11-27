@@ -61,7 +61,6 @@ public:
 
         Point2 p_abgerundet = Point2(std::floor(point.x()), std::floor(point.y()));
 
-
         Point2 position_im_pixel = point - p_abgerundet;
 
         Point2i p11 = Point2i((int)p_abgerundet.x(), (int)p_abgerundet.y());
@@ -71,26 +70,27 @@ public:
 
 
 
-        // Border Handling
-
-        if (m_border == BorderMode::Clamp) {
-            // Clamp
-            p11 = clamp_point(p11, width, height);
-            p12 = clamp_point(p12, width, height);
-            p21 = clamp_point(p21, width, height);
-            p22 = clamp_point(p22, width, height);
-
-        } else {
-            // Repeat
-            p11 = repeat_point(p11, width, height);
-            p12 = repeat_point(p12, width, height);
-            p21 = repeat_point(p21, width, height);
-            p22 = repeat_point(p22, width, height);
-            
-        }
 
 
         if (m_filter == FilterMode::Bilinear) {
+
+            // Border Handling
+
+            if (m_border == BorderMode::Clamp) {
+                // Clamp
+                p11 = clamp_point(p11, width, height);
+                p12 = clamp_point(p12, width, height);
+                p21 = clamp_point(p21, width, height);
+                p22 = clamp_point(p22, width, height);
+
+            } else {
+                // Repeat
+                p11 = repeat_point(p11, width, height);
+                p12 = repeat_point(p12, width, height);
+                p21 = repeat_point(p21, width, height);
+                p22 = repeat_point(p22, width, height);
+
+            }
 
             // Bilinear Interpolation
 
@@ -121,13 +121,13 @@ public:
 
         } else {
 
+            if (m_border == BorderMode::Repeat) {
+                uv2.x() = uv2.x() < 0 ? 1 - fmod(abs(uv2.x()), 1.0f): fmod(abs(uv2.x()), 1.0f);
+                uv2.y() = uv2.y() < 0 ? 1 - fmod(abs(uv2.y()), 1.0f): fmod(abs(uv2.y()), 1.0f);
+                
+                }
+
             // FilterMode Nearest
-
-            Point2i p_nearest;
-
-            p_nearest = find_closest_point(point, p11, p12, p21, p22, position_im_pixel);
-
-
             return m_exposure * m_image->operator()(uv2);
         }
     }
