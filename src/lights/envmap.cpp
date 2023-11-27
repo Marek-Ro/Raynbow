@@ -25,17 +25,18 @@ public:
 
         if (m_transform) {
             Vector direction = m_transform->inverse(direction);
+            
         }
-        // to spherical
-        // TODO can be simplified
+
         float theta, phi;
-        theta = Deg2Rad * safe_acos(direction.z() / direction.length());
-        if (direction.y() > 0) {
-             phi = Deg2Rad*safe_acos(direction.x() / safe_sqrt(direction.x() * direction.x() + direction.y() * direction.y()));
+
+        theta = safe_acos(direction.y() / direction.length());
+        phi = safe_acos(direction.z() / safe_sqrt(direction.x() * direction.x() + direction.z() * direction.z()));
+        //phi = atan(direction.x()/direction.z());
+        if (direction.z() < 0) {
+            phi = -phi;
         }
-        else {
-             phi = -Deg2Rad*safe_acos(direction.x() / safe_sqrt(direction.x() * direction.x() + direction.y() * direction.y()));
-        }
+
         // to [0;1]
         phi = phi + Pi / (2* Pi);
         theta = theta / Pi;
