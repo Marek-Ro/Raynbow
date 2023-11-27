@@ -12,10 +12,17 @@ class Rectangle : public Shape {
      */
     inline void populate(SurfaceEvent &surf, const Point &position) const {
         surf.position = position;
-        
+
+        assert(!isnan(position.x()));
+        assert(!isnan(position.y()));
+
+
         // map the position from [-1,-1,0]..[+1,+1,0] to [0,0]..[1,1] by discarding the z component and rescaling
         surf.uv.x() = (position.x() + 1) / 2;
         surf.uv.y() = (position.y() + 1) / 2;
+
+        assert(!isnan(surf.uv.x()));
+        assert(!isnan(surf.uv.y()));
 
         // the tangent always points in positive x direction
         surf.frame.tangent = Vector(1, 0, 0);
@@ -47,11 +54,19 @@ public:
         if (t < Epsilon || t > its.t)
             return false;
         
+        //logger(EError, "%s", std::to_string(t));
+
+        assert(!isnan(its.t));
+        assert(!isnan(t));
+
         // compute the hitpoint
         const Point position = ray(t);
         // we have intersected an infinite plane at z=0; now dismiss anything outside of the [-1,-1,0]..[+1,+1,0] domain.
         if (std::abs(position.x()) > 1 || std::abs(position.y()) > 1)
             return false;
+
+        assert(!isnan(position.x()));
+        assert(!isnan(position.y()));
 
         // we have determined there was an intersection! we are now free to change the intersection object and return true.
         its.t = t;
