@@ -22,19 +22,19 @@ public:
         // coordinates }
         // * find the corresponding pixel coordinate for the given local
         // direction
-
+        Vector direction2 = direction;
         if (m_transform) {
-            Vector direction = m_transform->inverse(direction);
+            direction2 = m_transform->inverse(direction).normalized();
             
         }
 
         float theta, phi;
 
-        theta = safe_acos(direction.y() / direction.length());
-        phi = safe_acos(direction.x() / safe_sqrt((direction.x() * direction.x()) + (direction.z() * direction.z())));
+        theta = safe_acos(direction2.y() / direction2.length());
+        phi = safe_acos(direction2.x() / safe_sqrt((direction2.x() * direction2.x()) + (direction2.z() * direction2.z())));
         //phi = atan(direction.()/direction.z());
-        if (direction.z() < 0) {
-            phi = phi - Pi;
+        if (direction2.z() < 0) {
+            phi = -1 * phi;
         }
 
         // to [0;1]
