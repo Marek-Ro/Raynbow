@@ -43,7 +43,7 @@ protected:
 
         float Epsilon = 1e-8f;
         // self intersections
-        float Epsilon2 = 1e-5f;
+        float Epsilon2 = 1e-4f;
 
         Vector ray_origin_vector = ray.origin - Point(0.0f);
         Vector ray_direction = ray.direction;
