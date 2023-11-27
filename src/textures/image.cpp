@@ -47,9 +47,6 @@ public:
         Point2 uv2 = uv;
         uv2.y() = 1 - uv2.y();
 
-        assert(!isnan(uv.x()));
-        assert(!isnan(uv.y()));
-
         int width = m_image->resolution().x();
         int height = m_image->resolution().y();
 
@@ -122,9 +119,9 @@ public:
         } else {
 
             if (m_border == BorderMode::Repeat) {
-                uv2.x() = uv2.x() < 0 ? 1 - fmod(abs(uv2.x()), 1.0f): fmod(abs(uv2.x()), 1.0f);
-                uv2.y() = uv2.y() < 0 ? 1 - fmod(abs(uv2.y()), 1.0f): fmod(abs(uv2.y()), 1.0f);
-                
+                    uv2.x() = uv2.x() < 0 ? 1 - fmod(abs(uv2.x()), 1.0f): fmod(abs(uv2.x()), 1.0f);
+                    uv2.y() = uv2.y() < 0 ? 1 - fmod(abs(uv2.y()), 1.0f): fmod(abs(uv2.y()), 1.0f);
+
                 }
 
             // FilterMode Nearest
