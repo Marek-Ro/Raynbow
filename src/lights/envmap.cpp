@@ -31,14 +31,15 @@ public:
         float theta, phi;
 
         theta = safe_acos(direction.y() / direction.length());
-        phi = safe_acos(direction.z() / safe_sqrt(direction.x() * direction.x() + direction.z() * direction.z()));
-        //phi = atan(direction.x()/direction.z());
+        phi = safe_acos(direction.x() / safe_sqrt((direction.x() * direction.x()) + (direction.z() * direction.z())));
+        //phi = atan(direction.()/direction.z());
         if (direction.z() < 0) {
-            phi = -phi;
+            phi = phi - Pi;
         }
 
         // to [0;1]
-        phi = phi + Pi / (2* Pi);
+        phi = (phi + Pi) / (2* Pi);
+        //phi = 1-phi;
         theta = theta / Pi;
         warped.x() = phi;
         warped.y() = theta;
