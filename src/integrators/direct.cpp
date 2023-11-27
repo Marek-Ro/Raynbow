@@ -36,9 +36,14 @@ public:
             }
 
             BsdfSample bsdfsample = its.sampleBsdf(rng);
+
+            if (bsdfsample.isInvalid()) {
+                return its.evaluateEmission();
+            }
+
             first_ray_color *= bsdfsample.weight;
 
-            Ray secondary_ray = Ray(its.position, bsdfsample.wi);
+            Ray secondary_ray = Ray(its.position, bsdfsample.wi.normalized());
             Intersection secondary_its = m_scene->intersect(secondary_ray, rng);
             // Intersection of the secondary ray
             if (secondary_its) {
