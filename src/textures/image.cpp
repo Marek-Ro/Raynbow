@@ -47,15 +47,20 @@ public:
         Point2 uv2 = uv;
         uv2.y() = 1 - uv2.y();
 
+        assert(!isnan(uv.x()));
+        assert(!isnan(uv.y()));
+
         int width = m_image->resolution().x();
         int height = m_image->resolution().y();
 
         // scale the point according to the image resolution
-        point.x() = uv2.x() * width;
-        point.y() = uv2.y() * height;
+        point.x() = uv2.x() * width - 0.5f;
+        point.y() = uv2.y() * height - 0.5f;
 
+        //point = Point2(max(0, min(point.x(), width - 1)), max(0, min(point.y(), height - 1)));
 
         Point2 p_abgerundet = Point2(std::floor(point.x()), std::floor(point.y()));
+
 
         Point2 position_im_pixel = point - p_abgerundet;
 
@@ -63,6 +68,8 @@ public:
         Point2i p12 = Point2i((int)p_abgerundet.x(), (int)p_abgerundet.y() + 1);
         Point2i p21 = Point2i((int)p_abgerundet.x() + 1, (int)p_abgerundet.y());
         Point2i p22 = Point2i((int)p_abgerundet.x() + 1, (int)p_abgerundet.y() + 1);
+
+
 
         // Border Handling
 
@@ -88,6 +95,16 @@ public:
             // Bilinear Interpolation
 
             //x1
+            assert(p11.x() >= 0 && p11.x() <= width - 1);
+            assert(p12.x() >= 0 && p12.x() <= width - 1);
+            assert(p21.x() >= 0 && p21.x() <= width - 1);
+            assert(p22.x() >= 0 && p22.x() <= width - 1);
+
+            assert(p11.y() >= 0 && p11.y() <= height - 1);
+            assert(p12.y() >= 0 && p12.y() <= height - 1);
+            assert(p21.y() >= 0 && p21.y() <= height - 1);
+            assert(p22.y() >= 0 && p22.y() <= height - 1);
+
             Color a = m_image->operator()(p11);
             Color b = m_image->operator()(p21);
             Color c1 = lin_interpolate(a, b, position_im_pixel.x());
@@ -110,7 +127,8 @@ public:
 
             p_nearest = find_closest_point(point, p11, p12, p21, p22, position_im_pixel);
 
-            return m_exposure * m_image->operator()(p_nearest);
+
+            return m_exposure * m_image->operator()(uv2);
         }
     }
 
