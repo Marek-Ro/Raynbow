@@ -22,23 +22,22 @@ public:
         // coordinates }
         // * find the corresponding pixel coordinate for the given local
         // direction
+
+        float theta, phi;
         Vector direction2 = direction;
         if (m_transform) {
             direction2 = m_transform->inverse(direction).normalized();
             
         }
-        float theta, phi;
-        theta = acos(direction2.y());
-        phi = - atan2(direction2.x(), direction2.z());
+        //phi = safe_acos(direction2.x() / safe_sqrt((direction2.x() * direction2.x()) + (direction2.z() * direction2.z())));
+        //if (direction2.z() < 0) {
+        //    phi = -1 * phi;
+        //}
 
-//        if (direction2.z() < 0) {
-//            phi = -1 * phi;
-//        }
+        theta = safe_acos(direction2.y());
+        phi = atan2(direction2.z(),direction2.x());
+        warped = Vector2((phi+Pi)*Inv2Pi, theta * InvPi);
 
-        // to [0;1]
-        //phi = 1 - phi;
-        warped.x() = (phi + Pi) * (1 / (2 * Pi));
-        warped.y() = theta * (1 / Pi);
         return {
             .value = m_texture->evaluate(warped),
         };
