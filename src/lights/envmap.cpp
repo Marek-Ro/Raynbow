@@ -29,15 +29,15 @@ public:
         // to spherical
         // TODO can be simplified
         float theta, phi;
-        theta = (Pi*safe_acos(direction.z() / safe_sqrt(direction.x() * direction.x() + direction.y() * direction.y() + direction.z() * direction.z()))) / 180;
+        theta = Deg2Rad * safe_acos(direction.z() / direction.length());
         if (direction.y() > 0) {
-             phi = (Pi*safe_acos(direction.x() / safe_sqrt(direction.x() * direction.x() + direction.y() * direction.y()))) / 180;
+             phi = Deg2Rad*safe_acos(direction.x() / safe_sqrt(direction.x() * direction.x() + direction.y() * direction.y()));
         }
         else {
-            phi = - (Pi * safe_acos(direction.x() / safe_sqrt(direction.x() * direction.x() + direction.y() * direction.y()))) / 180;
+             phi = -Deg2Rad*safe_acos(direction.x() / safe_sqrt(direction.x() * direction.x() + direction.y() * direction.y()));
         }
         // to [0;1]
-        phi = phi / (2* Pi);
+        phi = phi + Pi / (2* Pi);
         theta = theta / Pi;
         warped.x() = phi;
         warped.y() = theta;
