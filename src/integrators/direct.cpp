@@ -29,11 +29,13 @@ public:
         }
         // intersection
         else {
-            if (remap) {
-                its.frame.normal.x() = (its.frame.normal.x() + 1 )/2;
-                its.frame.normal.y() = (its.frame.normal.y() + 1 )/2;
-                its.frame.normal.normalized();
-            }
+
+            // this lead to very weird behaviour on windows 
+//            if (remap) {
+//                its.frame.normal.x() = (its.frame.normal.x() + 1 )/2;
+//                its.frame.normal.y() = (its.frame.normal.y() + 1 )/2;
+//                its.frame.normal.normalized();
+//            }
 
             // Wenn emission returnen wir, weil wir würden ja keinen Schatten auf ne Lampe werfen
             if (its.evaluateEmission() != Color(0)) {
