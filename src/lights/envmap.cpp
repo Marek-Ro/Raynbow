@@ -29,10 +29,6 @@ public:
             direction2 = m_transform->inverse(direction).normalized();
             
         }
-        //phi = safe_acos(direction2.x() / safe_sqrt((direction2.x() * direction2.x()) + (direction2.z() * direction2.z())));
-        //if (direction2.z() < 0) {
-        //    phi = -1 * phi;
-        //}
 
         theta = safe_acos(direction2.y());
         phi = atan2(direction2.z(),direction2.x());

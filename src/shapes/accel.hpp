@@ -183,7 +183,49 @@ class AccelerationStructure : public Shape {
     }
 
     NodeIndex binning(Node &node, int splitAxis) {
-        NOT_IMPLEMENTED
+        // based on: 
+        // https://jacco.ompf2.com/2022/04/21/how-to-build-a-bvh-part-3-quick-builds/
+        
+        // determine split axis using SAH
+        /*int axis;
+        float splitPos;
+        float splitCost = FindBestSplitPlane(node, axis, splitPos);
+
+
+        // checks if splitting is actually an improvement over not splitting
+        float nosplitCost = CalculateNodeCost(node);
+        if (splitCost >= nosplitCost) return;
+        */
+        return 0; // just that there is no error 
+    }
+
+    // Helper functions for binning
+    float FindBestSplitPlane(Node& node, int& axis, float& splitPos) {
+       /* float bestCost = 1e30f;
+        for (int a = 0; a < 3; a++) {
+            float boundsMin = node.aabb.min[a];
+            float boundsMax = node.aabbMax[a];
+            if (boundsMin == boundsMax) {
+                continue;
+            }
+            float scale = (boundsMax - boundsMin) / 100;
+            for (uint i = 1; i < 100; i++) {
+                float candidatePos = boundsMin + i * scale;
+                float cost = EvaluateSAH(node, a, candidatePos);
+                if (cost < bestCost) {
+                    splitPos = candidatePos, axis = a, bestCost = cost;
+                }
+            }
+        }
+        return bestCost; 
+        return 0;
+    }
+return bestCost; */
+        return 0;
+    }
+
+    float CalculateNodeCost(Node& node) {
+        return 0;
     }
 
     /// @brief Attempts to subdivide a given BVH node.
