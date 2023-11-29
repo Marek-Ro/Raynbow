@@ -33,7 +33,7 @@ public:
             BsdfSample bsdfsample = its.sampleBsdf(rng);
 
             if (bsdfsample.isInvalid()) {
-                return its.evaluateEmission();
+                return Color(0);
             }
 
             first_ray_color *= bsdfsample.weight;
