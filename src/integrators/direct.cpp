@@ -42,6 +42,12 @@ public:
             Intersection secondary_its = m_scene->intersect(secondary_ray, rng);
             // Intersection of the secondary ray
             if (secondary_its) {
+
+                // if the secondary ray hits a backface, do not return the emission from the face, but act as if it was no light source
+                if (secondary_its.frame.normal.dot(secondary_its.wo) < 0) {
+                    return Color(0);
+                }
+
                 // no light source, since we found a new intersection with an object
                 return first_ray_color * secondary_its.evaluateEmission();
             } else {
