@@ -4,11 +4,6 @@ namespace lightwave {
 
 
 class direct : public SamplingIntegrator {
-    /// @brief Whether to remap the normals from [-1;1] to [0;1]
-    bool remap;
-    /// @brief the scene we check for intersections
-    //Scene scene;
-
 public:
     direct(const Properties &properties)
         : SamplingIntegrator(properties) {
@@ -29,13 +24,6 @@ public:
         }
         // intersection
         else {
-
-            // this lead to very weird behaviour on windows 
-//            if (remap) {
-//                its.frame.normal.x() = (its.frame.normal.x() + 1 )/2;
-//                its.frame.normal.y() = (its.frame.normal.y() + 1 )/2;
-//                its.frame.normal.normalized();
-//            }
 
             // Wenn emission returnen wir, weil wir würden ja keinen Schatten auf ne Lampe werfen
             if (its.evaluateEmission() != Color(0)) {
