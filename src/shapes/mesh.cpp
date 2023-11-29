@@ -96,7 +96,7 @@ protected:
 
             // Gouraud shading
             if (m_smoothNormals) {
-                face_normal = Vertex::interpolate(uv, v0 , v1, v2).normal;
+                face_normal = Vertex::interpolate(uv, v0 , v1, v2).normal.normalized();
             }
 
             its.frame = Frame(face_normal);
