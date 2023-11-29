@@ -24,7 +24,7 @@ public:
         // direction
 
         float theta, phi;
-        Vector direction2 = direction;
+        Vector direction2 = direction.normalized();
         if (m_transform) {
             direction2 = m_transform->inverse(direction).normalized();
             
