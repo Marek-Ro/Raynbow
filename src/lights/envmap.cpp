@@ -31,7 +31,7 @@ public:
         }
 
         theta = safe_acos(direction2.y());
-        phi = atan2(direction2.z(),direction2.x());
+        phi = atan2(-direction2.z(),direction2.x());
         warped = Vector2((phi+Pi)*Inv2Pi, theta * InvPi);
 
         return {
