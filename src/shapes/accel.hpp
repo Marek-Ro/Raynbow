@@ -197,65 +197,65 @@ class AccelerationStructure : public Shape {
         const int BINS = 16; // number of bins 
         float bestCost = 1e30f;
         
-            // compute the min and max 
-            float boundsMin = 1e30f, boundsMax = -1e30f;
+        // compute the min and max 
+        float boundsMin = 1e30f, boundsMax = -1e30f;
 
-            for (int i = 0; i < node.primitiveCount; i++) {
-                float center = getCentroid(node.firstPrimitiveIndex() + i)[a];
-                boundsMin = min(boundsMin, center);
-                boundsMax = max(boundsMax, center);
-            }
-            // if (boundsMin == boundsMax)
+        for (int i = 0; i < node.primitiveCount; i++) {
+            float center = getCentroid(node.firstPrimitiveIndex() + i)[a];
+            boundsMin = min(boundsMin, center);
+            boundsMax = max(boundsMax, center);
+        }
+        // if (boundsMin == boundsMax)
 
-            Bin bin[BINS];
-            float scale = (float)BINS / (boundsMax - boundsMin);
+        Bin bin[BINS];
+        float scale = (float)BINS / (boundsMax - boundsMin);
 
             
-            //iterate over primitives and determine which bin they belong to 
-            for (int i = 0; i < node.primitiveCount; i++) {
-                // determines which bin to populate 
-                int binIndex = min(BINS-1, (int)(((getCentroid(node.firstPrimitiveIndex() + i)[a]) - boundsMin) * scale));
+        //iterate over primitives and determine which bin they belong to 
+        for (int i = 0; i < node.primitiveCount; i++) {
+            // determines which bin to populate 
+            int binIndex = min(BINS-1, (int)(((getCentroid(node.firstPrimitiveIndex() + i)[a]) - boundsMin) * scale));
                 
-                // populate the bin
-                bin[binIndex].count++;
-                bin[binIndex].aabb.extend(getBoundingBox(node.firstPrimitiveIndex() + i));
-            }
+            // populate the bin
+            bin[binIndex].count++;
+            bin[binIndex].aabb.extend(getBoundingBox(node.firstPrimitiveIndex() + i));
+        }
 
-            // gather data for the spaces between the bins
-            // there is 1 less space then there are bins (BIN-1)
-            float leftArea[BINS - 1], rightArea[BINS - 1];
-            int leftCount[BINS - 1], rightCount[BINS - 1];
-            Bounds leftBox, rightBox;
-            int leftSum = 0, rightSum = 0;
+        // gather data for the spaces between the bins
+        // there is 1 less space then there are bins (BIN-1)
+        float leftArea[BINS - 1], rightArea[BINS - 1];
+        int leftCount[BINS - 1], rightCount[BINS - 1];
+        Bounds leftBox, rightBox;
+        int leftSum = 0, rightSum = 0;
             
 
-            for (int i = 0; i < BINS - 1; i++) {
-                leftSum += bin[i].count;
-                leftCount[i] = leftSum;
-                leftBox.extend(bin[i].aabb);
-                leftArea[i] = surfaceArea(leftBox);
+        for (int i = 0; i < BINS - 1; i++) {
+            leftSum += bin[i].count;
+            leftCount[i] = leftSum;
+            leftBox.extend(bin[i].aabb);
+            leftArea[i] = surfaceArea(leftBox);
 
                 
-                rightSum += bin[BINS - 1 - i].count;
-                rightCount[BINS - 2 - i] = rightSum;
-                rightBox.extend(bin[BINS - 1 - i].aabb);
-                rightArea[BINS - 2 - i] = surfaceArea(rightBox);
+            rightSum += bin[BINS - 1 - i].count;
+            rightCount[BINS - 2 - i] = rightSum;
+            rightBox.extend(bin[BINS - 1 - i].aabb);
+            rightArea[BINS - 2 - i] = surfaceArea(rightBox);
 
-            }
-             //Cost = anzahl_links * area_links + anzahl_rechts * area_rechts
+        }
+         //Cost = anzahl_links * area_links + anzahl_rechts * area_rechts
             
-            // calculate SAH cost
-            float inverse_scale = (boundsMax - boundsMin) / BINS;
-            for (int i = 0; i < BINS - 1; i++) {
-                float planeCost = leftCount[i] * leftArea[i] + rightCount[i] * rightArea[i];
-                if (planeCost < bestCost) {
-                    splitPos = boundsMin + inverse_scale * (i + 1);
+        // calculate SAH cost
+        float inverse_scale = (boundsMax - boundsMin) / BINS;
+        for (int i = 0; i < BINS - 1; i++) {
+            float planeCost = leftCount[i] * leftArea[i] + rightCount[i] * rightArea[i];
+            if (planeCost < bestCost) {
+                splitPos = boundsMin + inverse_scale * (i + 1);
                      
-                    bestCost = planeCost;
-                    splitIndex = node.firstPrimitiveIndex();
+                bestCost = planeCost;
+                //splitIndex = node.firstPrimitiveIndex();
                     
-                }
             }
+        }
         
         // compute the splitIndex based on the split position
        /* for (int i = 0; i < node.primitiveCount; i++) {
@@ -265,7 +265,11 @@ class AccelerationStructure : public Shape {
             }
         }*/
 
-        NodeIndex firstRightIndex = splitIndex;
+        // iterates left to right
+        // l
+        NodeIndex firstRightIndex = node.firstPrimitiveIndex();
+        // iterates right to left
+        // r
         NodeIndex lastLeftIndex = node.lastPrimitiveIndex();
 
         while (firstRightIndex <= lastLeftIndex) {
@@ -278,6 +282,7 @@ class AccelerationStructure : public Shape {
                           m_primitiveIndices[lastLeftIndex--]);
             }
         } 
+        splitIndex = lastLeftIndex + 1;
         return splitIndex;
     }
 
