@@ -231,13 +231,19 @@ class AccelerationStructure : public Shape {
             for (int i = 0; i < BINS - 1; i++) {
                 leftSum += bin[i].count;
                 leftCount[i] = leftSum;
-                leftBox.extend(bin[i].aabb);
-                leftArea[i] = surfaceArea(leftBox);
+                
+                //leftBox.extend(bin[i].aabb);
+                //leftArea[i] = surfaceArea(leftBox);
+
+                leftArea[i] = surfaceArea(bin[i].aabb);
                 
                 rightSum += bin[BINS - 1 - i].count;
                 rightCount[BINS - 2 - i] = rightSum;
-                rightBox.extend(bin[BINS - 1 - i].aabb);
-                rightArea[BINS - 2 - i] = surfaceArea(rightBox);
+                
+                //rightBox.extend(bin[BINS - 1 - i].aabb);
+                //rightArea[BINS - 2 - i] = surfaceArea(rightBox);
+
+                rightArea[BINS - 2 - i] = surfaceArea(bin[BINS - 1 - i].aabb);
             }
 
             // calculate SAH cost
