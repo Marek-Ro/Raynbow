@@ -170,7 +170,7 @@ class AccelerationStructure : public Shape {
         node.aabb = Bounds::empty();
         for (NodeIndex i = 0; i < node.primitiveCount; i++) {
             const Bounds childAABB =
-                getBoundingBox(m_primitiveIndices[node.leftFirst + i]);
+                getBoundingBox(m_primitiveIndices[m_primitiveIndices[node.firstPrimitiveIndex() + i]]);
             node.aabb.extend(childAABB);
         }
     }
@@ -201,24 +201,27 @@ class AccelerationStructure : public Shape {
         float boundsMin = 1e30f, boundsMax = -1e30f;
 
         for (int i = 0; i < node.primitiveCount; i++) {
-            float center = getCentroid(node.firstPrimitiveIndex() + i)[a];
+            float center = getCentroid(m_primitiveIndices[node.firstPrimitiveIndex() + i])[a];
             boundsMin = min(boundsMin, center);
             boundsMax = max(boundsMax, center);
         }
         // if (boundsMin == boundsMax)
 
         Bin bin[BINS];
+        assert(boundsMax != boundsMin);
         float scale = (float)BINS / (boundsMax - boundsMin);
 
             
         //iterate over primitives and determine which bin they belong to 
         for (int i = 0; i < node.primitiveCount; i++) {
             // determines which bin to populate 
-            int binIndex = min(BINS-1, (int)(((getCentroid(node.firstPrimitiveIndex() + i)[a]) - boundsMin) * scale));
-                
+            int binIndex = min(BINS-1, (int)(((getCentroid(m_primitiveIndices[node.firstPrimitiveIndex() + i])[a]) - boundsMin) * scale));
+            
+
+            // m_primitiveIndices[firstRightIndex]
             // populate the bin
             bin[binIndex].count++;
-            bin[binIndex].aabb.extend(getBoundingBox(node.firstPrimitiveIndex() + i));
+            bin[binIndex].aabb.extend(getBoundingBox(m_primitiveIndices[node.firstPrimitiveIndex() + i]));
         }
 
         // gather data for the spaces between the bins
