@@ -198,8 +198,9 @@ class AccelerationStructure : public Shape {
         for (int a = 0; a < 3; a++) {
             // compute the min and max 
             float boundsMin = 1e30f, boundsMax = -1e30f;
+
             for (int i = 0; i < node.primitiveCount; i++) {
-                float center = getCentroid(m_primitiveIndices[node.leftFirst + i])[a];
+                float center = getCentroid(node.firstPrimitiveIndex() + i)[a];
                 boundsMin = min(boundsMin, center);
                 boundsMax = max(boundsMax, center);
             }
@@ -208,17 +209,15 @@ class AccelerationStructure : public Shape {
             Bin bin[BINS];
             float scale = (float)BINS / (boundsMax - boundsMin);
 
+            
             //iterate over primitives and determine which bin they belong to 
             for (int i = 0; i < node.primitiveCount; i++) {
-                // the primitive we want to add to a bin
-                int primitive = m_primitiveIndices[node.leftFirst + i];
-            
                 // determines which bin to populate 
-                int binIndex = min(BINS-1, (int)((getCentroid(primitive)[a] - boundsMin) * scale));
+                int binIndex = min(BINS-1, (int)(((getCentroid(node.firstPrimitiveIndex() + i)[a]) - boundsMin) * scale));
                 
                 // populate the bin
                 bin[binIndex].count++;
-                bin[binIndex].aabb.extend(getBoundingBox(primitive));
+                bin[binIndex].aabb.extend(getBoundingBox(node.firstPrimitiveIndex() + i));
             }
 
             // gather data for the spaces between the bins
@@ -227,25 +226,22 @@ class AccelerationStructure : public Shape {
             int leftCount[BINS - 1], rightCount[BINS - 1];
             Bounds leftBox, rightBox;
             int leftSum = 0, rightSum = 0;
+            
 
             for (int i = 0; i < BINS - 1; i++) {
                 leftSum += bin[i].count;
                 leftCount[i] = leftSum;
-                
-                //leftBox.extend(bin[i].aabb);
-                //leftArea[i] = surfaceArea(leftBox);
+                leftBox.extend(bin[i].aabb);
+                leftArea[i] = surfaceArea(leftBox);
 
-                leftArea[i] = surfaceArea(bin[i].aabb);
                 
                 rightSum += bin[BINS - 1 - i].count;
                 rightCount[BINS - 2 - i] = rightSum;
-                
-                //rightBox.extend(bin[BINS - 1 - i].aabb);
-                //rightArea[BINS - 2 - i] = surfaceArea(rightBox);
+                rightBox.extend(bin[BINS - 1 - i].aabb);
+                rightArea[BINS - 2 - i] = surfaceArea(rightBox);
 
-                rightArea[BINS - 2 - i] = surfaceArea(bin[BINS - 1 - i].aabb);
             }
-
+            
             // calculate SAH cost
             float inverse_scale = (boundsMax - boundsMin) / BINS;
             for (int i = 0; i < BINS - 1; i++) {
@@ -254,11 +250,20 @@ class AccelerationStructure : public Shape {
                     splitPos = boundsMin + inverse_scale * (i + 1);
                     splitAxis = a; 
                     bestCost = planeCost;
+                    splitIndex = node.firstPrimitiveIndex();
+                    
                 }
             }
         }
-        // partition algorithm (you might remember this from quicksort)
-        NodeIndex firstRightIndex = node.firstPrimitiveIndex();
+        // compute the splitIndex based on the split position
+        /*for (int i = 0; i < node.primitiveCount; i++) {
+            int primitive_center = getCentroid(node.firstPrimitiveIndex() + i)[splitAxis];
+            if(primitive_center <= splitPos) {
+                splitIndex = node.leftFirst + i;
+            }
+        }*/
+
+        NodeIndex firstRightIndex = splitIndex;
         NodeIndex lastLeftIndex = node.lastPrimitiveIndex();
 
         while (firstRightIndex <= lastLeftIndex) {
@@ -270,16 +275,7 @@ class AccelerationStructure : public Shape {
                 std::swap(m_primitiveIndices[firstRightIndex],
                           m_primitiveIndices[lastLeftIndex--]);
             }
-        }
-
-
-        // compute the splitIndex based on the split position
-        for (int i = 0; i < node.primitiveCount; i++) {
-            int primitive_center = getCentroid(m_primitiveIndices[node.leftFirst + i])[splitAxis];
-            if(primitive_center < splitPos) {
-                splitIndex = i;
-            }
-        }
+        } 
         return splitIndex;
     }
 
