@@ -251,14 +251,29 @@ class AccelerationStructure : public Shape {
                 }
             }
         }
-        // compute the split based on the split position
+        // partition algorithm (you might remember this from quicksort)
+        NodeIndex firstRightIndex = node.firstPrimitiveIndex();
+        NodeIndex lastLeftIndex = node.lastPrimitiveIndex();
+
+        while (firstRightIndex <= lastLeftIndex) {
+            if (getCentroid(
+                    m_primitiveIndices[firstRightIndex])[splitAxis] <
+                splitPos) {
+                firstRightIndex++;
+            } else {
+                std::swap(m_primitiveIndices[firstRightIndex],
+                          m_primitiveIndices[lastLeftIndex--]);
+            }
+        }
+
+
+        // compute the splitIndex based on the split position
         for (int i = 0; i < node.primitiveCount; i++) {
             int primitive_center = getCentroid(m_primitiveIndices[node.leftFirst + i])[splitAxis];
             if(primitive_center < splitPos) {
                 splitIndex = i;
             }
         }
-        // reorder 
         return splitIndex;
     }
 
