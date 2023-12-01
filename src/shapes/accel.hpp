@@ -191,6 +191,7 @@ class AccelerationStructure : public Shape {
         // based on: 
         // https://jacco.ompf2.com/2022/04/21/how-to-build-a-bvh-part-3-quick-builds/
         
+//        logger(EError, "inside axis %d", splitAxis);
         
         int a = splitAxis;
         NodeIndex splitIndex;
@@ -201,49 +202,47 @@ class AccelerationStructure : public Shape {
         // compute the min and max 
         float boundsMin = 1e30f, boundsMax = -1e30f;
 
+        // find the minimun centroid and the maximum centroid on the given axis
         for (int i = 0; i < node.primitiveCount; i++) {
             float center = getCentroid(m_primitiveIndices[node.firstPrimitiveIndex() + i])[a];
             boundsMin = min(boundsMin, center);
             boundsMax = max(boundsMax, center);
         }
-        // if (boundsMin == boundsMax)
 
+        // initialize bins
         Bin b = {
                 .aabb = Bounds(Point(0), Point(0)),
                 .count = 0,
-                };
-                
+                };                
         Bin bin[BINS] {b};
 
+        // all coordinates of the controids on the given axis are the same
+        // handle that case or divide by zero
         if (boundsMax == boundsMin) {
             return node.firstPrimitiveIndex();
         }
         
-
         assert(boundsMax != boundsMin);
         float scale = (float)BINS / (boundsMax - boundsMin);
 
             
         //iterate over primitives and determine which bin they belong to 
         for (int i = 0; i < node.primitiveCount; i++) {
+
             // determines which bin to populate 
             int binIndex = min(BINS-1, (int)(((getCentroid(m_primitiveIndices[node.firstPrimitiveIndex() + i])[a]) - boundsMin) * scale));
             assert(binIndex >= 0);
-            // m_primitiveIndices[firstRightIndex]
-            // populate the bin
 
+            // populate the bin
             if (bin[binIndex].count != 0) {
                 bin[binIndex].aabb.extend(getBoundingBox(m_primitiveIndices[node.firstPrimitiveIndex() + i]));
-                
             } else {
                 Bin temp_bin = {
                     .aabb = getBoundingBox(m_primitiveIndices[node.firstPrimitiveIndex() + i]),
                     .count = 0
                 };
                 bin[binIndex] = temp_bin;
-
             }
-
             bin[binIndex].count++;
         }
 
@@ -256,10 +255,10 @@ class AccelerationStructure : public Shape {
         int leftSum = 0, rightSum = 0;
             
 
-        for (int i = 0; i < BINS - 1; i++) {
+        for (int i = 1; i < BINS - 1; i++) {
             leftSum += bin[i].count;
 
-            if (leftCount[i] == 0) {
+            if (leftCount[i] == 1) {
                 leftBox = bin[i].aabb;
             } else {
                 leftBox.extend(bin[i].aabb);
@@ -271,14 +270,13 @@ class AccelerationStructure : public Shape {
                 
             rightSum += bin[BINS - 1 - i].count;
 
-            if (leftCount[i] == 0) {
+            if (leftCount[i] == 1) {
                 rightBox = bin[BINS - 1 - i].aabb;
             } else {
                 rightBox.extend(bin[BINS - 1 - i].aabb);
             }
 
             rightCount[BINS - 2 - i] = rightSum;
-           // rightBox.extend(bin[BINS - 1 - i].aabb);
             rightArea[BINS - 2 - i] = surfaceArea(rightBox);
 
         }
