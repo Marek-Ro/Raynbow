@@ -147,11 +147,11 @@ protected:
         Vertex A = m_vertices[m_triangles[primitiveIndex].x()];
         Vertex B = m_vertices[m_triangles[primitiveIndex].y()];
         Vertex C = m_vertices[m_triangles[primitiveIndex].z()];
-        Point centroid;
-        centroid.x() = (A.position.x() + B.position.x() + C.position.x()) / 3;
-        centroid.y() = (A.position.y() + B.position.y() + C.position.y()) / 3;
-        centroid.z() = (A.position.z() + B.position.z() + C.position.z()) / 3;
-        return centroid;
+        
+        float x = (A.position.x() + B.position.x() + C.position.x()) / 3;
+        float y = (A.position.y() + B.position.y() + C.position.y()) / 3;
+        float z = (A.position.z() + B.position.z() + C.position.z()) / 3;
+        return Point(x,y,z);
     }
 
 public:
