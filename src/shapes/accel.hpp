@@ -191,11 +191,12 @@ class AccelerationStructure : public Shape {
         // based on: 
         // https://jacco.ompf2.com/2022/04/21/how-to-build-a-bvh-part-3-quick-builds/
         
+        int a = splitAxis;
         NodeIndex splitIndex;
         float splitPos;
         const int BINS = 16; // number of bins 
         float bestCost = 1e30f;
-        for (int a = 0; a < 3; a++) {
+        
             // compute the min and max 
             float boundsMin = 1e30f, boundsMax = -1e30f;
 
@@ -204,7 +205,7 @@ class AccelerationStructure : public Shape {
                 boundsMin = min(boundsMin, center);
                 boundsMax = max(boundsMax, center);
             }
-            if (boundsMin == boundsMax) continue;
+            // if (boundsMin == boundsMax)
 
             Bin bin[BINS];
             float scale = (float)BINS / (boundsMax - boundsMin);
@@ -241,6 +242,7 @@ class AccelerationStructure : public Shape {
                 rightArea[BINS - 2 - i] = surfaceArea(rightBox);
 
             }
+             //Cost = anzahl_links * area_links + anzahl_rechts * area_rechts
             
             // calculate SAH cost
             float inverse_scale = (boundsMax - boundsMin) / BINS;
@@ -248,15 +250,15 @@ class AccelerationStructure : public Shape {
                 float planeCost = leftCount[i] * leftArea[i] + rightCount[i] * rightArea[i];
                 if (planeCost < bestCost) {
                     splitPos = boundsMin + inverse_scale * (i + 1);
-                    splitAxis = a; 
+                     
                     bestCost = planeCost;
                     splitIndex = node.firstPrimitiveIndex();
                     
                 }
             }
-        }
+        
         // compute the splitIndex based on the split position
-        /*for (int i = 0; i < node.primitiveCount; i++) {
+       /* for (int i = 0; i < node.primitiveCount; i++) {
             int primitive_center = getCentroid(node.firstPrimitiveIndex() + i)[splitAxis];
             if(primitive_center <= splitPos) {
                 splitIndex = node.leftFirst + i;
