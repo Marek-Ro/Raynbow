@@ -224,8 +224,19 @@ class AccelerationStructure : public Shape {
             assert(binIndex >= 0);
             // m_primitiveIndices[firstRightIndex]
             // populate the bin
+
+            if (bin[binIndex].count != 0) {
+                bin[binIndex].aabb.extend(getBoundingBox(m_primitiveIndices[node.firstPrimitiveIndex() + i]));
+            } else {
+                Bin temp_bin = {
+                    .aabb = getBoundingBox(m_primitiveIndices[node.firstPrimitiveIndex() + i]),
+                    .count = 0,
+                };
+                bin[binIndex] = temp_bin;
+
+            }
+
             bin[binIndex].count++;
-            bin[binIndex].aabb.extend(getBoundingBox(m_primitiveIndices[node.firstPrimitiveIndex() + i]));
         }
 
         // gather data for the spaces between the bins
@@ -233,17 +244,31 @@ class AccelerationStructure : public Shape {
         float leftArea[BINS - 1], rightArea[BINS - 1];
         int leftCount[BINS - 1], rightCount[BINS - 1];
         Bounds leftBox, rightBox;
+        leftBox = rightBox = Bounds(Point(0), Point(0));
         int leftSum = 0, rightSum = 0;
             
 
         for (int i = 0; i < BINS - 1; i++) {
             leftSum += bin[i].count;
+
+            if (leftCount[i] == 0) {
+                leftBox = bin[i].aabb;
+            } else {
+                leftBox.extend(bin[i].aabb);
+            }
+
             leftCount[i] = leftSum;
-            leftBox.extend(bin[i].aabb);
             leftArea[i] = surfaceArea(leftBox);
 
                 
             rightSum += bin[BINS - 1 - i].count;
+
+            if (leftCount[i] == 0) {
+                rightBox = bin[BINS - 1 - i].aabb;
+            } else {
+                rightBox.extend(bin[BINS - 1 - i].aabb);
+            }
+
             rightCount[BINS - 2 - i] = rightSum;
             rightBox.extend(bin[BINS - 1 - i].aabb);
             rightArea[BINS - 2 - i] = surfaceArea(rightBox);
