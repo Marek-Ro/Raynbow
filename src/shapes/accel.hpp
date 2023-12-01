@@ -191,8 +191,9 @@ class AccelerationStructure : public Shape {
         // based on: 
         // https://jacco.ompf2.com/2022/04/21/how-to-build-a-bvh-part-3-quick-builds/
         
-        NodeIndex splitPos;
-        int BINS = 16; // number of bins 
+        NodeIndex splitIndex;
+        float splitPos;
+        const int BINS = 16; // number of bins 
         float bestCost = 1e30f;
         for (int a = 0; a < 3; a++) {
             // compute the min and max 
@@ -208,7 +209,7 @@ class AccelerationStructure : public Shape {
             float scale = (float)BINS / (boundsMax - boundsMin);
 
             //iterate over primitives and determine which bin they belong to 
-            for (uint i = 0; i < node.primitiveCount; i++) {
+            for (int i = 0; i < node.primitiveCount; i++) {
                 // the primitive we want to add to a bin
                 int primitive = m_primitiveIndices[node.leftFirst + i];
             
@@ -250,7 +251,15 @@ class AccelerationStructure : public Shape {
                 }
             }
         }
-        return splitPos;
+        // compute the split based on the split position
+        for (int i = 0; i < node.primitiveCount; i++) {
+            int primitive_center = getCentroid(m_primitiveIndices[node.leftFirst + i])[splitAxis];
+            if(primitive_center < splitPos) {
+                splitIndex = i;
+            }
+        }
+        // reorder 
+        return splitIndex;
     }
 
     /// @brief Attempts to subdivide a given BVH node.
