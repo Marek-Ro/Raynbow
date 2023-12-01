@@ -237,7 +237,7 @@ class AccelerationStructure : public Shape {
             } else {
                 Bin temp_bin = {
                     .aabb = getBoundingBox(m_primitiveIndices[node.firstPrimitiveIndex() + i]),
-                    .count = 0,
+                    .count = 1
                 };
                 bin[binIndex] = temp_bin;
 
@@ -277,7 +277,7 @@ class AccelerationStructure : public Shape {
             }
 
             rightCount[BINS - 2 - i] = rightSum;
-            rightBox.extend(bin[BINS - 1 - i].aabb);
+           // rightBox.extend(bin[BINS - 1 - i].aabb);
             rightArea[BINS - 2 - i] = surfaceArea(rightBox);
 
         }
@@ -310,7 +310,7 @@ class AccelerationStructure : public Shape {
                           m_primitiveIndices[lastLeftIndex--]);
             }
         } 
-        splitIndex = lastLeftIndex + 1;
+        splitIndex = firstRightIndex;
         return splitIndex;
     }
 
