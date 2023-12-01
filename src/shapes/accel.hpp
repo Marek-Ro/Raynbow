@@ -234,10 +234,11 @@ class AccelerationStructure : public Shape {
 
             if (bin[binIndex].count != 0) {
                 bin[binIndex].aabb.extend(getBoundingBox(m_primitiveIndices[node.firstPrimitiveIndex() + i]));
+                
             } else {
                 Bin temp_bin = {
                     .aabb = getBoundingBox(m_primitiveIndices[node.firstPrimitiveIndex() + i]),
-                    .count = 1
+                    .count = 0
                 };
                 bin[binIndex] = temp_bin;
 
@@ -310,7 +311,7 @@ class AccelerationStructure : public Shape {
                           m_primitiveIndices[lastLeftIndex--]);
             }
         } 
-        splitIndex = firstRightIndex;
+        splitIndex = lastLeftIndex+1;
         return splitIndex;
     }
 
