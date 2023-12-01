@@ -182,50 +182,72 @@ class AccelerationStructure : public Shape {
                     size.y() * size.z());
     }
 
+    struct Bin {
+        Bounds aabb;
+        int count;
+    };
+
     NodeIndex binning(Node &node, int splitAxis) {
         // based on: 
         // https://jacco.ompf2.com/2022/04/21/how-to-build-a-bvh-part-3-quick-builds/
-        
-        // determine split axis using SAH
-        /*int axis;
-        float splitPos;
-        float splitCost = FindBestSplitPlane(node, axis, splitPos);
-
-
-        // checks if splitting is actually an improvement over not splitting
-        float nosplitCost = CalculateNodeCost(node);
-        if (splitCost >= nosplitCost) return;
-        */
-        return 0; // just that there is no error 
-    }
-
-    // Helper functions for binning
-    float FindBestSplitPlane(Node& node, int& axis, float& splitPos) {
-       /* float bestCost = 1e30f;
+        int BINS = 16; // number of bins 
+        float bestCost = 1e30f;
         for (int a = 0; a < 3; a++) {
-            float boundsMin = node.aabb.min[a];
-            float boundsMax = node.aabbMax[a];
-            if (boundsMin == boundsMax) {
-                continue;
+            // compute the min and max 
+            // not sure if compute works here maybe do it by hand 
+            computeAABB(node);
+            float boundsMin = node.aabb.min()[a];
+            float boundsMax = node.aabb.max()[a];
+            if (boundsMin = boundsMax) continue;
+
+            Bin bin[BINS];
+            float scale = (float)BINS / (boundsMax - boundsMin);
+
+            //iterate over primitives and determine which bin they belong to 
+            for (int i = 0; i < node.primitiveCount; i++) {
+                // the primitive we want to add to a bin
+                int primitive = m_primitiveIndices[node.leftFirst + i];
+            
+                // determines which bin to populate 
+                int binIndex = min(BINS-1, (int)((getCentroid(primitive)[a] - boundsMin) * scale));
+                
+                // populate the bin
+                bin[binIndex].count++;
+                bin[binIndex].aabb.extend(getBoundingBox(primitive));
             }
-            float scale = (boundsMax - boundsMin) / 100;
-            for (uint i = 1; i < 100; i++) {
-                float candidatePos = boundsMin + i * scale;
-                float cost = EvaluateSAH(node, a, candidatePos);
-                if (cost < bestCost) {
-                    splitPos = candidatePos, axis = a, bestCost = cost;
+
+            // gather data for the spaces between the bins
+            // there is 1 less space then there are bins (BIN-1)
+            float leftArea[BINS - 1], rightArea[BINS - 1];
+            int leftCount[BINS - 1], rightCount[BINS - 1];
+            Bounds leftBox, rightBox;
+            int leftSum = 0, rightSum = 0;
+
+            for (int i = 0; i < BINS - 1; i++) {
+                leftSum += bin[i].count;
+                leftCount[i] = leftSum;
+                leftBox.extend(bin[i].aabb);
+                leftArea[i] = surfaceArea(leftBox);
+                
+                rightSum += bin[BINS - 1 - i].count;
+                rightCount[BINS - 2 - i] = rightSum;
+                rightBox.extend(bin[BINS - 1 - i].aabb);
+                rightArea[BINS - 2 - i] = surfaceArea(rightBox);
+            }
+
+            // calculate SAH cost
+            float inverse_scale = (boundsMax - boundsMin) / BINS;
+            for (int i = 0; i < BINS - 1; i++) {
+                float planeCost = leftCount[i] * leftArea[i] + rightCount[i] * rightArea[i];
+                if (planeCost < bestCost) {
+                    // updates the axis and everything to the best split
+                    //axis = a, splitPos = boundsMin + scale * (i + 1),
+                    splitAxis = a; 
+                    bestCost = planeCost;
                 }
             }
         }
-        return bestCost; 
-        return 0;
-    }
-return bestCost; */
-        return 0;
-    }
-
-    float CalculateNodeCost(Node& node) {
-        return 0;
+        return bestCost;
     }
 
     /// @brief Attempts to subdivide a given BVH node.
@@ -240,7 +262,7 @@ return bestCost; */
         const NodeIndex firstPrimitive = parent.firstPrimitiveIndex();
 
         // set to true when implementing binning
-        static constexpr bool UseSAH = false;
+        static constexpr bool UseSAH = true;
 
         // the point at which to split (note that primitives must be re-ordered
         // so that all children of the left node will have a smaller index than
