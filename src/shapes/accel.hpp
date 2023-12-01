@@ -207,7 +207,12 @@ class AccelerationStructure : public Shape {
         }
         // if (boundsMin == boundsMax)
 
-        Bin bin[BINS];
+        Bin b = {
+                .aabb = Bounds(Point(0), Point(0)),
+                .count = 0,
+                };
+                
+        Bin bin[BINS] {b};
         assert(boundsMax != boundsMin);
         float scale = (float)BINS / (boundsMax - boundsMin);
 
@@ -216,8 +221,7 @@ class AccelerationStructure : public Shape {
         for (int i = 0; i < node.primitiveCount; i++) {
             // determines which bin to populate 
             int binIndex = min(BINS-1, (int)(((getCentroid(m_primitiveIndices[node.firstPrimitiveIndex() + i])[a]) - boundsMin) * scale));
-            
-
+            assert(binIndex >= 0);
             // m_primitiveIndices[firstRightIndex]
             // populate the bin
             bin[binIndex].count++;
@@ -251,23 +255,12 @@ class AccelerationStructure : public Shape {
         float inverse_scale = (boundsMax - boundsMin) / BINS;
         for (int i = 0; i < BINS - 1; i++) {
             float planeCost = leftCount[i] * leftArea[i] + rightCount[i] * rightArea[i];
-            if (planeCost < bestCost) {
+            if (planeCost <= bestCost) {
                 splitPos = boundsMin + inverse_scale * (i + 1);
-                     
                 bestCost = planeCost;
-                //splitIndex = node.firstPrimitiveIndex();
-                    
             }
         }
         
-        // compute the splitIndex based on the split position
-       /* for (int i = 0; i < node.primitiveCount; i++) {
-            int primitive_center = getCentroid(node.firstPrimitiveIndex() + i)[splitAxis];
-            if(primitive_center <= splitPos) {
-                splitIndex = node.leftFirst + i;
-            }
-        }*/
-
         // iterates left to right
         // l
         NodeIndex firstRightIndex = node.firstPrimitiveIndex();
