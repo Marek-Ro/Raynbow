@@ -191,9 +191,7 @@ class AccelerationStructure : public Shape {
         // based on: 
         // https://jacco.ompf2.com/2022/04/21/how-to-build-a-bvh-part-3-quick-builds/
         
-        if (node.primitiveCount == 1) {
-            return node.firstPrimitiveIndex();
-        }
+        
         int a = splitAxis;
         NodeIndex splitIndex;
         float splitPos;
@@ -216,7 +214,10 @@ class AccelerationStructure : public Shape {
                 };
                 
         Bin bin[BINS] {b};
-        
+
+        if (boundsMax == boundsMin) {
+            return node.firstPrimitiveIndex();
+        }
         
 
         assert(boundsMax != boundsMin);
