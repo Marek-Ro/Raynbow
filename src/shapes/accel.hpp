@@ -170,7 +170,7 @@ class AccelerationStructure : public Shape {
         node.aabb = Bounds::empty();
         for (NodeIndex i = 0; i < node.primitiveCount; i++) {
             const Bounds childAABB =
-                getBoundingBox(m_primitiveIndices[m_primitiveIndices[node.firstPrimitiveIndex() + i]]);
+                getBoundingBox(m_primitiveIndices[node.leftFirst + i]);
             node.aabb.extend(childAABB);
         }
     }
