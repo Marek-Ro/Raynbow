@@ -190,21 +190,25 @@ class AccelerationStructure : public Shape {
     NodeIndex binning(Node &node, int splitAxis) {
         // based on: 
         // https://jacco.ompf2.com/2022/04/21/how-to-build-a-bvh-part-3-quick-builds/
+        
+        NodeIndex splitPos;
         int BINS = 16; // number of bins 
         float bestCost = 1e30f;
         for (int a = 0; a < 3; a++) {
             // compute the min and max 
-            // not sure if compute works here maybe do it by hand 
-            computeAABB(node);
-            float boundsMin = node.aabb.min()[a];
-            float boundsMax = node.aabb.max()[a];
-            if (boundsMin = boundsMax) continue;
+            float boundsMin = 1e30f, boundsMax = -1e30f;
+            for (int i = 0; i < node.primitiveCount; i++) {
+                float center = getCentroid(m_primitiveIndices[node.leftFirst + i])[a];
+                boundsMin = min(boundsMin, center);
+                boundsMax = max(boundsMax, center);
+            }
+            if (boundsMin == boundsMax) continue;
 
             Bin bin[BINS];
             float scale = (float)BINS / (boundsMax - boundsMin);
 
             //iterate over primitives and determine which bin they belong to 
-            for (int i = 0; i < node.primitiveCount; i++) {
+            for (uint i = 0; i < node.primitiveCount; i++) {
                 // the primitive we want to add to a bin
                 int primitive = m_primitiveIndices[node.leftFirst + i];
             
@@ -240,14 +244,13 @@ class AccelerationStructure : public Shape {
             for (int i = 0; i < BINS - 1; i++) {
                 float planeCost = leftCount[i] * leftArea[i] + rightCount[i] * rightArea[i];
                 if (planeCost < bestCost) {
-                    // updates the axis and everything to the best split
-                    //axis = a, splitPos = boundsMin + scale * (i + 1),
+                    splitPos = boundsMin + inverse_scale * (i + 1);
                     splitAxis = a; 
                     bestCost = planeCost;
                 }
             }
         }
-        return bestCost;
+        return splitPos;
     }
 
     /// @brief Attempts to subdivide a given BVH node.
