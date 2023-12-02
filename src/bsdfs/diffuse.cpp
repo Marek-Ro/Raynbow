@@ -16,10 +16,8 @@ namespace lightwave
         BsdfSample sample(const Point2 &uv, const Vector &wo,
                           Sampler &rng) const override{
                             // Sample a random ray
-                            Vector wi = squareToCosineHemisphere(rng.next2D()).normalized();
-
                             BsdfSample sample2 = {
-                                .wi = wi,
+                                .wi = squareToCosineHemisphere(rng.next2D()).normalized(),
                                 .weight = m_albedo->evaluate(uv)
                             };
                             return sample2;
