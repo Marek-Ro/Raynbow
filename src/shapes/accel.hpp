@@ -211,10 +211,12 @@ class AccelerationStructure : public Shape {
 
         // initialize bins
         Bin b = {
-                .aabb = Bounds(Point(0), Point(0)),
+                .aabb = Bounds::empty(),
                 .count = 0,
-                };                
-        Bin bin[BINS] {b};
+                };
+        Bin bin[BINS];
+
+        std::fill_n(bin, BINS, b);
 
         // all coordinates of the controids on the given axis are the same
         // handle that case or divide by zero
@@ -251,31 +253,20 @@ class AccelerationStructure : public Shape {
         float leftArea[BINS - 1], rightArea[BINS - 1];
         int leftCount[BINS - 1], rightCount[BINS - 1];
         Bounds leftBox, rightBox;
-        leftBox = rightBox = Bounds(Point(0), Point(0));
+        leftBox = rightBox = Bounds::empty();
         int leftSum = 0, rightSum = 0;
             
 
         for (int i = 1; i < BINS - 1; i++) {
             leftSum += bin[i].count;
-
-            if (leftCount[i] == 1) {
-                leftBox = bin[i].aabb;
-            } else {
-                leftBox.extend(bin[i].aabb);
-            }
-
+            // extend works since from the start because there are emtpy bounds
+            leftBox.extend(bin[i].aabb);
             leftCount[i] = leftSum;
             leftArea[i] = surfaceArea(leftBox);
 
                 
             rightSum += bin[BINS - 1 - i].count;
-
-            if (leftCount[i] == 1) {
-                rightBox = bin[BINS - 1 - i].aabb;
-            } else {
-                rightBox.extend(bin[BINS - 1 - i].aabb);
-            }
-
+            rightBox.extend(bin[BINS - 1 - i].aabb);
             rightCount[BINS - 2 - i] = rightSum;
             rightArea[BINS - 2 - i] = surfaceArea(rightBox);
 
