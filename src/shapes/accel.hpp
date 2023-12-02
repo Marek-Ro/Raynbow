@@ -275,7 +275,7 @@ class AccelerationStructure : public Shape {
             
         // calculate SAH cost
         float inverse_scale = (boundsMax - boundsMin) / BINS;
-        for (int i = 0; i < BINS - 1; i++) {
+        for (int i = 1; i < BINS - 1; i++) {
             float planeCost = leftCount[i] * leftArea[i] + rightCount[i] * rightArea[i];
             if (planeCost <= bestCost) {
                 splitPos = boundsMin + inverse_scale * (i + 1);
