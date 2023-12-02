@@ -15,16 +15,18 @@ public:
     }
 
     Color evaluate(const Point2 &uv) const override {
-        
-        Vector2 my_uv = uv - Point2(0);
-
+        Point2 my_uv = uv;
+        // scale the point
         my_uv.x() = fabs(std::floor(my_uv.x() * scale.x()));
         my_uv.y() = fabs(std::floor(my_uv.y() * scale.y()));
 
-    
-        Color result = ((int)my_uv.x() % 2) + ((int)my_uv.y() % 2) != 1 ? color0 : color1;
-
-        return result;
+        /*
+        +|0|1
+        0|0|1
+        1|1|2
+        */
+        // 1 = color1 and 0 or 2 = color2
+        return ((int)my_uv.x() % 2) + ((int)my_uv.y() % 2) != 1 ? color0 : color1;
     }
 
     std::string toString() const override {
