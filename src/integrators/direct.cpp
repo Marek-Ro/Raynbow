@@ -16,18 +16,19 @@ public:
     Color Li(const Ray &ray, Sampler &rng) override {
         // Compute the intersection object
         Intersection its = m_scene->intersect(ray,rng);
-        Color first_ray_color = Color(1.0f);
+        // start with wite color 
+        Color ray_color = Color(1.0f);
 
         // no intersection
         if (!its) {
-            first_ray_color *= m_scene->evaluateBackground(ray.direction).value;
+            // background color
+            ray_color *= m_scene->evaluateBackground(ray.direction).value;
         }
         // intersection
         else {
-
-            // Wenn emission returnen wir, weil wir würden ja keinen Schatten auf ne Lampe werfen
             if (its.evaluateEmission() != Color(0)) {
-                return first_ray_color * its.evaluateEmission();
+                // return because a shadow on a light emitting object doesn't make sense
+                return ray_color * its.evaluateEmission();
             }
 
             BsdfSample bsdfsample = its.sampleBsdf(rng);
@@ -35,27 +36,28 @@ public:
             if (bsdfsample.isInvalid()) {
                 return Color(0);
             }
+            // scale our color according to the weight of the intersection 
+            ray_color *= bsdfsample.weight;
 
-            first_ray_color *= bsdfsample.weight;
-
+            // create the secondary ray 
             Ray secondary_ray = Ray(its.position, bsdfsample.wi.normalized());
             Intersection secondary_its = m_scene->intersect(secondary_ray, rng);
             // Intersection of the secondary ray
             if (secondary_its) {
-
-                // if the secondary ray hits a backface, do not return the emission from the face, but act as if it was no light source
+                // if the secondary ray hits a backface, do not return the emission from the face, 
+                // but act as if it was no light source
                 if (secondary_its.frame.normal.dot(secondary_its.wo) < 0) {
                     return Color(0);
                 }
 
                 // no light source, since we found a new intersection with an object
-                return first_ray_color * secondary_its.evaluateEmission();
+                return ray_color * secondary_its.evaluateEmission();
             } else {
                 // Secondary ray escapes
-                return first_ray_color * (Color(1.0f) * m_scene->evaluateBackground(secondary_ray.direction).value);
+                return ray_color * (Color(1.0f) * m_scene->evaluateBackground(secondary_ray.direction).value);
             }
         }
-        return first_ray_color;
+        return ray_color;
     }
 
     /// @brief An optional textual representation of this class, which can be useful for debugging. 
