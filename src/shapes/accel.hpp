@@ -248,7 +248,7 @@ namespace lightwave
             {
 
                 // determines which bin to populate
-                int binIndex = min(BINS - 2, (int)(((getCentroid(m_primitiveIndices[node.firstPrimitiveIndex() + i])[a]) - boundsMin) * scale));
+                int binIndex = min(BINS - 1, (int)(((getCentroid(m_primitiveIndices[node.firstPrimitiveIndex() + i])[a]) - boundsMin) * scale));
                 assert(binIndex >= 0);
 
                 // populate the bin
