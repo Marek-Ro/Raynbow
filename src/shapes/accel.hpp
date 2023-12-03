@@ -248,7 +248,7 @@ namespace lightwave
             {
 
                 // determines which bin to populate
-                int binIndex = min(BINS - 1, (int)(((getCentroid(m_primitiveIndices[node.firstPrimitiveIndex() + i])[a]) - boundsMin) * scale));
+                int binIndex = min(BINS - 2, (int)(((getCentroid(m_primitiveIndices[node.firstPrimitiveIndex() + i])[a]) - boundsMin) * scale));
                 assert(binIndex >= 0);
 
                 // populate the bin
@@ -278,7 +278,7 @@ namespace lightwave
             // iterate over the bins and fill
             // the left arrays (starting with i = 0)
             // the right arrays (starting with i = BINS -2)
-            for (int i = 1; i < BINS - 1; i++)
+            for (int i = 0; i < BINS - 1; i++)
             {
                 // += to also include the primitives that where in the previous bins
                 leftSum += bin[i].count;
@@ -297,7 +297,7 @@ namespace lightwave
             // by computing the cost for each bin and comparing to the best cost
             // inverse_scale is used to map from binIndex to position
             float inverse_scale = (boundsMax - boundsMin) / BINS;
-            for (int i = 1; i < BINS - 1; i++)
+            for (int i = 0; i < BINS - 1; i++)
             {
                 float planeCost = leftCount[i] * leftArea[i] + rightCount[i] * rightArea[i];
                 if (planeCost <= bestCost)
