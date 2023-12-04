@@ -31,7 +31,7 @@ public:
         // If an intersection occurs, store the normal at that intersection or 0 if no intersection
         Vector normal;
         
-        Intersection its = scene().get()->intersect(ray,rng);
+        Intersection its = m_scene->intersect(ray,rng);
         if (!its) { //TODO what should tmax be?
             normal = Vector(0);
         }
