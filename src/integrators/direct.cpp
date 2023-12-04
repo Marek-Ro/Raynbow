@@ -56,7 +56,8 @@ public:
                         // the light is visible
                         //ray_color += check_for_visibility_its.evaluateBsdf(d.wi).value;
 
-                        ray_color += (d.weight * light_sample.probability);
+                        ray_color += (d.weight * light_sample.probability) * m_scene->evaluateBackground(d.wi).value;
+                        return ray_color;
                     }
                 }
             }
