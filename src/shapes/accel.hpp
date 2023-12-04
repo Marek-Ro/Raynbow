@@ -286,11 +286,13 @@ namespace lightwave
                 leftBox.extend(bin[i].aabb);
                 leftCount[i] = leftSum;
                 leftArea[i] = surfaceArea(leftBox);
+                // leftCount[i]/leftArea[i] contains all primitives from 0..i (inclusive)
 
                 rightSum += bin[BINS - 1 - i].count;
                 rightBox.extend(bin[BINS - 1 - i].aabb);
                 rightCount[BINS - 2 - i] = rightSum;
                 rightArea[BINS - 2 - i] = surfaceArea(rightBox);
+                // rightCount[i]/rightArea[i] contains all primitives from i+1..Bins-1
             }
 
             // calculate SAH cost
