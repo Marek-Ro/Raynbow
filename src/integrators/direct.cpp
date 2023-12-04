@@ -14,6 +14,7 @@ public:
      * This will be run for each pixel of the image, potentially with multiple samples for each pixel.
      */
     Color Li(const Ray &ray, Sampler &rng) override {
+
         // Compute the intersection object
         Intersection its = m_scene->intersect(ray,rng);
         // start with wite color 
@@ -38,6 +39,27 @@ public:
             }
             // scale our color according to the weight of the intersection 
             ray_color *= bsdfsample.weight;
+
+            if (m_scene->hasLights()) {
+                LightSample light_sample =  m_scene->sampleLight(rng);
+                DirectLightSample d = light_sample.light->sampleDirect(its.position, rng);
+
+                // avoid double counting
+                if (light_sample.light->canBeIntersected() == false) {
+                    // check if the light source is visible
+                    // therefore create a ray and shoot it in the direction of the light source to see if intersects
+                    // something before that light source
+                    Ray check_for_visibility_ray = Ray(its.position, d.wi);
+                    Intersection check_for_visibility_its = m_scene->intersect(check_for_visibility_ray, rng);
+
+                    if (check_for_visibility_its.t >= d.distance) {
+                        // the light is visible
+                        //ray_color += check_for_visibility_its.evaluateBsdf(d.wi).value;
+
+                        ray_color += (d.weight * light_sample.probability);
+                    }
+                }
+            }
 
             // create the secondary ray 
             Ray secondary_ray = Ray(its.position, bsdfsample.wi.normalized());
