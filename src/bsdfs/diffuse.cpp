@@ -28,7 +28,7 @@ namespace lightwave
 
             BsdfEval eval = { .value = m_albedo->evaluate(uv) };
 
-            eval.value *= Frame::cosTheta(wo);
+            eval.value *= Frame::cosTheta(wi);
             return eval;
         }
 
