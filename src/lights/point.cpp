@@ -16,7 +16,7 @@ public:
                                    Sampler &rng) const override {
         
         DirectLightSample d = DirectLightSample {
-            .wi = (position - origin),
+            .wi = (position - origin).normalized(),
             .weight = weight * Inv4Pi / sqr((origin - position).length()),
             .distance = (origin - position).length(),
         };

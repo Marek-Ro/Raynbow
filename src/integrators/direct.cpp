@@ -18,7 +18,7 @@ public:
         // Compute the intersection object
         Intersection its = m_scene->intersect(ray,rng);
         // start with wite color 
-        Color ray_color = Color(1.0f);
+        Color ray_color = Color(0.0f);
 
         // no intersection
         if (!its) {
@@ -50,35 +50,34 @@ public:
                     // therefore create a ray and shoot it in the direction of the light source to see if intersects
                     // something before that light source
                     Ray check_for_visibility_ray = Ray(its.position, d.wi);
-                    Intersection check_for_visibility_its = m_scene->intersect(check_for_visibility_ray, rng);
 
                     if (!m_scene->intersect(check_for_visibility_ray, d.distance, rng)) {
                         // the light is visible
-//                        ray_color += check_for_visibility_its.evaluateBsdf(d.wi).value * (d.weight * light_sample.probability) * m_scene->evaluateBackground(d.wi).value;
                         BsdfEval eval = its.evaluateBsdf(d.wi);
-                        ray_color *= (d.weight * light_sample.probability) * eval.value;
+                        ray_color = (d.weight / light_sample.probability) * eval.value;
                         return ray_color;
                     }
                 }
             }
 
-            // create the secondary ray 
-            Ray secondary_ray = Ray(its.position, bsdfsample.wi.normalized());
-            Intersection secondary_its = m_scene->intersect(secondary_ray, rng);
-            // Intersection of the secondary ray
-            if (secondary_its) {
-                // if the secondary ray hits a backface, do not return the emission from the face, 
-                // but act as if it was no light source
-                if (secondary_its.frame.normal.dot(secondary_its.wo) < 0) {
-                    return Color(0);
-                }
-
-                // no light source, since we found a new intersection with an object
-                return ray_color * secondary_its.evaluateEmission();
-            } else {
-                // Secondary ray escapes
-                return ray_color * (Color(1.0f) * m_scene->evaluateBackground(secondary_ray.direction).value);
-            }
+//            // create the secondary ray 
+//            Ray secondary_ray = Ray(its.position, bsdfsample.wi.normalized());
+//            Intersection secondary_its = m_scene->intersect(secondary_ray, rng);
+//            // Intersection of the secondary ray
+//            if (secondary_its) {
+//                // if the secondary ray hits a backface, do not return the emission from the face, 
+//                // but act as if it was no light source
+//                if (secondary_its.frame.normal.dot(secondary_its.wo) < 0) {
+//                    return Color(0);
+//                }
+//
+//                // no light source, since we found a new intersection with an object
+//                return ray_color + (bsdfsample.weight * secondary_its.evaluateEmission());
+//            } else {
+//                // Secondary ray escapes
+//                // mal eval von der primary intersection
+//                return (ray_color + bsdfsample.weight * m_scene->evaluateBackground(secondary_ray.direction).value);
+//            }
         }
         return ray_color;
     }
