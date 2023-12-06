@@ -24,6 +24,14 @@ namespace lightwave
 
         }
 
+        BsdfEval evaluate(const Point2& uv, const Vector& wo, const Vector& wi) const override {
+
+            BsdfEval eval = { .value = m_albedo->evaluate(uv) };
+
+            eval.value *= Frame::cosTheta(wo);
+            return eval;
+        }
+
         std::string toString() const override
         {
             return tfm::format("Diffuse[\n"

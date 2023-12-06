@@ -52,11 +52,11 @@ public:
                     Ray check_for_visibility_ray = Ray(its.position, d.wi);
                     Intersection check_for_visibility_its = m_scene->intersect(check_for_visibility_ray, rng);
 
-                    if (check_for_visibility_its.t >= d.distance) {
+                    if (!m_scene->intersect(check_for_visibility_ray, d.distance, rng)) {
                         // the light is visible
-                        //ray_color += check_for_visibility_its.evaluateBsdf(d.wi).value;
-
-                        ray_color += (d.weight * light_sample.probability) * m_scene->evaluateBackground(d.wi).value;
+//                        ray_color += check_for_visibility_its.evaluateBsdf(d.wi).value * (d.weight * light_sample.probability) * m_scene->evaluateBackground(d.wi).value;
+                        BsdfEval eval = its.evaluateBsdf(d.wi);
+                        ray_color *= (d.weight * light_sample.probability) * eval.value;
                         return ray_color;
                     }
                 }
