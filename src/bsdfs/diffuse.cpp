@@ -28,7 +28,15 @@ namespace lightwave
 
             BsdfEval eval = { .value = m_albedo->evaluate(uv) };
 
-            eval.value *= Frame::cosTheta(wi);
+            float cos = Frame::cosTheta(wi);
+//            cos = wi.z() / sqrt(wi.x() * wi.x() + wi.y() * wi.y());
+            eval.value *= cos;
+//            if (cos <= 0) logger(EError, "%f", cos);
+//            assert(eval.value.r() >= 0 && eval.value.g() >= 0 && eval.value.b() >= 0);
+//            assert(wi.z() > 0);
+            if (eval.value.r() < 0) eval.value.r() = 0;
+            if (eval.value.g() < 0) eval.value.g() = 0;
+            if (eval.value.b() < 0) eval.value.b() = 0;
             return eval;
         }
 

@@ -39,6 +39,7 @@ public:
             }
             // scale our color according to the weight of the intersection 
             ray_color *= bsdfsample.weight;
+        //assert(ray_color.r() >= 0 && ray_color.g() >= 0 && ray_color.b() >= 0);
 
             if (m_scene->hasLights()) {
                 LightSample light_sample =  m_scene->sampleLight(rng);
@@ -56,10 +57,12 @@ public:
                         BsdfEval eval = its.evaluateBsdf(d.wi);
                         ray_color = d.weight * eval.value / light_sample.probability;
                         //return ray_color;
+//        if (!(ray_color.r() >= 0 && ray_color.g() >= 0 && ray_color.b() >= 0)) logger(EError, "(%f, %f, %f)", eval.r(), eval.g(), eval.b());
                     }
                 }
             }
-
+        //assert(ray_color.r() >= 0 && ray_color.g() >= 0 && ray_color.b() >= 0);
+        //if (!(ray_color.r() >= 0 && ray_color.g() >= 0 && ray_color.b() >= 0)) logger(EError, "%f, %f, %f", ray_color.r(), ray_color.g(), ray_color.b());
             // create the secondary ray 
             Ray secondary_ray = Ray(its.position, bsdfsample.wi.normalized());
             Intersection secondary_its = m_scene->intersect(secondary_ray, rng);
