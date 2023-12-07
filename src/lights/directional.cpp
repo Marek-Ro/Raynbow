@@ -16,8 +16,8 @@ public:
                                    Sampler &rng) const override {
         
         DirectLightSample d = DirectLightSample {
-            .wi = direction,
-            .weight = intensity,
+            .wi = direction.normalized(),
+            .weight = intensity / Pi,
             .distance = Infinity,
         };
         return d;
