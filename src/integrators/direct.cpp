@@ -52,7 +52,7 @@ public:
                     if (!m_scene->intersect(check_for_visibility_ray, d.distance, rng)) {
                         // the light is visible
                         BsdfEval eval = its.evaluateBsdf(d.wi);
-                        ray_color = d.weight * eval.value / light_sample.probability;
+                        ray_color += d.weight * eval.value / light_sample.probability;
                     }
                 }
             }
