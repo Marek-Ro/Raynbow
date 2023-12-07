@@ -25,7 +25,26 @@ public:
 
     BsdfSample sample(const Point2 &uv, const Vector &wo,
                       Sampler &rng) const override {
-        NOT_IMPLEMENTED
+        float ior = m_ior->scalar(uv);
+        float cos = Frame::cosTheta(wo);
+        float fresnel = fresnelDielectric(cos, ior);
+        
+        // TODO randomly choose (based on fresnel) (reflect refract)
+        // TODO interior -> exterior or exterior -> interior 
+
+        // reflect 
+        BsdfSample s = {
+            .wi = reflect(wo, Vector(0, 0, 1)),
+            .weight = m_reflectance->evaluate(uv),
+        }; 
+
+        // refract 
+        BsdfSample s2 = {
+            .wi = wo,
+            .weight = m_transmittance->evaluate(uv),
+        };
+
+        return s;
     }
 
     std::string toString() const override {
