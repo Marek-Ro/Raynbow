@@ -50,11 +50,11 @@ namespace lightwave
 
                 // if both t are negative return false
                 // we look for the smallest t which is greater than 0
-                if (min(t1, t2) >= 0)
+                if (min(t1, t2) >= Epsilon)
                 {
                     t_candidate = min(t1, t2);
                 }
-                else if (max(t1, t2) >= 0)
+                else if (max(t1, t2) >= Epsilon)
                 {
                     t_candidate = max(t1, t2);
                 }
