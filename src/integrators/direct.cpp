@@ -17,7 +17,7 @@ public:
 
         // Compute the intersection object
         Intersection its = m_scene->intersect(ray,rng);
-        // start with wite color 
+        // start without color 
         Color ray_color = Color(0.0f);
 
         // no intersection
@@ -29,17 +29,14 @@ public:
         else {
             if (its.evaluateEmission() != Color(0)) {
                 // return because a shadow on a light emitting object doesn't make sense
-                return ray_color + its.evaluateEmission();
+                ray_color = its.evaluateEmission();
             }
 
             BsdfSample bsdfsample = its.sampleBsdf(rng);
 
             if (bsdfsample.isInvalid()) {
-                return Color(0);
+                return ray_color;
             }
-            // scale our color according to the weight of the intersection 
-            ray_color *= bsdfsample.weight;
-        //assert(ray_color.r() >= 0 && ray_color.g() >= 0 && ray_color.b() >= 0);
 
             if (m_scene->hasLights()) {
                 LightSample light_sample =  m_scene->sampleLight(rng);
@@ -56,13 +53,9 @@ public:
                         // the light is visible
                         BsdfEval eval = its.evaluateBsdf(d.wi);
                         ray_color = d.weight * eval.value / light_sample.probability;
-                        //return ray_color;
-//        if (!(ray_color.r() >= 0 && ray_color.g() >= 0 && ray_color.b() >= 0)) logger(EError, "(%f, %f, %f)", eval.r(), eval.g(), eval.b());
                     }
                 }
             }
-        //assert(ray_color.r() >= 0 && ray_color.g() >= 0 && ray_color.b() >= 0);
-        //if (!(ray_color.r() >= 0 && ray_color.g() >= 0 && ray_color.b() >= 0)) logger(EError, "%f, %f, %f", ray_color.r(), ray_color.g(), ray_color.b());
             // create the secondary ray 
             Ray secondary_ray = Ray(its.position, bsdfsample.wi.normalized());
             Intersection secondary_its = m_scene->intersect(secondary_ray, rng);
@@ -71,7 +64,7 @@ public:
                 // if the secondary ray hits a backface, do not return the emission from the face, 
                 // but act as if it was no light source
                 if (secondary_its.frame.normal.dot(secondary_its.wo) < 0) {
-                    return Color(0);
+                    return ray_color;
                 }
 
                 // no light source, since we found a new intersection with an object
