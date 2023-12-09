@@ -26,23 +26,27 @@ public:
     BsdfSample sample(const Point2 &uv, const Vector &wo,
                       Sampler &rng) const override {
         float ior = m_ior->scalar(uv);
-        float cos = Frame::cosTheta(wo);
-        float fresnel = fresnelDielectric(cos, ior);
-        
-        // TODO randomly choose (based on fresnel) (reflect refract)
-        // TODO interior -> exterior or exterior -> interior 
+        float cosThetaWo = Frame::cosTheta(wo);
+        float eta = cosThetaWo > 0 ? ior : 1.0f / ior;
+        float fresnel = fresnelDielectric(cosThetaWo, eta);
 
-        // reflect 
-        BsdfSample s = {
-            .wi = reflect(wo, Vector(0, 0, 1)),
-            .weight = m_reflectance->evaluate(uv),
-        }; 
+        BsdfSample s;
 
-        // refract 
-        BsdfSample s2 = {
-            .wi = wo,
-            .weight = m_transmittance->evaluate(uv),
-        };
+        if (rng.next() < fresnel) {
+            // reflect 
+            s.wi = reflect(wo, Vector(0, 0, 1));
+            s.weight = m_reflectance->evaluate(uv);
+        } else {
+            // refract 
+
+            // check whether you come from inside or from outside
+            if (cosThetaWo > 0) {
+                s.wi = refract(wo, Vector(0, 0, 1), eta);
+            } else {
+                s.wi = refract(wo, Vector(0, 0, -1), eta);
+            }
+            s.weight = m_transmittance->evaluate(uv) / sqr(eta);
+        }
 
         return s;
     }
