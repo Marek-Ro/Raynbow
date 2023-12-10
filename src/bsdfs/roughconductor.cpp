@@ -25,7 +25,7 @@ public:
         // hints:
         // * the microfacet normal can be computed from `wi' and `wo'
 
-        Vector wm = (wi+wo) / (wi+wo).length();
+        Vector wm = ((wi+wo) / (wi+wo).length()).normalized();
         Color R = m_reflectance->evaluate(uv);
 
         // TODO error wenn lightwave::microfacet:: nicht da steht
@@ -38,7 +38,8 @@ public:
         float theta_i = Frame::cosTheta(wi); 
         float theta_o = Frame::cosTheta(wo);
         
-        float scale = (D*G_wi*G_wo) / (4 * cos(theta_i) * cos(theta_o));
+        float scale = (D*G_wi*G_wo) / (4 * theta_i * theta_o);
+        //float scale = (D*G_wi*G_wo) / (4 * cos(theta_i) * cos(theta_o));
 
         BsdfEval eval = {.value = R*scale};
         return eval;
@@ -54,17 +55,16 @@ public:
         //   (the resulting sample weight is only a product of two factors)
         Vector normal = lightwave::microfacet::sampleGGXVNDF(alpha, wo, rng.next2D()).normalized();
         
-        float scale2 = lightwave::microfacet::detReflection(normal, wo);
-        scale2 = 1;
-        Vector wi = normal * scale2;
-        wi = reflect(wo, normal);
+//        float jacobian = lightwave::microfacet::detReflection(normal, wo);
+
+//        Vector wi = (normal * 2) - wo;
+        Vector wi = reflect(wo, normal);
 
         Color w = m_reflectance->evaluate(uv);
-       
         
         BsdfSample sample = {
                                 .wi = wi,
-                                .weight = w
+                                .weight = w * lightwave::microfacet::smithG1(alpha, normal, wi) // Frame::cosTheta(wi)
                             };
         return sample;
     }
