@@ -21,21 +21,44 @@ public:
         // extremely specular distributions (alpha values below 10^-3)
         const auto alpha = std::max(float(1e-3), sqr(m_roughness->scalar(uv)));
 
-        NOT_IMPLEMENTED
 
         // hints:
         // * the microfacet normal can be computed from `wi' and `wo'
+
+        Vector wm = (wi+wo) / (wi+wo).length();
+        Color R = m_reflectance->evaluate(uv);
+
+        // TODO error wenn lightwave::microfacet:: nicht da steht
+        float D = lightwave::microfacet::evaluateGGX(alpha, wm);
+        float G_wi = lightwave::microfacet::smithG1(alpha, wm, wi);
+        float G_wo = lightwave::microfacet::smithG1(alpha, wm, wo); 
+        
+        // incoming and outgoing angle 
+        // TODO weiß nicht ob cosTheta hier richtig ist und ob dann unten cos genommen werden muss
+        float theta_i = Frame::cosTheta(wi); 
+        float theta_o = Frame::cosTheta(wo);
+        
+        float scale = (D*G_wi*G_wo) / (4 * cos(theta_i) * cos(theta_o));
+
+        BsdfEval eval = {.value = R*scale};
+        return eval;
+
     }
 
     BsdfSample sample(const Point2 &uv, const Vector &wo,
                       Sampler &rng) const override {
         const auto alpha = std::max(float(1e-3), sqr(m_roughness->scalar(uv)));
-
-        NOT_IMPLEMENTED
         
         // hints:
         // * do not forget to cancel out as many terms from your equations as possible!
         //   (the resulting sample weight is only a product of two factors)
+        Vector normal = lightwave::microfacet::sampleGGXVNDF(alpha, wo, rng.next2D());
+
+        BsdfSample sample = {
+                                .wi = normal,
+                                .weight = m_reflectance->evaluate(uv)
+                            };
+        return sample;
     }
 
     std::string toString() const override {
