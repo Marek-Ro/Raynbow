@@ -9,7 +9,12 @@ struct DiffuseLobe {
     Color color;
 
     BsdfEval evaluate(const Vector &wo, const Vector &wi) const {
-        NOT_IMPLEMENTED
+
+        BsdfEval eval = { .value = color };
+
+        float cos = Frame::cosTheta(wi);
+        eval.value *= cos;
+        return eval;
 
         // hints:
         // * copy your diffuse bsdf evaluate here
@@ -17,7 +22,12 @@ struct DiffuseLobe {
     }
 
     BsdfSample sample(const Vector &wo, Sampler &rng) const {
-        NOT_IMPLEMENTED
+
+        BsdfSample sample = {
+            .wi = squareToCosineHemisphere(rng.next2D()).normalized(),
+            .weight = color
+        };
+        return sample;
 
         // hints:
         // * copy your diffuse bsdf evaluate here
@@ -30,7 +40,25 @@ struct MetallicLobe {
     Color color;
 
     BsdfEval evaluate(const Vector &wo, const Vector &wi) const {
-        NOT_IMPLEMENTED
+
+        Vector wm = ((wi+wo) / (wi+wo).length()).normalized();
+        Color R = color;
+
+        // TODO error wenn lightwave::microfacet:: nicht da steht
+        float D = lightwave::microfacet::evaluateGGX(alpha, wm);
+        float G_wi = lightwave::microfacet::smithG1(alpha, wm, wi);
+        float G_wo = lightwave::microfacet::smithG1(alpha, wm, wo); 
+        
+        // incoming and outgoing angle 
+        // TODO weiß nicht ob cosTheta hier richtig ist und ob dann unten cos genommen werden muss
+        float theta_i = Frame::cosTheta(wi); 
+        float theta_o = Frame::cosTheta(wo);
+        
+        float scale = (D*G_wi*G_wo) / (4 * theta_i * theta_o);
+        //float scale = (D*G_wi*G_wo) / (4 * cos(theta_i) * cos(theta_o));
+
+        BsdfEval eval = {.value = R*scale};
+        return eval;
 
         // hints:
         // * copy your roughconductor bsdf evaluate here
@@ -40,7 +68,21 @@ struct MetallicLobe {
     }
 
     BsdfSample sample(const Vector &wo, Sampler &rng) const {
-        NOT_IMPLEMENTED
+
+        Vector normal = lightwave::microfacet::sampleGGXVNDF(alpha, wo, rng.next2D()).normalized();
+        
+//        float jacobian = lightwave::microfacet::detReflection(normal, wo);
+
+//        Vector wi = (normal * 2) - wo;
+        Vector wi = reflect(wo, normal);
+
+        Color w = color;
+        
+        BsdfSample sample = {
+                                .wi = wi,
+                                .weight = w * lightwave::microfacet::smithG1(alpha, normal, wi) // Frame::cosTheta(wi)
+                            };
+        return sample;
 
         // hints:
         // * copy your roughconductor bsdf sample here
@@ -98,8 +140,10 @@ public:
     BsdfEval evaluate(const Point2 &uv, const Vector &wo,
                       const Vector &wi) const override {
         const auto combination = combine(uv, wo);
-        NOT_IMPLEMENTED
 
+        // I also tried halving the sum but it did not make a visible difference
+        return { .value = (combination.diffuse.evaluate(wo, wi).value + combination.metallic.evaluate(wo, wi).value) };
+        
         // hint: evaluate `combination.diffuse` and `combination.metallic` and
         // combine their results
     }
@@ -107,7 +151,16 @@ public:
     BsdfSample sample(const Point2 &uv, const Vector &wo,
                       Sampler &rng) const override {
         const auto combination = combine(uv, wo);
-        NOT_IMPLEMENTED
+
+        BsdfSample sample;
+        
+        if (combination.diffuseSelectionProb > rng.next()) {
+            sample = combination.diffuse.sample(wo, rng);
+        } else {
+            sample = combination.metallic.sample(wo, rng);
+        }
+
+        return sample;
 
         // hint: sample either `combination.diffuse` (probability
         // `combination.diffuseSelectionProb`) or `combination.metallic`
