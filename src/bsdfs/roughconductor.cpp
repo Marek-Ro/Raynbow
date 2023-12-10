@@ -52,11 +52,19 @@ public:
         // hints:
         // * do not forget to cancel out as many terms from your equations as possible!
         //   (the resulting sample weight is only a product of two factors)
-        Vector normal = lightwave::microfacet::sampleGGXVNDF(alpha, wo, rng.next2D());
+        Vector normal = lightwave::microfacet::sampleGGXVNDF(alpha, wo, rng.next2D()).normalized();
+        
+        float scale2 = lightwave::microfacet::detReflection(normal, wo);
+        scale2 = 1;
+        Vector wi = normal * scale2;
+        wi = reflect(wo, normal);
 
+        Color w = m_reflectance->evaluate(uv);
+       
+        
         BsdfSample sample = {
-                                .wi = normal,
-                                .weight = m_reflectance->evaluate(uv)
+                                .wi = wi,
+                                .weight = w
                             };
         return sample;
     }
