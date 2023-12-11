@@ -41,7 +41,9 @@ public:
             if (m_scene->hasLights()) {
                 LightSample light_sample =  m_scene->sampleLight(rng);
                 DirectLightSample d = light_sample.light->sampleDirect(its.position, rng);
-
+                if (d.isInvalid()) {
+                    return Color(0);
+                }
                 // avoid double counting
                 if (light_sample.light->canBeIntersected() == false) {
                     // check if the light source is visible
@@ -53,6 +55,8 @@ public:
                         // the light is visible
                         BsdfEval eval = its.evaluateBsdf(d.wi);
                         ray_color += d.weight * eval.value / light_sample.probability;
+                        assert(light_sample.probability > 0);
+                        assert(!std::isnan(light_sample.probability));
                     }
                 }
             }
