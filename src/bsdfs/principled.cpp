@@ -119,7 +119,7 @@ class Principled : public Bsdf {
             .alpha = alpha,
             .color = F * Color(1) + (1 - F) * metallic * baseColor,
         };
-
+       // assert(diffuseLobe.color.mean() + metallicLobe.color.mean() != 0);
         return {
             .diffuseSelectionProb =
                 diffuseLobe.color.mean() /
@@ -156,9 +156,17 @@ public:
         
         if (combination.diffuseSelectionProb > rng.next()) {
             sample = combination.diffuse.sample(wo, rng);
+            if (sample.isInvalid()) {
+                sample.weight = Color(0);
+                return sample;
+            }
             sample.weight = sample.weight / combination.diffuseSelectionProb;
         } else {
             sample = combination.metallic.sample(wo, rng);
+            if (sample.isInvalid()) {
+                sample.weight = Color(0);
+                return sample;
+            }
             sample.weight = sample.weight / (1.0 - combination.diffuseSelectionProb);
         }
 
