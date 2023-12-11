@@ -42,6 +42,7 @@ public:
         //float scale = (D*G_wi*G_wo) / (4 * cos(theta_i) * cos(theta_o));
 
         BsdfEval eval = {.value = R*scale};
+        eval.value *= theta_i;
         return eval;
 
     }
