@@ -11,6 +11,11 @@ public:
     }
 
     EmissionEval evaluate(const Point2 &uv, const Vector &wo) const override {
+        // no emission for backfaces
+        if (wo.z() < 0) {
+            return { .value = Color(0) };
+        }
+
         EmissionEval result = {.value = m_emission->evaluate(uv)};        
         return result;
     }
