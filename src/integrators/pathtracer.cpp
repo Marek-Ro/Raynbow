@@ -34,7 +34,7 @@ public:
                 LightSample light_sample =  m_scene->sampleLight(rng);
                 DirectLightSample dls = light_sample.light->sampleDirect(intersection.position, rng);
                 if (dls.isInvalid()) {
-                    return Color(0);
+                    return Li;
                 }
                 // avoid double counting
                 if (light_sample.light->canBeIntersected() == false) {
@@ -54,7 +54,7 @@ public:
             }
             BsdfSample bsdfsample = intersection.sampleBsdf(rng);
             if (bsdfsample.isInvalid()) {
-                return Color(0);
+                return Li;
             }
 
             // create the secondary ray 
@@ -67,6 +67,7 @@ public:
             } else {
                 // Secondary ray escapes
                 Li += bsdfsample.weight * m_scene->evaluateBackground(secondary_ray.direction).value * weight;
+                return Li;
             }
 
             // update weight
