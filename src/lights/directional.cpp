@@ -17,7 +17,7 @@ public:
         
         DirectLightSample d = DirectLightSample {
             .wi = direction.normalized(),
-            .weight = intensity / Pi,
+            .weight = intensity,
             .distance = Infinity,
         };
         return d;

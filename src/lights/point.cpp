@@ -17,7 +17,7 @@ public:
         
         DirectLightSample d = DirectLightSample {
             .wi = (position - origin).normalized(),
-            .weight = (weight * Inv4Pi) / (Pi * sqr((origin - position).length())),
+            .weight = (weight * Inv4Pi) / (sqr((origin - position).length())),
             .distance = (origin - position).length(),
         };
         return d;
