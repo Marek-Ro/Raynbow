@@ -4,10 +4,12 @@ namespace lightwave {
 
 class pathtracer : public SamplingIntegrator {
 int depth;
+bool nee;
 public:
     pathtracer(const Properties &properties)
         : SamplingIntegrator(properties) {
         depth = properties.get<int>("depth", 1);
+        nee = m_scene->hasLights();
     }
 
     /**
@@ -28,7 +30,7 @@ public:
             // emission after there is an intersection
             Li += weight * intersection.evaluateEmission();
             // next-event estimation
-            if (m_scene->hasLights()) {
+            if (nee) {
                 LightSample light_sample =  m_scene->sampleLight(rng);
                 DirectLightSample dls = light_sample.light->sampleDirect(intersection.position, rng);
                 if (dls.isInvalid()) {
@@ -55,7 +57,7 @@ public:
                 return Color(0);
             }
             // contribution of the intersection point
-            Li += bsdfsample.weight * weight;
+            Li += bsdfsample.weight * weight * intersection.evaluateEmission();
             // update weight
             weight *= bsdfsample.weight;
             // construct next ray
