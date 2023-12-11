@@ -20,7 +20,7 @@ public:
         Ray current_ray = ray;
         Color Li = Color(0);
         Color weight = Color(1);
-        for (int current_depth = 0; current_depth < depth; current_depth++) {
+        for (int current_depth = 1; current_depth < depth; current_depth++) {
             Intersection intersection = m_scene->intersect(current_ray, rng);
             // handle escaping rays
             if (!intersection) {
@@ -56,12 +56,23 @@ public:
             if (bsdfsample.isInvalid()) {
                 return Color(0);
             }
-            // contribution of the intersection point
-            Li += bsdfsample.weight * weight * intersection.evaluateEmission();
+
+            // create the secondary ray 
+            Ray secondary_ray = Ray(intersection.position, bsdfsample.wi.normalized());
+            Intersection second_intersection = m_scene->intersect(secondary_ray, rng);
+            // Intersection of the secondary ray
+            if (second_intersection) {
+                // light contribution of the second object we found
+                Li += (bsdfsample.weight * second_intersection.evaluateEmission() * weight);
+            } else {
+                // Secondary ray escapes
+                Li += bsdfsample.weight * m_scene->evaluateBackground(secondary_ray.direction).value * weight;
+            }
+
             // update weight
             weight *= bsdfsample.weight;
             // construct next ray
-            current_ray = Ray(intersection.position, bsdfsample.wi);
+            current_ray = secondary_ray;
         }
         return Li;
     }
