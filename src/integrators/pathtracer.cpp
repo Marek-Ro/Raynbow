@@ -28,7 +28,7 @@ public:
                 return Li;
             }
             // emission after there is an intersection
-            Li += weight * intersection.evaluateEmission();
+            if (current_depth == 1) Li += weight * intersection.evaluateEmission();
             // next-event estimation
             if (nee) {
                 LightSample light_sample =  m_scene->sampleLight(rng);
