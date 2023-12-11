@@ -13,8 +13,10 @@ struct DiffuseLobe {
         BsdfEval eval = { .value = color };
 
         float cos = Frame::cosTheta(wi);
+        assert(wi.z() >= 0);
         eval.value *= cos;
         eval.value *= InvPi;
+        assert(eval.value.r() >= 0 && eval.value.g() >= 0 && eval.value.b() >= 0);
         return eval;
 
         // hints:
@@ -63,6 +65,7 @@ struct MetallicLobe {
 
         BsdfEval eval = {.value = R*scale};
         eval.value *= theta_i;
+        assert(eval.value.r() >= 0 && eval.value.g() >= 0 && eval.value.b() >= 0);
         return eval;
 
         // hints:
@@ -151,8 +154,10 @@ public:
                       const Vector &wi) const override {
         const auto combination = combine(uv, wo);
 
+        BsdfEval eval = { .value = (combination.diffuse.evaluate(wo, wi).value + combination.metallic.evaluate(wo, wi).value) };
         // I also tried halving the sum but it did not make a visible difference
-        return { .value = (combination.diffuse.evaluate(wo, wi).value + combination.metallic.evaluate(wo, wi).value) };
+        assert(eval.value.r() >= 0 && eval.value.g() >= 0 && eval.value.b() >= 0);
+        return eval;
         
         // hint: evaluate `combination.diffuse` and `combination.metallic` and
         // combine their results

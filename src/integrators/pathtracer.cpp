@@ -47,6 +47,8 @@ public:
                         // the light is visible
                         BsdfEval eval = intersection.evaluateBsdf(dls.wi);
                         Li += dls.weight * eval.value / light_sample.probability;
+                        assert(dls.weight.r() >= 0 && dls.weight.g() >= 0 && dls.weight.b() >= 0);
+                        assert(eval.value.r() >= 0 && eval.value.g() >= 0 && eval.value.b() >= 0);
                         assert(light_sample.probability > 0);
                         assert(!std::isnan(light_sample.probability));
                     }
@@ -72,6 +74,7 @@ public:
 
             // update weight
             weight *= bsdfsample.weight;
+            assert(weight.r() >= 0 && weight.g() >= 0 && weight.b() >= 0);
             // construct next ray
             current_ray = secondary_ray;
         }
