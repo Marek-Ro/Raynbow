@@ -2,11 +2,12 @@
 
 namespace lightwave {
 
-
 class pathtracer : public SamplingIntegrator {
+int depth;
 public:
     pathtracer(const Properties &properties)
         : SamplingIntegrator(properties) {
+        depth = properties.get<int>("depth", 1);
     }
 
     /**
@@ -14,68 +15,52 @@ public:
      * This will be run for each pixel of the image, potentially with multiple samples for each pixel.
      */
     Color Li(const Ray &ray, Sampler &rng) override {
-
-        // Compute the intersection object
-        Intersection its = m_scene->intersect(ray,rng);
-        // start without color 
-        Color ray_color = Color(0.0f);
-
-        // no intersection
-        if (!its) {
-            // background color
-            ray_color = m_scene->evaluateBackground(ray.direction).value;
-        }
-        // intersection
-        else {
-            if (its.evaluateEmission() != Color(0)) {
-                // return because a shadow on a light emitting object doesn't make sense
-                ray_color = its.evaluateEmission();
+        Ray current_ray = ray;
+        Color Li = Color(0);
+        Color weight = Color(1);
+        
+        for (int current_depth = 0; current_depth < depth; current_depth++) {
+            Intersection intersection = m_scene->intersect(current_ray, rng);
+            Li += weight * intersection.evaluateEmission();
+            if (!intersection) {
+                // no intersection -> hit background 
+                Li += weight * m_scene->evaluateBackground(current_ray.direction).value;
+                break;
             }
-
-            BsdfSample bsdfsample = its.sampleBsdf(rng);
-
-            if (bsdfsample.isInvalid()) {
-                return ray_color;
-            }
-
             if (m_scene->hasLights()) {
                 LightSample light_sample =  m_scene->sampleLight(rng);
-                DirectLightSample d = light_sample.light->sampleDirect(its.position, rng);
-
+                DirectLightSample dls = light_sample.light->sampleDirect(intersection.position, rng);
+                if (dls.isInvalid()) {
+                    return Color(0);
+                }
                 // avoid double counting
                 if (light_sample.light->canBeIntersected() == false) {
                     // check if the light source is visible
                     // therefore create a ray and shoot it in the direction of the light source to see if intersects
                     // something before that light source
-                    Ray check_for_visibility_ray = Ray(its.position, d.wi);
+                    Ray check_for_visibility_ray = Ray(intersection.position, dls.wi);
 
-                    if (!m_scene->intersect(check_for_visibility_ray, d.distance, rng)) {
+                    if (!m_scene->intersect(check_for_visibility_ray, dls.distance, rng)) {
                         // the light is visible
-                        BsdfEval eval = its.evaluateBsdf(d.wi);
-                        ray_color += d.weight * eval.value / light_sample.probability;
+                        BsdfEval eval = intersection.evaluateBsdf(dls.wi);
+                        Li += dls.weight * eval.value / light_sample.probability;
+                        assert(light_sample.probability > 0);
+                        assert(!std::isnan(light_sample.probability));
                     }
                 }
             }
-            // create the secondary ray 
-            Ray secondary_ray = Ray(its.position, bsdfsample.wi.normalized());
-            Intersection secondary_its = m_scene->intersect(secondary_ray, rng);
-            // Intersection of the secondary ray
-            if (secondary_its) {
-                // if the secondary ray hits a backface, do not return the emission from the face, 
-                // but act as if it was no light source
-                if (secondary_its.frame.normal.dot(secondary_its.wo) < 0) {
-                    return ray_color;
-                }
-
-                // no light source, since we found a new intersection with an object
-                ray_color += (bsdfsample.weight * secondary_its.evaluateEmission());
-            } else {
-                // Secondary ray escapes
-                // mal eval von der primary intersection
-                ray_color += bsdfsample.weight * m_scene->evaluateBackground(secondary_ray.direction).value;
+            BsdfSample bsdfsample = intersection.sampleBsdf(rng);
+            if (bsdfsample.isInvalid()) {
+                break;
             }
+            // contribution of the intersection point
+            Li += bsdfsample.weight * weight;
+            // update weight
+            weight *= bsdfsample.weight;
+            // construct next ray
+            current_ray = Ray(intersection.position, bsdfsample.wi);
         }
-        return ray_color;
+        return Li;
     }
 
     /// @brief An optional textual representation of this class, which can be useful for debugging. 
