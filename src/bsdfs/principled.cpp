@@ -156,8 +156,10 @@ public:
         
         if (combination.diffuseSelectionProb > rng.next()) {
             sample = combination.diffuse.sample(wo, rng);
+            sample.weight = sample.weight / combination.diffuseSelectionProb;
         } else {
             sample = combination.metallic.sample(wo, rng);
+            sample.weight = sample.weight / (1.0 - combination.diffuseSelectionProb);
         }
 
         return sample;
