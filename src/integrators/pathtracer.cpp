@@ -18,15 +18,16 @@ public:
         Ray current_ray = ray;
         Color Li = Color(0);
         Color weight = Color(1);
-        
         for (int current_depth = 0; current_depth < depth; current_depth++) {
             Intersection intersection = m_scene->intersect(current_ray, rng);
-            Li += weight * intersection.evaluateEmission();
+            // handle escaping rays
             if (!intersection) {
-                // no intersection -> hit background 
                 Li += weight * m_scene->evaluateBackground(current_ray.direction).value;
-                break;
+                return Li;
             }
+            // emission after there is an intersection
+            Li += weight * intersection.evaluateEmission();
+            // next-event estimation
             if (m_scene->hasLights()) {
                 LightSample light_sample =  m_scene->sampleLight(rng);
                 DirectLightSample dls = light_sample.light->sampleDirect(intersection.position, rng);
@@ -51,7 +52,7 @@ public:
             }
             BsdfSample bsdfsample = intersection.sampleBsdf(rng);
             if (bsdfsample.isInvalid()) {
-                break;
+                return Color(0);
             }
             // contribution of the intersection point
             Li += bsdfsample.weight * weight;
