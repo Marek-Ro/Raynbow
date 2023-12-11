@@ -48,8 +48,8 @@ public:
             s.weight = m_transmittance->evaluate(uv) / sqr(eta);
         }
         if (s.isInvalid()) {
-                return BsdfSample::invalid();
-            }
+            return BsdfSample::invalid();
+        }
 
         return s;
     }

@@ -14,6 +14,7 @@ struct DiffuseLobe {
 
         float cos = Frame::cosTheta(wi);
         eval.value *= cos;
+        eval.value *= InvPi;
         return eval;
 
         // hints:
@@ -27,6 +28,9 @@ struct DiffuseLobe {
             .wi = squareToCosineHemisphere(rng.next2D()).normalized(),
             .weight = color
         };
+        if (sample.isInvalid()) {
+            return BsdfSample::invalid();
+        }
         return sample;
 
         // hints:
@@ -82,6 +86,11 @@ struct MetallicLobe {
                                 .wi = wi,
                                 .weight = w * lightwave::microfacet::smithG1(alpha, normal, wi) // Frame::cosTheta(wi)
                             };
+
+        if (sample.isInvalid()) {
+            return BsdfSample::invalid();
+        }
+
         return sample;
 
         // hints:
