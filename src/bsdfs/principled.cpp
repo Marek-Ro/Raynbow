@@ -157,15 +157,13 @@ public:
         if (combination.diffuseSelectionProb > rng.next()) {
             sample = combination.diffuse.sample(wo, rng);
             if (sample.isInvalid()) {
-                sample.weight = Color(0);
-                return sample;
+                return BsdfSample::invalid();
             }
             sample.weight = sample.weight / combination.diffuseSelectionProb;
         } else {
             sample = combination.metallic.sample(wo, rng);
             if (sample.isInvalid()) {
-                sample.weight = Color(0);
-                return sample;
+                return BsdfSample::invalid();
             }
             sample.weight = sample.weight / (1.0 - combination.diffuseSelectionProb);
         }

@@ -21,10 +21,14 @@ public:
     BsdfSample sample(const Point2 &uv, const Vector &wo,
                       Sampler &rng) const override {
         
+
         BsdfSample b = {
             .wi = reflect(wo, Vector(0, 0, 1)),
             .weight = m_reflectance->evaluate(uv),
         };
+        if (b.isInvalid()) {
+                return BsdfSample::invalid();
+            }
         return b;
     }
 

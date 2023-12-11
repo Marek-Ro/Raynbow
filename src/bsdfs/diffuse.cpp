@@ -20,6 +20,9 @@ namespace lightwave
                                 .wi = squareToCosineHemisphere(rng.next2D()).normalized(),
                                 .weight = m_albedo->evaluate(uv)
                             };
+                            if (sample2.isInvalid()) {
+                                return BsdfSample::invalid();
+                            }
                             return sample2;
 
         }

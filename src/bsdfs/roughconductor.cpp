@@ -66,6 +66,9 @@ public:
                                 .wi = wi,
                                 .weight = w * lightwave::microfacet::smithG1(alpha, normal, wi) // Frame::cosTheta(wi)
                             };
+        if (sample.isInvalid()) {
+            return BsdfSample::invalid();
+        }
         return sample;
     }
 
