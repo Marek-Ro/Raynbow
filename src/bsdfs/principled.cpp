@@ -132,11 +132,13 @@ class Principled : public Bsdf {
             .alpha = alpha,
             .color = F * Color(1) + (1 - F) * metallic * baseColor,
         };
-       // assert(diffuseLobe.color.mean() + metallicLobe.color.mean() != 0);
+
+        const auto diffuseAlbedo = diffuseLobe.color.mean();
+        const auto totalAlbedo =
+            diffuseLobe.color.mean() + metallicLobe.color.mean();
         return {
             .diffuseSelectionProb =
-                diffuseLobe.color.mean() /
-                (diffuseLobe.color.mean() + metallicLobe.color.mean()),
+                totalAlbedo > 0 ? diffuseAlbedo / totalAlbedo : 1.0f,
             .diffuse  = diffuseLobe,
             .metallic = metallicLobe,
         };
