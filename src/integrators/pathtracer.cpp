@@ -20,7 +20,7 @@ public:
         Ray current_ray = ray;
         Color Li = Color(0);
         Color weight = Color(1);
-        for (int current_depth = 1; current_depth < depth; current_depth++) {
+        for (int current_depth = 0; current_depth < depth; current_depth++) {
             Intersection intersection = m_scene->intersect(current_ray, rng);
             // handle escaping rays
             if (!intersection) {
@@ -28,7 +28,8 @@ public:
                 return Li;
             }
             // emission after there is an intersection
-            if (current_depth == 1) Li += weight * intersection.evaluateEmission();
+            //if (current_depth == 1) 
+            Li += weight * intersection.evaluateEmission();
             // next-event estimation
             if (nee) {
                 LightSample light_sample =  m_scene->sampleLight(rng);
@@ -46,7 +47,7 @@ public:
                     if (!m_scene->intersect(check_for_visibility_ray, dls.distance, rng)) {
                         // the light is visible
                         BsdfEval eval = intersection.evaluateBsdf(dls.wi);
-                        Li += dls.weight * eval.value / light_sample.probability;
+                        Li += dls.weight * eval.value / light_sample.probability * weight;
                         assert(dls.weight.r() >= 0 && dls.weight.g() >= 0 && dls.weight.b() >= 0);
                         assert(eval.value.r() >= 0 && eval.value.g() >= 0 && eval.value.b() >= 0);
                         assert(light_sample.probability > 0);
@@ -59,24 +60,26 @@ public:
                 return Li;
             }
 
-            // create the secondary ray 
-            Ray secondary_ray = Ray(intersection.position, bsdfsample.wi.normalized());
-            Intersection second_intersection = m_scene->intersect(secondary_ray, rng);
-            // Intersection of the secondary ray
-            if (second_intersection) {
-                // light contribution of the second object we found
-                Li += (bsdfsample.weight * second_intersection.evaluateEmission() * weight);
-            } else {
-                // Secondary ray escapes
-                Li += bsdfsample.weight * m_scene->evaluateBackground(secondary_ray.direction).value * weight;
-                return Li;
-            }
+//            // create the secondary ray 
+//            Ray secondary_ray = Ray(intersection.position, bsdfsample.wi.normalized());
+//            Intersection second_intersection = m_scene->intersect(secondary_ray, rng);
+//            // Intersection of the secondary ray
+//            if (second_intersection) {
+//                // light contribution of the second object we found
+//                Li += (bsdfsample.weight * second_intersection.evaluateEmission() * weight);
+//            } else {
+//                // Secondary ray escapes
+//                Li += bsdfsample.weight * m_scene->evaluateBackground(secondary_ray.direction).value * weight;
+//                return Li;
+//            }
 
             // update weight
             weight *= bsdfsample.weight;
             assert(weight.r() >= 0 && weight.g() >= 0 && weight.b() >= 0);
             // construct next ray
-            current_ray = secondary_ray;
+            current_ray.origin = intersection.position;
+            current_ray.direction = bsdfsample.wi;
+            //current_ray = ray;
         }
         return Li;
     }

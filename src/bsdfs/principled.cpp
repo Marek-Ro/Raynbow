@@ -13,10 +13,10 @@ struct DiffuseLobe {
         BsdfEval eval = { .value = color };
 
         float cos = Frame::cosTheta(wi);
-        assert(wi.z() >= 0);
-        eval.value *= cos;
+//        assert(wi.z() >= 0);
+        eval.value *= max(cos, 0);
         eval.value *= InvPi;
-        assert(eval.value.r() >= 0 && eval.value.g() >= 0 && eval.value.b() >= 0);
+//        assert(eval.value.r() >= 0 && eval.value.g() >= 0 && eval.value.b() >= 0);
         return eval;
 
         // hints:

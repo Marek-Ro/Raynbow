@@ -32,7 +32,7 @@ namespace lightwave
             BsdfEval eval = { .value = m_albedo->evaluate(uv) };
 
             float cos = Frame::cosTheta(wi);
-            eval.value *= cos * InvPi;
+            eval.value *= max(cos, 0) * InvPi;
             return eval;
         }
 

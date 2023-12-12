@@ -76,7 +76,7 @@ namespace lightwave
             }
 
             // position is the hit point
-            its.position = ray(its.t);
+            its.position = ((Vector)(ray(its.t))).normalized();
 
             // calculate the normal vector of the hit point
             its.frame = Frame((ray(its.t) - Point(0)).normalized());
