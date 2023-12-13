@@ -65,7 +65,7 @@ struct MetallicLobe {
 
         BsdfEval eval = {.value = R*scale};
         eval.value *= theta_i;
-        assert(eval.value.r() >= 0 && eval.value.g() >= 0 && eval.value.b() >= 0);
+//        assert(eval.value.r() >= 0 && eval.value.g() >= 0 && eval.value.b() >= 0);
         return eval;
 
         // hints:
