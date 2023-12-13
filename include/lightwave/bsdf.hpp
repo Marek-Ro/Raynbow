@@ -37,11 +37,13 @@ struct BsdfEval {
     /// @brief The value of the Bsdf, given by @code cos(theta) * B(wi, wo)
     /// @endcode
     Color value;
+    float pdf;
 
     /// @brief Indicates the the Bsdf is zero for the given pair of directions.
     static BsdfEval invalid() {
         return {
             .value = Color(0),
+            .pdf = 0,
         };
     }
 

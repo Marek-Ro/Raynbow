@@ -30,6 +30,9 @@ public:
             // emission after there is an intersection
             //if (current_depth == 1) 
             Li += weight * intersection.evaluateEmission();
+
+            if (current_depth >= depth - 1) return Li;
+
             // next-event estimation
             if (nee) {
                 LightSample light_sample =  m_scene->sampleLight(rng);
@@ -75,7 +78,11 @@ public:
 
             // update weight
             weight *= bsdfsample.weight;
-            assert(weight.r() >= 0 && weight.g() >= 0 && weight.b() >= 0);
+            //assert(weight.r() >= 0 && weight.g() >= 0 && weight.b() >= 0);
+            assert_finite(weight, {
+                logger(EError, "bsdf sample weight = %s", bsdfsample.weight);
+                logger(EError, "offending BSDF %s", intersection.instance->bsdf());
+            });
             // construct next ray
             current_ray.origin = intersection.position;
             current_ray.direction = bsdfsample.wi;

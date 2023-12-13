@@ -10,13 +10,17 @@ struct DiffuseLobe {
 
     BsdfEval evaluate(const Vector &wo, const Vector &wi) const {
 
-        BsdfEval eval = { .value = color };
+        BsdfEval eval = { 
+            .value = color,
+            .pdf = 0,
+            };
 
         float cos = Frame::cosTheta(wi);
 //        assert(wi.z() >= 0);
         eval.value *= max(cos, 0);
         eval.value *= InvPi;
-//        assert(eval.value.r() >= 0 && eval.value.g() >= 0 && eval.value.b() >= 0);
+        assert(eval.value.r() >= 0 && eval.value.g() >= 0 && eval.value.b() >= 0);
+        eval.pdf = cos * InvPi;        
         return eval;
 
         // hints:
@@ -45,7 +49,52 @@ struct MetallicLobe {
     float alpha;
     Color color;
 
+    /*BsdfEval evaluate(const Vector &wo, const Vector &wi) const {
+
+        Vector wm = (wi+wo).normalized();
+        Color R = color;
+
+        // TODO error wenn lightwave::microfacet:: nicht da steht
+        float D = lightwave::microfacet::evaluateGGX(alpha, wm);
+        float G_wi = lightwave::microfacet::smithG1(alpha, wm, wi);
+        float G_wo = lightwave::microfacet::smithG1(alpha, wm, wo); 
+        
+        // incoming and outgoing angle 
+        // TODO weiß nicht ob cosTheta hier richtig ist und ob dann unten cos genommen werden muss
+        float theta_i = Frame::cosTheta(wi); 
+        float theta_o = Frame::cosTheta(wo);
+        
+        float scale = (D*G_wi*G_wo) / abs(4 * theta_o);
+        //float scale = (D*G_wi*G_wo) / (4 * cos(theta_i) * cos(theta_o));
+
+        float pdf = microfacet::pdfGGXVNDF(alpha, wm, wi);
+        
+        if (pdf >= 0) {
+
+            pdf *= microfacet::detReflection(wm, wi);
+        } else {
+            return BsdfEval::invalid();
+        }
+
+
+        BsdfEval eval = {
+            .value = R * pdf * G_wi,
+            .pdf = pdf,
+            };
+//        eval.value *= max(0, theta_i);
+        assert(eval.value.r() >= 0 && eval.value.g() >= 0 && eval.value.b() >= 0);
+        return eval;
+
+        // hints:
+        // * copy your roughconductor bsdf evaluate here
+        // * you do not need to query textures
+        //   * the reflectance is given by `color'
+        //   * the variable `alpha' is already provided for you
+    }*/
+
     BsdfEval evaluate(const Vector &wo, const Vector &wi) const {
+        // hints:
+        // * the microfacet normal can be computed from `wi' and `wo'
 
         Vector wm = ((wi+wo) / (wi+wo).length()).normalized();
         Color R = color;
@@ -64,20 +113,13 @@ struct MetallicLobe {
         //float scale = (D*G_wi*G_wo) / (4 * cos(theta_i) * cos(theta_o));
 
         BsdfEval eval = {.value = R*scale};
-        eval.value *= max(0, theta_i);
-//        assert(eval.value.r() >= 0 && eval.value.g() >= 0 && eval.value.b() >= 0);
+        eval.value *= theta_i;
         return eval;
-
-        // hints:
-        // * copy your roughconductor bsdf evaluate here
-        // * you do not need to query textures
-        //   * the reflectance is given by `color'
-        //   * the variable `alpha' is already provided for you
     }
 
     BsdfSample sample(const Vector &wo, Sampler &rng) const {
 
-        Vector normal = lightwave::microfacet::sampleGGXVNDF(alpha, wo, rng.next2D()).normalized();
+        /*Vector normal = lightwave::microfacet::sampleGGXVNDF(alpha, wo, rng.next2D());
         
 //        float jacobian = lightwave::microfacet::detReflection(normal, wo);
 
@@ -95,6 +137,24 @@ struct MetallicLobe {
             return BsdfSample::invalid();
         }
 
+        return sample;*/
+
+        Vector normal = lightwave::microfacet::sampleGGXVNDF(alpha, wo, rng.next2D()).normalized();
+        
+//        float jacobian = lightwave::microfacet::detReflection(normal, wo);
+
+//        Vector wi = (normal * 2) - wo;
+        Vector wi = reflect(wo, normal);
+
+        Color w = color;
+        
+        BsdfSample sample = {
+                                .wi = wi,
+                                .weight = w * lightwave::microfacet::smithG1(alpha, normal, wi) // Frame::cosTheta(wi)
+                            };
+        if (sample.isInvalid()) {
+            return BsdfSample::invalid();
+        }
         return sample;
 
         // hints:
@@ -177,13 +237,26 @@ public:
                 return BsdfSample::invalid();
             }
             sample.weight = sample.weight / combination.diffuseSelectionProb;
+            return sample;
         } else {
             sample = combination.metallic.sample(wo, rng);
             if (sample.isInvalid()) {
                 return BsdfSample::invalid();
             }
             sample.weight = sample.weight / (1.0 - combination.diffuseSelectionProb);
+            return sample;
         }
+
+        assert_finite(sample.weight, {});
+
+        BsdfEval evalDiffuse = combination.diffuse.evaluate(wo, sample.wi);
+        BsdfEval evalMetallic = combination.metallic.evaluate(wo, sample.wi);
+
+        float interpolated_pdf = evalDiffuse.pdf * combination.diffuseSelectionProb + evalMetallic.pdf * (1.0 - combination.diffuseSelectionProb);
+
+        Color finalWeight = (evalDiffuse.value + evalMetallic.value) / interpolated_pdf;
+        sample.weight = finalWeight;
+        assert_finite(sample.weight, {});
 
         return sample;
 
