@@ -109,7 +109,9 @@ struct MetallicLobe {
         float theta_i = Frame::cosTheta(wi); 
         float theta_o = Frame::cosTheta(wo);
         
-        float scale = (D*G_wi*G_wo) / (4 * theta_i * theta_o);
+        float div = abs((4 * theta_i * theta_o));
+        if (div == 0) return BsdfEval::invalid();
+        float scale = (D*G_wi*G_wo) / div;
         //float scale = (D*G_wi*G_wo) / (4 * cos(theta_i) * cos(theta_o));
 
         BsdfEval eval = {.value = R*scale};
