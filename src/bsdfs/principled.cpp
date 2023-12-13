@@ -64,7 +64,7 @@ struct MetallicLobe {
         //float scale = (D*G_wi*G_wo) / (4 * cos(theta_i) * cos(theta_o));
 
         BsdfEval eval = {.value = R*scale};
-        eval.value *= theta_i;
+        eval.value *= max(0, theta_i);
 //        assert(eval.value.r() >= 0 && eval.value.g() >= 0 && eval.value.b() >= 0);
         return eval;
 
