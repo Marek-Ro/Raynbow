@@ -59,7 +59,7 @@ find_package(Threads REQUIRED)
 
 function(add_extra_options TARGET)
     add_warnings(${TARGET}) # Defined in cmake/SetupWarnings.cmake
-    add_fastmath(${TARGET}) # Defined in cmake/SetupFlags.cmake
+    #add_fastmath(${TARGET}) # Defined in cmake/SetupFlags.cmake
     add_lto(${TARGET}) # Defined in cmake/SetupLTO.cmake
     add_checks(${TARGET}) # Defined in cmake/SetupChecks.cmake
     add_sanitizers(${TARGET}) # Defined in cmake/SetupSanitizers.cmake
