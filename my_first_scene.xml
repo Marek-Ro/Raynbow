@@ -2,12 +2,13 @@
 <test type="image" id="ducks">
     <integrator type="direct">
         <scene id="scene">
-            <camera type="perspective" id="camera">
+            <camera type="thinlens" id="camera">
                 <!-- cinematic aspect ratio, since this scene is so dramatic -->
                 <integer name="width" value="840"/>
                 <integer name="height" value="360"/>
 
                 <string name="fovAxis" value="x"/>
+<!--                <float focal_length="1"/>  -->
                 <float name="fov" value="42"/>
 
                 <transform>
