@@ -11,7 +11,7 @@ namespace lightwave {
  * direction ( @code ray.direction.x < 0 ), and pixels at the bottom of the image ( @code normalized.y < 0 @endcode )
  * are directed in negative y direction ( @code ray.direction.y < 0 ).
  */
-class Thinlens : public Camera {
+class Orthographic : public Camera {
 public:
 
     float fov;
@@ -21,12 +21,7 @@ public:
     int height;
     std::string fov_axis;
 
-// Thinlens
-//    float depth_of_field;
-    float focalDistance;
-    float lensRadius;
-
-    Thinlens(const Properties &properties)
+    Orthographic(const Properties &properties)
     : Camera(properties) {
         fov = properties.get<float>("fov");
         width = properties.get<int>("width");
@@ -38,8 +33,6 @@ public:
         // aspect ratio depends on fov_axis
         aspect_ratio = fov_axis == "y" ? (float)width / (float)height : (float)height / (float)width;
 
-        lensRadius = 0.1;
-        focalDistance = 100;
         // hints:
         // * precompute any expensive operations here (most importantly trigonometric functions)
         // * use m_resolution to find the aspect ratio of the image
@@ -61,33 +54,17 @@ public:
         // create direction vector, remap on imaginary plane z=1 (camera direction is [0,0,1])
         // normalize important for the ray
         Vector xy = Vector(x,y, 1.f);
-        xy = xy.normalized();
+//        xy = xy.normalized();
 
-        // ray with origin (0,0,0) and direction vector xy
-        Ray ray = Ray(Vector(0.f, 0.f, 0.f), xy);
-
-
-
-        // pbrt thinlens here
-
-        // x and y are in [0, 1) already
-
-        // Point on the lens
-        Vector2 pLens = lensRadius * sampleUniformDiskConcentric(Vector2(xy.x(), xy.y()));
-
-        // compute point on the plane of focus
-        float ft = focalDistance / ray.direction.z();
-        Point pFocus = ray(ft);
-
-        // update ray for effect of lens
-//        ray.origin = Point(pLens.x(), pLens.y(), 0);
-        ray.direction = (pFocus - ray.origin).normalized();
+        // xy is now the origin
+        // direction is (0, 0, 1)
+        Ray ray = Ray(xy, Vector(0.f, 0.f, 1.f));
 
 
 
-        // finally transform to world space
         ray = m_transform->apply(ray).normalized();
-        if ((int)(rng.next() * 1000000) % 1000000 == 1) logger(EError, "or(%f, %f, %f), dir(%f, %f, %f)", ray.origin.x(), ray.origin.y(), ray.origin.x(), ray.direction.x(), ray.direction.y(), ray.direction.z());
+        
+//        if ((int)(rng.next() * 1000000) % 1000000 == 1) logger(EError, "or(%f, %f, %f), dir(%f, %f, %f)", ray.origin.x(), ray.origin.y(), ray.origin.x(), ray.direction.x(), ray.direction.y(), ray.direction.z());
 
         Color weight = Color(1.0f);
         return CameraSample{
@@ -95,30 +72,9 @@ public:
         };
     }
 
-    Vector2 sampleUniformDiskConcentric(Vector2 u) const {
-        
-        // remap u from [0, 1] to [-1, 1]
-        Vector2 uOffset = (2 * u) - Vector2(1, 1);
-        if (uOffset.x() == 0 && uOffset.y() == 0) {
-            return uOffset;
-        }
-
-        // apply concentric mapping to the point
-        float theta, r;
-        if (std::abs(uOffset.x()) > std::abs(uOffset.y())) {
-            r = uOffset.x();
-            theta = (Pi / 4) * (uOffset.y() / uOffset.x());
-        } else {
-            r = uOffset.y();
-            theta = (Pi / 2) - (Pi / 4) * (uOffset.x() / uOffset.y());
-        }
-
-        return r * Vector2(std::cos(theta), std::sin(theta));
-    }
-
     std::string toString() const override {
         return tfm::format(
-            "Thinlens[\n"
+            "Orthographic[\n"
             "  width = %d,\n"
             "  height = %d,\n"
             "  transform = %s,\n"
@@ -132,4 +88,4 @@ public:
 
 }
 
-REGISTER_CAMERA(Thinlens, "thinlens")
+REGISTER_CAMERA(Orthographic, "orthographic")

@@ -1,0 +1,70 @@
+<scene id="scene">
+  <camera type="perspective">
+    <integer name="width" value="1920"/>
+    <integer name="height" value="1080"/>
+    <float name="fov" value="39.6"/>
+    <string name="fovAxis" value="x"/>
+    <transform>
+      <matrix value="0.874,0.225,-0.431,3.78,  0.485,-0.467,0.74,-5.94,  -0.0345,-0.855,-0.517,5.03,  0,0,0,1"/>
+    </transform>
+  </camera>
+  <instance>
+    <shape type="sphere"/>
+    <transform>
+      <scale value="0.25"/>
+      <translate x="-1.78" y="-2.06" z="3.19"/>
+    </transform>
+    <emission type="lambertian">
+      <texture name="emission" type="constant" value="4.05,4.05,4.05"/>
+    </emission>
+  </instance>
+  <instance>
+    <shape type="sphere"/>
+    <transform>
+      <scale value="0.25"/>
+      <translate x="0.103" y="4.27" z="3.19"/>
+    </transform>
+    <emission type="lambertian">
+      <texture name="emission" type="constant" value="4.05,4.05,4.05"/>
+    </emission>
+  </instance>
+  <instance>
+    <shape type="sphere"/>
+    <transform>
+      <scale value="0.25"/>
+      <translate x="3.84" y="-1.48" z="3.19"/>
+    </transform>
+    <emission type="lambertian">
+      <texture name="emission" type="constant" value="4.05,4.05,4.05"/>
+    </emission>
+  </instance>
+  <instance>
+    <bsdf type="principled">
+      <texture name="baseColor" type="constant" value="0.8"/>
+      <texture name="roughness" type="constant" value="0.5"/>
+      <texture name="metallic" type="constant" value="0"/>
+      <texture name="specular" type="constant" value="0.5"/>
+    </bsdf>
+    <shape type="mesh" filename="meshes/Plane.024.ply"/>
+    <transform>
+      <matrix value="10,0,0,0,  0,10,0,0,  0,0,10,0,  0,0,0,1"/>
+    </transform>
+  </instance>
+  <instance>
+    <shape type="mesh" filename="meshes/Cube.048.ply"/>
+    <transform>
+      <matrix value="0.702,0,0,0,  0,0.702,0,0,  0,0,0.702,1.05,  0,0,0,1"/>
+    </transform>
+  </instance>
+  <light type="envmap">
+    <texture type="constant" value="0.0509,0.0509,0.0509"/>
+    <transform>
+      <matrix value="1,0,0,0,  0,0,1,0,  0,-1,0,0,  0,0,0,1"/>
+    </transform>
+  </light>
+</scene>
+<integrator type="pathtracer" depth="3" nee="true" mis="true">
+  <ref id="scene"/>
+  <image id="noisy"/>
+  <sampler type="independent" count="64"/>
+</integrator>
