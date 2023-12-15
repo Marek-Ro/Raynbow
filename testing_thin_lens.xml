@@ -1,10 +1,10 @@
 <!-- you may guess who created this test file -->
     <integrator type="direct">
         <scene id="scene">
-<!--            
                 <camera type="thinlens" id="camera">
--->
+<!--            
                 <camera type="perspective" id="camera">
+-->
                 <!-- cinematic aspect ratio, since this scene is so dramatic -->
                 <integer name="width" value="840"/>
                 <integer name="height" value="360"/>
@@ -222,6 +222,6 @@
             </instance>
 -->
         </scene>
-        <image id="my_first_scene"/>
+        <image id="thin_lens"/>
         <sampler type="independent" count="64"/>
     </integrator>

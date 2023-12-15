@@ -38,8 +38,8 @@ public:
         // aspect ratio depends on fov_axis
         aspect_ratio = fov_axis == "y" ? (float)width / (float)height : (float)height / (float)width;
 
-        lensRadius = 0.1;
-        focalDistance = 0.01;
+        lensRadius = 0.05;
+        focalDistance = 100;
         // hints:
         // * precompute any expensive operations here (most importantly trigonometric functions)
         // * use m_resolution to find the aspect ratio of the image
@@ -73,7 +73,7 @@ public:
         // x and y are in [0, 1) already
 
         // Point on the lens
-        Vector2 pLens = lensRadius * sampleUniformDiskConcentric(Vector2(normalized.x(), normalized.y()));
+        Vector2 pLens = lensRadius * Vector2(xy.x(), xy.y());//sampleUniformDiskConcentric(Vector2(normalized.x(), normalized.y()));
 
         // compute point on the plane of focus
         float ft = focalDistance / ray.direction.z();
@@ -85,10 +85,9 @@ public:
 
 
 
-
-
         // finally transform to world space
         ray = m_transform->apply(ray).normalized();
+        if ((int)(rng.next() * 1000000) % 1000000 == 1) logger(EError, "or(%f, %f, %f), dir(%f, %f, %f)", ray.origin.x(), ray.origin.y(), ray.origin.x(), ray.direction.x(), ray.direction.y(), ray.direction.z());
 
         Color weight = Color(1.0f);
         return CameraSample{

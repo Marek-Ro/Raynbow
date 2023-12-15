@@ -58,8 +58,12 @@ public:
 
         // ray with origin (0,0,0) and direction vector xy
         Ray ray = Ray(Vector(0.f, 0.f, 0.f), xy);
+
+
+
         ray = m_transform->apply(ray).normalized();
         
+//        if ((int)(rng.next() * 1000000) % 1000000 == 1) logger(EError, "or(%f, %f, %f), dir(%f, %f, %f)", ray.origin.x(), ray.origin.y(), ray.origin.x(), ray.direction.x(), ray.direction.y(), ray.direction.z());
 
         Color weight = Color(1.0f);
         return CameraSample{
