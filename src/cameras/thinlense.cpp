@@ -38,8 +38,8 @@ public:
         // aspect ratio depends on fov_axis
         aspect_ratio = fov_axis == "y" ? (float)width / (float)height : (float)height / (float)width;
 
-        lensRadius = 0.1;
-        focalDistance = 100;
+        lensRadius = properties.get<float>("lensRadius");
+        focalDistance = properties.get<float>("focalDistance");
         // hints:
         // * precompute any expensive operations here (most importantly trigonometric functions)
         // * use m_resolution to find the aspect ratio of the image
@@ -70,24 +70,25 @@ public:
 
         // pbrt thinlens here
 
-        // x and y are in [0, 1) already
-
         // Point on the lens
-        Vector2 pLens = lensRadius * sampleUniformDiskConcentric(Vector2(xy.x(), xy.y()));
+
+        // sample point [-1, 1]
+        Vector2 point_on_lens = ((rng.next2D() - Point2(0)) * 2) - Point2(1, 1);
+        // scale with lense radius
+        Vector2 pLens = lensRadius * point_on_lens;
 
         // compute point on the plane of focus
         float ft = focalDistance / ray.direction.z();
         Point pFocus = ray(ft);
 
         // update ray for effect of lens
-//        ray.origin = Point(pLens.x(), pLens.y(), 0);
+        ray.origin = Point(pLens.x(), pLens.y(), 0);
         ray.direction = (pFocus - ray.origin).normalized();
-
-
 
         // finally transform to world space
         ray = m_transform->apply(ray).normalized();
-        if ((int)(rng.next() * 1000000) % 1000000 == 1) logger(EError, "or(%f, %f, %f), dir(%f, %f, %f)", ray.origin.x(), ray.origin.y(), ray.origin.x(), ray.direction.x(), ray.direction.y(), ray.direction.z());
+
+//        if ((int)(rng.next() * 1000000) % 1000000 == 1) logger(EError, "or(%f, %f, %f), dir(%f, %f, %f)", ray.origin.x(), ray.origin.y(), ray.origin.x(), ray.direction.x(), ray.direction.y(), ray.direction.z());
 
         Color weight = Color(1.0f);
         return CameraSample{

@@ -11,6 +11,8 @@
 
                 <string name="fovAxis" value="x"/>
                 <float name="fov" value="42"/>
+                <float name="lensRadius" value="0.2"/>
+                <float name="focalDistance" value="7.6"/>
 
                 <transform>
                     <rotate axis="1,0,0" angle="-1"/>
@@ -19,9 +21,10 @@
             </camera>
 
             <light type="envmap">
+<!--
                 <texture type="image" filename="./tests/textures/kloofendal_overcast_1k.hdr" exposure="0.5"/>
-
-<!--                <texture type="constant" value="1.5"/>-->
+-->
+                <texture type="constant" value="1.5"/>
             </light>
 
             <bsdf type="diffuse" id="wall material">
@@ -207,7 +210,6 @@
                     <translate x="-4" y="1" z="8"/>
                 </transform>
             </instance>
-<!--
 
             <instance>
                 <shape type="rectangle"/>
@@ -220,8 +222,8 @@
                     <translate y="1"/>
                 </transform>
             </instance>
--->
+
         </scene>
         <image id="thin_lens"/>
-        <sampler type="independent" count="64"/>
+        <sampler type="independent" count="256"/>
     </integrator>
