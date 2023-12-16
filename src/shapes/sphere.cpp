@@ -80,7 +80,6 @@ namespace lightwave
 
             // calculate the normal vector of the hit point
             its.frame = Frame((ray(its.t) - Point(0)).normalized());
-            its.wo = -ray_direction;
 
             // uv coordinates between 0 and 1            
             float u = 0.5 + (atan2(its.position.x(), its.position.z()) / (2 * Pi));
