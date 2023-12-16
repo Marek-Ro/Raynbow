@@ -79,6 +79,11 @@ public:
      */
     virtual BsdfSample sample(const Point2 &uv, const Vector &wo,
                               Sampler &rng) const = 0;
+    /**
+     * @brief Evluate the albedo at the given texture coordinate.
+     * Helpful for denoising.
+     */
+    virtual BsdfEval evaluateAlbedo(const Point2 &uv) const { NOT_IMPLEMENTED };
 };
 
 } // namespace lightwave

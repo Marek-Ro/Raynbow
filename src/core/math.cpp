@@ -167,4 +167,10 @@ BsdfEval Intersection::evaluateBsdf(const Vector &wi) const {
     return instance->bsdf()->evaluate(uv, frame.toLocal(wo), frame.toLocal(wi));
 }
 
+BsdfEval Intersection::evaluateAlbedo() const {
+    if (!instance->bsdf())
+        return BsdfEval::invalid();
+    return instance->bsdf()->evaluateAlbedo(uv);
+}
+
 }

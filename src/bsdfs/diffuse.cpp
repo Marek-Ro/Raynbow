@@ -36,6 +36,11 @@ namespace lightwave
             return eval;
         }
 
+        BsdfEval evaluateAlbedo(const Point2& uv) const override {
+            BsdfEval eval = { .value = m_albedo->evaluate(uv) };
+            return eval;
+        } 
+
         std::string toString() const override
         {
             return tfm::format("Diffuse[\n"
