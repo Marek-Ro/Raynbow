@@ -48,50 +48,6 @@ struct DiffuseLobe {
 struct MetallicLobe {
     float alpha;
     Color color;
-
-    /*BsdfEval evaluate(const Vector &wo, const Vector &wi) const {
-
-        Vector wm = (wi+wo).normalized();
-        Color R = color;
-
-        // TODO error wenn lightwave::microfacet:: nicht da steht
-        float D = lightwave::microfacet::evaluateGGX(alpha, wm);
-        float G_wi = lightwave::microfacet::smithG1(alpha, wm, wi);
-        float G_wo = lightwave::microfacet::smithG1(alpha, wm, wo); 
-        
-        // incoming and outgoing angle 
-        // TODO weiß nicht ob cosTheta hier richtig ist und ob dann unten cos genommen werden muss
-        float theta_i = Frame::cosTheta(wi); 
-        float theta_o = Frame::cosTheta(wo);
-        
-        float scale = (D*G_wi*G_wo) / abs(4 * theta_o);
-        //float scale = (D*G_wi*G_wo) / (4 * cos(theta_i) * cos(theta_o));
-
-        float pdf = microfacet::pdfGGXVNDF(alpha, wm, wi);
-        
-        if (pdf >= 0) {
-
-            pdf *= microfacet::detReflection(wm, wi);
-        } else {
-            return BsdfEval::invalid();
-        }
-
-
-        BsdfEval eval = {
-            .value = R * pdf * G_wi,
-            .pdf = pdf,
-            };
-//        eval.value *= max(0, theta_i);
-        assert(eval.value.r() >= 0 && eval.value.g() >= 0 && eval.value.b() >= 0);
-        return eval;
-
-        // hints:
-        // * copy your roughconductor bsdf evaluate here
-        // * you do not need to query textures
-        //   * the reflectance is given by `color'
-        //   * the variable `alpha' is already provided for you
-    }*/
-
     BsdfEval evaluate(const Vector &wo, const Vector &wi) const {
         // hints:
         // * the microfacet normal can be computed from `wi' and `wo'
@@ -99,20 +55,16 @@ struct MetallicLobe {
         Vector wm = ((wi+wo) / (wi+wo).length()).normalized();
         Color R = color;
 
-        // TODO error wenn lightwave::microfacet:: nicht da steht
         float D = lightwave::microfacet::evaluateGGX(alpha, wm);
         float G_wi = lightwave::microfacet::smithG1(alpha, wm, wi);
         float G_wo = lightwave::microfacet::smithG1(alpha, wm, wo); 
         
-        // incoming and outgoing angle 
-        // TODO weiß nicht ob cosTheta hier richtig ist und ob dann unten cos genommen werden muss
         float theta_i = Frame::cosTheta(wi); 
         float theta_o = Frame::cosTheta(wo);
         
         float div = abs((4 * theta_i * theta_o));
         if (div == 0) return BsdfEval::invalid();
         float scale = (D*G_wi*G_wo) / div;
-        //float scale = (D*G_wi*G_wo) / (4 * cos(theta_i) * cos(theta_o));
 
         BsdfEval eval = {.value = R*scale};
         eval.value *= theta_i;
@@ -142,17 +94,12 @@ struct MetallicLobe {
         return sample;*/
 
         Vector normal = lightwave::microfacet::sampleGGXVNDF(alpha, wo, rng.next2D()).normalized();
-        
-//        float jacobian = lightwave::microfacet::detReflection(normal, wo);
-
-//        Vector wi = (normal * 2) - wo;
+        // copy of roughconductor
         Vector wi = reflect(wo, normal);
-
         Color w = color;
-        
         BsdfSample sample = {
                                 .wi = wi,
-                                .weight = w * lightwave::microfacet::smithG1(alpha, normal, wi) // Frame::cosTheta(wi)
+                                .weight = w * lightwave::microfacet::smithG1(alpha, normal, wi)
                             };
         if (sample.isInvalid()) {
             return BsdfSample::invalid();
