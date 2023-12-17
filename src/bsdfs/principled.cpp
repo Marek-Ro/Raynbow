@@ -72,27 +72,6 @@ struct MetallicLobe {
     }
 
     BsdfSample sample(const Vector &wo, Sampler &rng) const {
-
-        /*Vector normal = lightwave::microfacet::sampleGGXVNDF(alpha, wo, rng.next2D());
-        
-//        float jacobian = lightwave::microfacet::detReflection(normal, wo);
-
-//        Vector wi = (normal * 2) - wo;
-        Vector wi = reflect(wo, normal);
-
-        Color w = color;
-        
-        BsdfSample sample = {
-                                .wi = wi,
-                                .weight = w * lightwave::microfacet::smithG1(alpha, normal, wi) // Frame::cosTheta(wi)
-                            };
-
-        if (sample.isInvalid()) {
-            return BsdfSample::invalid();
-        }
-
-        return sample;*/
-
         Vector normal = lightwave::microfacet::sampleGGXVNDF(alpha, wo, rng.next2D()).normalized();
         // copy of roughconductor
         Vector wi = reflect(wo, normal);
