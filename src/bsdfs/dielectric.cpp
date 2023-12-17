@@ -27,6 +27,7 @@ public:
                       Sampler &rng) const override {
         float ior = m_ior->scalar(uv);
         float cosThetaWo = Frame::cosTheta(wo);
+        // inside vs outside
         float eta = cosThetaWo > 0 ? ior : 1.0f / ior;
         float fresnel = fresnelDielectric(cosThetaWo, eta);
 
@@ -39,7 +40,7 @@ public:
         } else {
             // refract 
 
-            // check whether you come from inside or from outside
+            // check whether you come from inside or from outside and change the normal accordingly
             if (cosThetaWo > 0) {
                 s.wi = refract(wo, Vector(0, 0, 1), eta);
             } else {

@@ -28,11 +28,9 @@ namespace lightwave
         }
 
         BsdfEval evaluate(const Point2& uv, const Vector& wo, const Vector& wi) const override {
-
             BsdfEval eval = { .value = m_albedo->evaluate(uv) };
-
-            float cos = Frame::cosTheta(wi);
-            eval.value *= max(cos, 0) * InvPi;
+            // avoid negative numbers 
+            eval.value *= max(Frame::cosTheta(wi), 0) * InvPi;
             return eval;
         }
 
