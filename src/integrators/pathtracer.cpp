@@ -63,22 +63,8 @@ public:
                 return Li;
             }
 
-//            // create the secondary ray 
-//            Ray secondary_ray = Ray(intersection.position, bsdfsample.wi.normalized());
-//            Intersection second_intersection = m_scene->intersect(secondary_ray, rng);
-//            // Intersection of the secondary ray
-//            if (second_intersection) {
-//                // light contribution of the second object we found
-//                Li += (bsdfsample.weight * second_intersection.evaluateEmission() * weight);
-//            } else {
-//                // Secondary ray escapes
-//                Li += bsdfsample.weight * m_scene->evaluateBackground(secondary_ray.direction).value * weight;
-//                return Li;
-//            }
-
             // update weight
             weight *= bsdfsample.weight;
-            //assert(weight.r() >= 0 && weight.g() >= 0 && weight.b() >= 0);
             assert_finite(weight, {
                 logger(EError, "bsdf sample weight = %s", bsdfsample.weight);
                 logger(EError, "offending BSDF %s", intersection.instance->bsdf());

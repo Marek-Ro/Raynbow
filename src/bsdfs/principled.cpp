@@ -144,10 +144,7 @@ public:
                       const Vector &wi) const override {
         const auto combination = combine(uv, wo);
 
-        BsdfEval eval = { .value = (combination.diffuse.evaluate(wo, wi).value + combination.metallic.evaluate(wo, wi).value) };
-        // I also tried halving the sum but it did not make a visible difference
-        assert(eval.value.r() >= 0 && eval.value.g() >= 0 && eval.value.b() >= 0);
-        return eval;
+        return BsdfEval { .value = (combination.diffuse.evaluate(wo, wi).value + combination.metallic.evaluate(wo, wi).value) };
         
         // hint: evaluate `combination.diffuse` and `combination.metallic` and
         // combine their results
@@ -175,18 +172,14 @@ public:
             return sample;
         }
 
-        assert_finite(sample.weight, {});
-
-        BsdfEval evalDiffuse = combination.diffuse.evaluate(wo, sample.wi);
+        /*BsdfEval evalDiffuse = combination.diffuse.evaluate(wo, sample.wi);
         BsdfEval evalMetallic = combination.metallic.evaluate(wo, sample.wi);
 
         float interpolated_pdf = evalDiffuse.pdf * combination.diffuseSelectionProb + evalMetallic.pdf * (1.0 - combination.diffuseSelectionProb);
 
         Color finalWeight = (evalDiffuse.value + evalMetallic.value) / interpolated_pdf;
         sample.weight = finalWeight;
-        assert_finite(sample.weight, {});
-
-        return sample;
+        return sample; */
 
         // hint: sample either `combination.diffuse` (probability
         // `combination.diffuseSelectionProb`) or `combination.metallic`
