@@ -14,13 +14,12 @@ public:
 
     DirectLightSample sampleDirect(const Point &origin,
                                    Sampler &rng) const override {
-        
-        DirectLightSample d = DirectLightSample {
+        return DirectLightSample {
             .wi = direction.normalized(),
             .weight = intensity,
             .distance = Infinity,
         };
-        return d;
+        
     }
 
     bool canBeIntersected() const override { return false; }
