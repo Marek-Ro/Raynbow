@@ -16,7 +16,6 @@ struct DiffuseLobe {
             };
 
         float cos = Frame::cosTheta(wi);
-//        assert(wi.z() >= 0);
         eval.value *= max(cos, 0);
         eval.value *= InvPi;
         assert(eval.value.r() >= 0 && eval.value.g() >= 0 && eval.value.b() >= 0);
@@ -46,6 +45,7 @@ struct DiffuseLobe {
 };
 
 struct MetallicLobe {
+    // copy of roughconductor
     float alpha;
     Color color;
     BsdfEval evaluate(const Vector &wo, const Vector &wi) const {
@@ -72,8 +72,8 @@ struct MetallicLobe {
     }
 
     BsdfSample sample(const Vector &wo, Sampler &rng) const {
-        Vector normal = lightwave::microfacet::sampleGGXVNDF(alpha, wo, rng.next2D()).normalized();
         // copy of roughconductor
+        Vector normal = lightwave::microfacet::sampleGGXVNDF(alpha, wo, rng.next2D()).normalized();
         Vector wi = reflect(wo, normal);
         Color w = color;
         BsdfSample sample = {
@@ -155,7 +155,7 @@ public:
         const auto combination = combine(uv, wo);
 
         BsdfSample sample;
-        
+        // diffuse or metallic
         if (combination.diffuseSelectionProb > rng.next()) {
             sample = combination.diffuse.sample(wo, rng);
             if (sample.isInvalid()) {
@@ -171,18 +171,6 @@ public:
             sample.weight = sample.weight / (1.0 - combination.diffuseSelectionProb);
             return sample;
         }
-
-        /*BsdfEval evalDiffuse = combination.diffuse.evaluate(wo, sample.wi);
-        BsdfEval evalMetallic = combination.metallic.evaluate(wo, sample.wi);
-
-        float interpolated_pdf = evalDiffuse.pdf * combination.diffuseSelectionProb + evalMetallic.pdf * (1.0 - combination.diffuseSelectionProb);
-
-        Color finalWeight = (evalDiffuse.value + evalMetallic.value) / interpolated_pdf;
-        sample.weight = finalWeight;
-        return sample; */
-
-        // hint: sample either `combination.diffuse` (probability
-        // `combination.diffuseSelectionProb`) or `combination.metallic`
     }
 
     std::string toString() const override {
