@@ -40,6 +40,6 @@
 </scene>
 <integrator type="pathtracer" depth="3" nee="true" mis="true">
   <ref id="scene"/>
-  <image id="noisy"/>
+  <image id="fire_hydrant"/>
   <sampler type="independent" count="64"/>
 </integrator>
