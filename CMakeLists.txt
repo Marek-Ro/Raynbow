@@ -72,6 +72,8 @@ file(GLOB_RECURSE SOURCE_FILES CONFIGURE_DEPENDS "src/**/*.cpp" "src/**/*.hpp" "
 set(MY_TARGET_NAME Raynbow) # Change `unnamed` to your favourite own executable name
 # ######################
 
+# Path to IntelOpenImageDenoise don't know if this will work on windows
+set(OpenImageDenoise_DIR "oidn-2.1.0.x86_64.linux/lib/cmake/OpenImageDenoise-2.1.0")
 find_package(OpenImageDenoise)
 
 add_executable(${MY_TARGET_NAME} ${SOURCE_FILES})

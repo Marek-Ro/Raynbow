@@ -73,7 +73,9 @@ public:
         // Point on the lens
 
         // sample point [-1, 1]
-        Vector2 point_on_lens = ((rng.next2D() - Point2(0)) * 2) - Point2(1, 1);
+        //Vector2 point_on_lens = ((rng.next2D() - Point2(0)) * 2) - Point2(1, 1);
+
+        Vector2 point_on_lens = ((rng.next2D() - Point2(0)) * 2);
         // scale with lense radius
         Vector2 pLens = lensRadius * point_on_lens;
 
