@@ -73,7 +73,13 @@ set(MY_TARGET_NAME Raynbow) # Change `unnamed` to your favourite own executable 
 # ######################
 
 # Path to IntelOpenImageDenoise don't know if this will work on windows
-set(OpenImageDenoise_DIR "oidn-2.1.0.x86_64.linux/lib/cmake/OpenImageDenoise-2.1.0")
+if(WIN32)
+    # Windows-specific configuration
+    set(OpenImageDenoise_DIR "./oidn-2.1.0.x64.windows/lib/cmake/OpenImageDenoise-2.1.0")
+elseif(UNIX)
+    # Linux-specific configuration
+    set(OpenImageDenoise_DIR "oidn-2.1.0.x86_64.linux/lib/cmake/OpenImageDenoise-2.1.0")
+    endif()
 find_package(OpenImageDenoise)
 
 add_executable(${MY_TARGET_NAME} ${SOURCE_FILES})
