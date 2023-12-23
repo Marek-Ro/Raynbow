@@ -75,7 +75,7 @@ set(MY_TARGET_NAME Raynbow) # Change `unnamed` to your favourite own executable 
 # Path to IntelOpenImageDenoise don't know if this will work on windows
 if(WIN32)
     # Windows-specific configuration
-    set(OpenImageDenoise_DIR "./oidn-2.1.0.x64.windows/lib/cmake/OpenImageDenoise-2.1.0")
+    set(OpenImageDenoise_DIR "C:/Users/wiede/oidn-2.1.0.x64.windows/lib/cmake/OpenImageDenoise-2.1.0")
 elseif(UNIX)
     # Linux-specific configuration
     set(OpenImageDenoise_DIR "oidn-2.1.0.x86_64.linux/lib/cmake/OpenImageDenoise-2.1.0")
