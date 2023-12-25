@@ -115,7 +115,7 @@ public:
         oidn::BufferRef colorBuf  = device.newBuffer(width * height * 3 * sizeof(float));
         //oidn::BufferRef albedoBuf = ...
 //        oidn::BufferRef albedoBuf = device.newBuffer(width * height * 3 * sizeof(float));
-        oidn::BufferRef normalBuf = device.newBuffer(width * height * 3 * sizeof(float));
+//        oidn::BufferRef normalBuf = device.newBuffer(width * height * 3 * sizeof(float));
 
         // loads the images
         Image noisyImage = Image("./noisy.exr", true);
