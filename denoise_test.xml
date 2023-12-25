@@ -1,5 +1,4 @@
 <!-- you may guess who created this test file -->
-    <integrator type="direct">
         <scene id="scene">
 <!--            
                 <camera type="thinlens" id="camera">
@@ -222,9 +221,6 @@
             </instance>
 -->
         </scene>
-        <image id="my_first_scene"/>
-        <sampler type="independent" count="64"/>
-    </integrator>
 
 
 
@@ -234,6 +230,8 @@
  <image id="noisy"/>
  <sampler type="independent" count="32"/>
 </integrator>
+
+<!-- 
 <integrator type="normals">
  <ref id="scene"/>
  <image id="normals"/>
@@ -244,9 +242,13 @@
  <image id="albedo"/>
  <sampler type="independent" count="64"/>
 </integrator>
+
+-->
 <postprocess type="denoising">
  <ref name="input" id="noisy"/>
+<!--
  <ref name="normals" id="normals"/>
  <ref name="albedo" id="albedo"/>
+-->
  <image id="denoised"/>
 </postprocess>
