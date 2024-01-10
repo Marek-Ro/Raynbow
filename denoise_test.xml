@@ -231,7 +231,6 @@
  <sampler type="independent" count="32"/>
 </integrator>
 
-<!-- 
 <integrator type="normals">
  <ref id="scene"/>
  <image id="normals"/>
@@ -243,7 +242,6 @@
  <sampler type="independent" count="64"/>
 </integrator>
 
--->
 <postprocess type="denoising">
  <ref name="input" id="noisy"/>
 <!--

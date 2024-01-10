@@ -13,8 +13,12 @@ public:
     Color Li(const Ray &ray, Sampler &rng) override {
 
         Intersection its = m_scene->intersect(ray,rng);
-        Color Li = its.evaluateAlbedo().value;
-        return Li;
+
+        if (!its) {
+            return Color(1);
+        }
+
+        return its.evaluateAlbedo().value;
     }
 
     /// @brief An optional textual representation of this class, which can be useful for debugging. 
