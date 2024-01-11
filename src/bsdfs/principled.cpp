@@ -185,7 +185,7 @@ public:
         }
     }
 
-    BsdfEval evaluateAlbedo(const Point2& uv) const {
+    BsdfEval evaluateAlbedo(const Point2& uv) const override {
         return BsdfEval { .value = m_baseColor->evaluate(uv) };
     } 
 
