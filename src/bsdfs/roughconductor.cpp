@@ -71,6 +71,12 @@ namespace lightwave
             return sample;
         }
 
+        BsdfEval evaluateAlbedo(const Point2& uv) const override {
+            BsdfEval eval = { .value = m_reflectance->evaluate(uv) };
+            return eval;
+        } 
+
+
         std::string toString() const override
         {
             return tfm::format("RoughConductor[\n"

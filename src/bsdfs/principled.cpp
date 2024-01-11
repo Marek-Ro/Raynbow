@@ -42,6 +42,12 @@ struct DiffuseLobe {
         // * copy your diffuse bsdf evaluate here
         // * you do not need to query a texture, the albedo is given by `color`
     }
+
+    BsdfEval evaluateAlbedo(const Point2& uv) const {
+        BsdfEval eval = { .value = color };
+        return eval;
+    } 
+
 };
 
 struct MetallicLobe {
@@ -91,6 +97,12 @@ struct MetallicLobe {
         //   * the reflectance is given by `color'
         //   * the variable `alpha' is already provided for you
     }
+
+    BsdfEval evaluateAlbedo(const Point2& uv) const {
+        BsdfEval eval = { .value = color };
+        return eval;
+    } 
+
 };
 
 class Principled : public Bsdf {
@@ -172,6 +184,11 @@ public:
             return sample;
         }
     }
+
+    BsdfEval evaluateAlbedo(const Point2& uv) const {
+        return BsdfEval { .value = m_baseColor->evaluate(uv) };
+    } 
+
 
     std::string toString() const override {
         return tfm::format("Principled[\n"

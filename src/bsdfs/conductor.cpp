@@ -32,6 +32,11 @@ public:
         return b;
     }
 
+    BsdfEval evaluateAlbedo(const Point2& uv) const override {
+        BsdfEval eval = { .value = Color(1) };
+        return eval;
+    } 
+
     std::string toString() const override {
         return tfm::format("Conductor[\n"
                            "  reflectance = %s\n"

@@ -55,6 +55,12 @@ public:
         return s;
     }
 
+    BsdfEval evaluateAlbedo(const Point2& uv) const override {
+        BsdfEval eval = { .value = Color(1) };
+        return eval;
+    } 
+
+
     std::string toString() const override {
         return tfm::format("Dielectric[\n"
                            "  ior           = %s,\n"
