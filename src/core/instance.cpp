@@ -31,9 +31,17 @@ void Instance::transformFrame(SurfaceEvent &surf) const {
         //logger(EError, "uv(%f, %f)", surf.uv.x(), surf.uv.y());
         Vector normal = Vector(c.r() * 2 - 1, c.g() * 2 - 1, c.b() * 2 - 1);
         normal = surf.frame.toWorld(normal).normalized();
-        normal = m_transform->apply(normal).normalized();
 
         surf.frame = Frame(normal);
+        Vector tangent = m_transform->apply(surf.frame.tangent);
+        Vector bitangent = m_transform->apply(surf.frame.bitangent);
+
+        normal = tangent.cross(bitangent);
+        bitangent = normal.cross(tangent);
+
+        surf.frame.tangent = tangent.normalized();
+        surf.frame.bitangent = bitangent.normalized();
+        surf.frame.normal = normal.normalized();
     }
 }
 
