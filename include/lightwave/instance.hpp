@@ -35,6 +35,9 @@ class Instance : public Shape {
     /// @brief Tracks whether this instance has been added to the scene, i.e., could be hit by ray tracing.
     bool m_visible;
     
+    /// @brief The texture for the normal mapping
+    ref<Texture> m_normalMap;
+    
     /// @brief Transforms the frame from object coordinates to world coordinates.
     inline void transformFrame(SurfaceEvent &surf) const;
 
@@ -45,6 +48,7 @@ public:
         m_bsdf = properties.getOptionalChild<Bsdf>();
         m_emission = properties.getOptionalChild<Emission>();
         m_transform = properties.getOptionalChild<Transform>();
+        m_normalMap = properties.get<Texture>("normal", nullptr);
         m_visible = false;
         
         m_flipNormal = false;

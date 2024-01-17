@@ -7,21 +7,34 @@ namespace lightwave {
 
 void Instance::transformFrame(SurfaceEvent &surf) const {
 
-    surf.position = m_transform->apply(surf.position);
+    if (m_normalMap == nullptr) {
+        // Implementation from the assignments
+        surf.position = m_transform->apply(surf.position);
 
-    Vector tangent = m_transform->apply(surf.frame.tangent);
-    Vector bitangent = m_transform->apply(surf.frame.bitangent);
+        Vector tangent = m_transform->apply(surf.frame.tangent);
+        Vector bitangent = m_transform->apply(surf.frame.bitangent);
 
-    if (m_flipNormal) {
-        bitangent = - bitangent;
+        if (m_flipNormal) {
+            bitangent = - bitangent;
+        }
+
+        Vector normal = tangent.cross(bitangent);
+        bitangent = normal.cross(tangent);
+
+        surf.frame.tangent = tangent.normalized();
+        surf.frame.bitangent = bitangent.normalized();
+        surf.frame.normal = normal.normalized();
+    } else {
+        surf.position = m_transform->apply(surf.position);
+        // Normal mapping
+        Color c = m_normalMap->evaluate(surf.uv);
+        //logger(EError, "uv(%f, %f)", surf.uv.x(), surf.uv.y());
+        Vector normal = Vector(c.r() * 2 - 1, c.g() * 2 - 1, c.b() * 2 - 1);
+        normal = surf.frame.toWorld(normal).normalized();
+        normal = m_transform->apply(normal).normalized();
+
+        surf.frame = Frame(normal);
     }
-
-    Vector normal = tangent.cross(bitangent);
-    bitangent = normal.cross(tangent);
-
-    surf.frame.tangent = tangent.normalized();
-    surf.frame.bitangent = bitangent.normalized();
-    surf.frame.normal = normal.normalized();
 }
 
 bool Instance::intersect(const Ray &worldRay, Intersection &its, Sampler &rng) const {
