@@ -48,7 +48,7 @@ void Instance::transformFrame(SurfaceEvent &surf) const {
 // call only when you have an intersection already to check if that intersection is negated by alpha masking
 // returns true if a valid intersection occurs
 // returns false if the previous intersection is negated by alpha masking
-bool alpha_masking_check(ref<Texture> m_alpha_mask, ref<Intersection> its, Sampler &rng, ref<Ray> localRay, ref<Shape> m_shape) {
+bool alpha_masking_check(Texture *m_alpha_mask, Intersection *its, Sampler &rng, Ray *localRay, Shape *m_shape) {
 
     // we think of the alpha map as a grey scale image where all color values are equal
     // also we did not care about objects having more than 2 transparent layers before having one non-transparent layer
@@ -76,7 +76,7 @@ bool Instance::intersect(const Ray &worldRay, Intersection &its, Sampler &rng) c
         if (m_shape->intersect(localRay, its, rng)) {
             
             // alpha masking check
-            if (!alpha_masking_check(m_alpha_mask, &its, rng, &localRay, m_shape)) {
+            if (!alpha_masking_check(m_alpha_mask.get(), &its, rng, &localRay, m_shape.get())) {
                 return false;
             }
             
@@ -106,23 +106,9 @@ bool Instance::intersect(const Ray &worldRay, Intersection &its, Sampler &rng) c
     if (wasIntersected) {
 
         // alpha masking check
-        // we think of the alpha map as a grey scale image where all color values are equal
-        // also we did not care about objects having more than 2 transparent layers before having one non-transparent layer
-        // (might introduce while loop in that case)
-        if (m_alpha_mask != nullptr) {
-            if (m_alpha_mask->evaluate(its.uv).r() < rng.next()) {
-                localRay.origin = its.position;
-                // spheres are primitives that can be intersected twice
-                if (m_shape->intersect(localRay, its, rng)) {
-                    if (m_alpha_mask->evaluate(its.uv).r() < rng.next()) {
-                        return false;
-                    }
-                } else {
-                    return false;
-                }
-            }
+        if (!alpha_masking_check(m_alpha_mask.get(), &its, rng, &localRay, m_shape.get())) {
+            return false;
         }
-        
         
         // Transform its.t back to world space
         its.t = its.t / scaling;
