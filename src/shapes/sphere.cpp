@@ -70,22 +70,27 @@ namespace lightwave
             {
                 return false;
             }
-            else
-            {
-                its.t = t_candidate;
+
+            Vector position_hit_point = ((Vector)(ray(t_candidate))).normalized();
+
+            // compute uv
+            float u = 0.5 + (atan2(position_hit_point.x(), position_hit_point.z()) / (2 * Pi));
+            float v = 0.5 - (asin(position_hit_point.y()) / Pi);
+            Point2 uv = Point2(u, v);
+            if (its.alpha_mask != nullptr) {
+                // valid alpha_mask value
+                // check if the intersection still occurs
+                if (its.alpha_mask->evaluate(uv).r() < rng.next()) {
+                    return false;
+                }
             }
-
-            // position is the hit point
-            its.position = ((Vector)(ray(its.t))).normalized();
-
+            // populate its
+            // ensures that its is only changed if intersection actually occurs
+            its.t = t_candidate;
+            its.position = position_hit_point;
             // calculate the normal vector of the hit point
             its.frame = Frame((ray(its.t) - Point(0)).normalized());
-
-            // uv coordinates between 0 and 1            
-            float u = 0.5 + (atan2(its.position.x(), its.position.z()) / (2 * Pi));
-            float v = 0.5 - (asin(its.position.y()) / Pi);
-            its.uv = Point2(u, v);
-
+            its.uv = uv;
             return true;
         }
         Bounds getBoundingBox() const override

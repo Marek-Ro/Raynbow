@@ -85,6 +85,15 @@ protected:
 
 
         if (t_candidate > Epsilon2 && its.t > t_candidate) {
+            Vector2 uv_vector = Vector2(u,v);
+            Point2 uv = Vertex::interpolate(uv_vector, v0 , v1, v2).texcoords;
+            if (its.alpha_mask != nullptr) {
+                // valid alpha_mask value
+                // check if the intersection still occurs
+                if (its.alpha_mask->evaluate(uv).r() < rng.next()) {
+                    return false;
+                }
+            }
             its.t = t_candidate;
 
             Point hit_point = ray(its.t);
@@ -92,15 +101,15 @@ protected:
 
             // calculate the face_normal vector of the hit point
             Vector face_normal = v0v1.cross(v0v2).normalized();
-            Vector2 uv = Vector2(u,v);
+            
 
             // Gouraud shading
             if (m_smoothNormals) {
-                face_normal = Vertex::interpolate(uv, v0 , v1, v2).normal.normalized();
+                face_normal = Vertex::interpolate(uv_vector, v0 , v1, v2).normal.normalized();
             }
 
             its.frame = Frame(face_normal);
-            its.uv = Vertex::interpolate(uv, v0 , v1, v2).texcoords;
+            its.uv = Vertex::interpolate(uv_vector, v0 , v1, v2).texcoords;
             return true;
         } else {
             return false;
