@@ -1,0 +1,70 @@
+<!-- Did this with pathtracer as well but the bunny looked way more flat so just used direct light integrator for a showcase -->
+    <integrator type="direct">
+        <scene id="scene">
+            <camera type="perspective" id="camera">
+                <integer name="width" value="2048"/>
+                <integer name="height" value="2048"/>
+
+                <string name="fovAxis" value="x"/>
+                <float name="fov" value="30"/>
+
+                <transform>
+                    <rotate axis="1,0,0" angle="-2.5"/>
+                    <translate z="-5"/>
+                </transform>
+            </camera>
+
+            <light type="envmap">
+                <texture type="constant" value="1"/>
+            </light>
+
+            <instance>
+                <shape type="mesh" filename="../meshes/bunny.ply"/>
+                <bsdf type="principled">
+                  <texture name="baseColor" type="image" filename="../textures/grass_medium_01_diff_1k.jpg"/>
+                  <texture name="roughness" type="constant" value="0.5"/>
+                  <texture name="metallic" type="constant" value="0"/>
+                  <texture name="specular" type="constant" value="0"/>
+                </bsdf>
+                <texture name="alpha" type="image" filename="../textures/grass_medium_01_alpha_1k.png"/>
+                <!--
+                  -->
+                <transform>
+                    <rotate axis="1,0,0" angle="90"/>
+                    <translate x="0.18" y="1.03"/>
+                </transform>
+            </instance>
+            <instance>
+                <shape type="rectangle"/>
+                <bsdf type="diffuse">
+                    <texture name="albedo" type="constant" value="1"/>
+                </bsdf>
+                <transform>
+                    <rotate axis="1,0,0" angle="90"/>
+                    <scale value="10"/>
+                    <translate y="1"/>
+                </transform>
+            </instance>
+        </scene>
+        <sampler type="independent" count="256"/>
+         <image id="noisy"/>
+    </integrator>
+
+
+<integrator type="normals">
+ <ref id="scene"/>
+ <image id="normals"/>
+ <sampler type="independent" count="64"/>
+</integrator>
+<integrator type="albedo">
+ <ref id="scene"/>
+ <image id="albedo"/>
+ <sampler type="independent" count="64"/>
+</integrator>
+
+<postprocess type="denoising">
+ <ref name="input" id="noisy"/>
+ <ref name="normals" id="normals"/>
+ <ref name="albedo" id="albedo"/>
+ <image id="denoised"/>
+</postprocess>
