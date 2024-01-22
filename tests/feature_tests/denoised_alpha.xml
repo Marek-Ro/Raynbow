@@ -1,0 +1,80 @@
+<scene id="scene">
+  <camera type="perspective">
+  <integer name="width" value="2048"/>
+  <integer name="height" value="2048"/>
+    <float name="fov" value="12"/>
+    <string name="fovAxis" value="x"/>
+    <transform>
+      <matrix value="0.686,0.324,-0.652,7.36,  0.728,-0.305,0.614,-6.93,  -4.01e-09,-0.895,-0.445,4.96,  0,0,0,1"/>
+    </transform>
+  </camera>
+  <instance>
+    <shape type="sphere"/>
+    <transform>
+      <scale value="0.1"/>
+      <translate x="4.08" y="1.01" z="5.9"/>
+    </transform>
+    <emission type="lambertian">
+      <texture name="emission" type="constant" value="2.53e+03,2.53e+03,2.53e+03"/>
+    </emission>
+  </instance>
+  <instance>
+    <bsdf type="principled">
+      <texture name="baseColor" type="image" filename="../textures/grass_medium_01_diff_1k.jpg"/>
+      <texture name="roughness" type="constant" value="0.5"/>
+      <texture name="metallic" type="constant" value="0"/>
+      <texture name="specular" type="constant" value="0"/>
+    </bsdf>
+<!--
+-->    
+      <texture name="alpha" type="image" filename="../textures/grass_medium_01_alpha_1k.png"/>
+    <shape type="mesh" filename="../meshes/Sphere.ply"/>
+    <transform>
+      <matrix value="1,0,0,0,  0,1,0,0,  0,0,1,0,  0,0,0,1"/>
+    </transform>
+  </instance>
+  <instance>
+    <bsdf type="principled">
+      <texture name="baseColor" type="constant" value="1,0.9,0.998"/>
+      <texture name="roughness" type="constant" value="0.5"/>
+      <texture name="metallic" type="constant" value="0"/>
+      <texture name="specular" type="constant" value="0"/>
+    </bsdf>
+    <shape type="mesh" filename="../meshes/Sphere.001.ply"/>
+    <transform>
+      <matrix value="0.695,0,0,0,  0,0.695,0,0,  0,0,0.695,0,  0,0,0,1"/>
+    </transform>
+  </instance>
+  <light type="envmap">
+    <texture type="constant" value="0.1, 0.1, 0.1"/>
+    <transform>
+      <matrix value="1,0,0,0,  0,0,1,0,  0,-1,0,0,  0,0,0,1"/>
+    </transform>
+  </light>
+</scene>
+<integrator type="pathtracer" depth="4" nee="true" mis="true">
+  <ref id="scene"/>
+  <image id="noisy"/>
+  <sampler type="independent" count="256"/>
+</integrator>
+
+<!-- 
+-->
+
+<integrator type="normals">
+ <ref id="scene"/>
+ <image id="normals"/>
+ <sampler type="independent" count="64"/>
+</integrator>
+<integrator type="albedo">
+ <ref id="scene"/>
+ <image id="albedo"/>
+ <sampler type="independent" count="64"/>
+</integrator>
+
+<postprocess type="denoising">
+ <ref name="input" id="noisy"/>
+ <ref name="normals" id="normals"/>
+ <ref name="albedo" id="albedo"/>
+ <image id="denoised"/>
+</postprocess>
