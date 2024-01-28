@@ -1,5 +1,6 @@
 import bpy
 import math
+import traceback
 
 from .registry import SceneRegistry
 from .node import export_node
@@ -9,11 +10,8 @@ from .node_graph import RMInput, RMNode, RMNodeGraph
 
 
 def export_default_bsdf():
-    node = XMLNode("bsdf", type="principled")
-    node.add("texture", name="baseColor", type="constant", value=0.8)
-    node.add("texture", name="roughness", type="constant", value=0.5)
-    node.add("texture", name="metallic", type="constant", value=0.0)
-    node.add("texture", name="specular", type="constant", value=0.5)
+    node = XMLNode("bsdf", type="diffuse")
+    node.add("texture", name="albedo", type="constant", value=0.8)
     return [node]
 
 def _export_diffuse_bsdf(registry: SceneRegistry, bsdf_node: RMNode):
@@ -21,23 +19,32 @@ def _export_diffuse_bsdf(registry: SceneRegistry, bsdf_node: RMNode):
     node.add_child(export_node(registry, bsdf_node.input("Color")), name="albedo")
     return [node]
 
-def _export_glass_bsdf(registry: SceneRegistry, bsdf_node: RMNode):
+def _export_glass_bsdf_helper(registry: SceneRegistry, bsdf_node: RMNode, has_reflectance: bool):
     has_roughness = bsdf_node.bl_node.distribution != 'SHARP'
     node = XMLNode("bsdf", type="roughdielectric" if has_roughness else "dielectric")
-    node.add_child(export_node(registry, bsdf_node.input("Color")), name="reflectance")
     node.add_child(export_node(registry, bsdf_node.input("IOR")), name="ior")
+    node.add_child(export_node(registry, bsdf_node.input("Color")), name="transmittance")
+    
+    if has_reflectance:
+        node.add_child(export_node(registry, bsdf_node.input("Color")), name="reflectance")
+    else:
+        node.add("texture", name="reflectance", type="constant", value=0)
+    
     if has_roughness:
         node.add_child(export_node(registry, bsdf_node.input("Roughness")), name="roughness")
     return [node]
 
+def _export_glass_bsdf(registry: SceneRegistry, bsdf_node: RMNode):
+    return _export_glass_bsdf_helper(registry, bsdf_node, has_reflectance=True)
+
 def _export_refraction_bsdf(registry: SceneRegistry, bsdf_node: RMNode):
-    # TODO: Better support?
-    return _export_glass_bsdf(registry, bsdf_node)
+    return _export_glass_bsdf_helper(registry, bsdf_node, has_reflectance=False)
 
 def _export_transparent_bsdf(registry: SceneRegistry, bsdf_node: RMNode):
     node = XMLNode("bsdf", type="dielectric")
-    node.add_child(export_node(registry, bsdf_node.input("Color")), name="reflectance")
-    node.add("texture", name="ior", value=1)
+    node.add("texture", name="ior", type="constant", value=1)
+    node.add("texture", name="reflectance", type="constant", value=0)
+    node.add_child(export_node(registry, bsdf_node.input("Color")), name="transmittance")
     return [node]
 
 def _export_glossy_bsdf(registry: SceneRegistry, bsdf_node: RMNode):
@@ -137,6 +144,7 @@ def export_material(registry: SceneRegistry, material: bpy.types.Material):
     except Exception as e:
         print(f"failed to export material {material.name}")
         print(e)
+        traceback.print_exc()
     
     return [] # No active output
 
