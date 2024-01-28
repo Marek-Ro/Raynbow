@@ -53,6 +53,7 @@ public:
             // emission after there is an intersection
             //if (current_depth == 1) 
             if (in_volume) {
+                volume_travel_dist = intersection.t;
                 weight *= exp(-volume_absorbtion * volume_travel_dist);
 //logger(EError, "hitting something in the volume: hitpoint (%f %f %f)", intersection.position.x(), intersection.position.y(), intersection.position.z());
             }
