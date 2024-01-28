@@ -84,7 +84,7 @@ public:
                         if (in_volume) {
                             // nee to a light source outside of the volume
                             volume_travel_dist = NEEintersection.t;
-                            Li += dls.weight * eval.value / light_sample.probability * weight * pow(volume_absorbtion, volume_travel_dist);
+                            Li += dls.weight * eval.value / light_sample.probability * weight * exp(-volume_absorbtion * volume_travel_dist);
                         } else {
                             // nee into a volume (through a volume)
                         }
