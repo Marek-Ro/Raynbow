@@ -17,7 +17,7 @@
             </camera>
 
             <light type="envmap">
-                <texture type="constant" value="1"/>
+                <texture type="image" filename="./tests/textures/kloofendal_overcast_1k.hdr" exposure="0.5"/>
             </light>
             <light type="directional" direction="-0.8,-1,-1" intensity="2.1,1.88,1.65"/>
             <light type="point" position="0,-0.5,0.5" power="55, 0, 2" />
@@ -36,7 +36,7 @@
                 <shape type="volume" x="2"/>
                 <transform>
                     <scale value="0.8"/>
-                    <translate x="-1.5" y="0.5"/>
+                    <translate x="-1.5" y="-0.2"/>
                 </transform>
             </instance>
             <instance>
