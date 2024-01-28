@@ -1,16 +1,16 @@
 
-    <integrator type="direct">
+    <integrator type="volumes" depth="5">
         <scene id="scene">
             <camera type="perspective" id="camera">
                 <integer name="width" value="512"/>
                 <integer name="height" value="512"/>
 
                 <string name="fovAxis" value="x"/>
-                <float name="fov" value="30"/>
+                <float name="fov" value="35"/>
 
                 <transform>
                     <rotate axis="1,0,0" angle="-2.5"/>
-                    <rotate axis="0,1,0" angle="-25"/>
+                    <rotate axis="0,1,0" angle="-28"/>
                     
                     <translate x="2" z="-5"/>
                 </transform>
@@ -19,6 +19,7 @@
             <light type="envmap">
                 <texture type="constant" value="1"/>
             </light>
+            <light type="directional" direction="-0.8,-1,-1" intensity="2.1,1.88,1.65"/>
 
             <instance>
                 <shape type="mesh" filename="./tests/meshes/bunny.ply"/>
@@ -31,12 +32,9 @@
                 </transform>
             </instance>
             <instance>
-                <shape type="volume" filename="./tests/meshes/bunny.ply"/>
-                <bsdf type="diffuse">
-                    <texture name="albedo" type="constant" value="0.1,0.3,0.7"/>
-                </bsdf>
-
+                <shape type="volume"/>
                 <transform>
+                    <scale value="0.8"/>
                     <translate x="-1" y="0.5"/>
                 </transform>
             </instance>

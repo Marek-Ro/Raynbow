@@ -51,6 +51,9 @@ protected:
         its.t = t;
         its.position = ray(its.t);
         its.frame = Frame(ray.direction);
+        its.volume_intersection = true;
+
+        assert(t > 0);
 
         return true;
     }
@@ -78,8 +81,13 @@ protected:
         if (tFar < Epsilon)
             return Infinity; // the bounding box lies behind the ray origin
 
-        return tNear; // return the first intersection with the bounding box
-                      // (may also be negative!)
+
+
+        // for volumes they cant be negative
+        if (tNear > 0) return tNear;
+        if (tFar > 0) return tFar;
+
+        return Infinity;
     }
 
     Bounds getBoundingBox() const override {

@@ -748,6 +748,9 @@ struct Intersection : public SurfaceEvent {
     /// @brief The alpha masked, which can be used to check if an intersection should occur
     Texture *alpha_mask;
 
+    ///@brief volume flag, true if the intersection was made with a volume box
+    bool volume_intersection = false;
+
     /// @brief Statistics recorded while traversing acceleration structures.
     struct {
         /// @brief The number of BVH nodes that have been tested for intersection.
