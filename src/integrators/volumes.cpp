@@ -17,6 +17,8 @@ public:
      * This will be run for each pixel of the image, potentially with multiple samples for each pixel.
      */
     Color Li(const Ray &ray, Sampler &rng) override {
+        PROFILE("Vol Li");
+
         float volume_absorbtion = 0.8;
         bool in_volume = false;
         float volume_travel_dist = 0;   // metric is t

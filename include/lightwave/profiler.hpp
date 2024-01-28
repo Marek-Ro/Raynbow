@@ -24,7 +24,7 @@ static uint64_t now() {
 #endif
 }
 
-static std::string thousands(int number) {
+static std::string thousands(long number) {
     bool isNegative = number < 0;
     number          = abs(number);
 
