@@ -18,6 +18,7 @@
 #include <lightwave/parallel.hpp>
 #include <lightwave/streaming.hpp>
 #include <lightwave/warp.hpp>
+#include <lightwave/profiler.hpp>
 
 // MARK: - objects
 #include <lightwave/bsdf.hpp>

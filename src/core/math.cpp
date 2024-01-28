@@ -4,6 +4,7 @@
 #include <lightwave/bsdf.hpp>
 #include <lightwave/emission.hpp>
 #include <lightwave/light.hpp>
+#include <lightwave/profiler.hpp>
 
 namespace lightwave {
 
@@ -146,6 +147,8 @@ Color Intersection::evaluateEmission() const {
 }
 
 BsdfSample Intersection::sampleBsdf(Sampler &rng) const {
+    PROFILE("Sample Bsdf")
+
     if (!instance->bsdf()) return BsdfSample::invalid();
     assert_normalized(wo, {});
     auto bsdfSample = instance->bsdf()->sample(uv, frame.toLocal(wo), rng);
@@ -162,6 +165,8 @@ BsdfSample Intersection::sampleBsdf(Sampler &rng) const {
 }
 
 BsdfEval Intersection::evaluateBsdf(const Vector &wi) const {
+    PROFILE("Evaluate Bsdf")
+
     if (!instance->bsdf())
         return BsdfEval::invalid();
     return instance->bsdf()->evaluate(uv, frame.toLocal(wo), frame.toLocal(wi));

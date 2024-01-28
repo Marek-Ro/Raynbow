@@ -174,6 +174,12 @@ public:
         buildAccelerationStructure();
     }
 
+    bool intersect(const Ray &ray, Intersection &its,
+                   Sampler &rng) const override {
+        PROFILE("Triangle mesh")
+        return AccelerationStructure::intersect(ray, its, rng);
+    }
+
     AreaSample sampleArea(Sampler &rng) const override {
         // only implement this if you need triangle mesh area light sampling for your rendering competition
         NOT_IMPLEMENTED

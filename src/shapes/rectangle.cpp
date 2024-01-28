@@ -33,6 +33,8 @@ public:
     }
 
     bool intersect(const Ray &ray, Intersection &its, Sampler &rng) const override {
+        PROFILE("Rectangle")
+        
         // if the ray travels in the xy-plane, we report no intersection
         // (we ignore the edge case - pun intended - that the ray might have infinite intersections with the rectangle)
         if (ray.direction.z() == 0)

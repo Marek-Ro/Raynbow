@@ -4,6 +4,7 @@
 #include <lightwave/shape.hpp>
 #include <lightwave/camera.hpp>
 #include <lightwave/light.hpp>
+#include <lightwave/profiler.hpp>
 
 namespace lightwave {
 
@@ -34,12 +35,16 @@ std::string Scene::toString() const {
 }
 
 Intersection Scene::intersect(const Ray &ray, Sampler &rng) const {
+    PROFILE("Intersect")
+
     Intersection its(-ray.direction);
     m_shape->intersect(ray, its, rng);
     return its;
 }
 
 bool Scene::intersect(const Ray &ray, float tMax, Sampler &rng) const {
+    PROFILE("Shadow ray")
+
     Intersection its(-ray.direction, tMax * (1 - Epsilon));
     return m_shape->intersect(ray, its, rng);
 }
