@@ -1,5 +1,5 @@
 
-    <integrator type="volumes" depth="5">
+    <integrator type="volumes" depth="20">
         <scene id="scene">
             <camera type="perspective" id="camera">
                 <integer name="width" value="512"/>
@@ -33,10 +33,10 @@
                 </transform>
             </instance>
             <instance>
-                <shape type="volume"/>
+                <shape type="volume" x="2"/>
                 <transform>
                     <scale value="0.8"/>
-                    <translate x="-1" y="0.5"/>
+                    <translate x="-1.5" y="0.5"/>
                 </transform>
             </instance>
             <instance>
