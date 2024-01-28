@@ -36,7 +36,9 @@ public:
                 in_volume = false;
                 intersection.volume_intersection = false;
                 volume_travel_dist = intersection.t;
-                weight *= pow(volume_absorbtion, volume_travel_dist);
+                weight *= exp(-volume_absorbtion * volume_travel_dist);
+                // do you intersect a volume if you are inside? if yes then ->
+                // set current_ray origin to the position outside of the volume -> so that you actually leave it?
                 current_ray.origin = Point(intersection.position + current_ray.direction * Epsilon);                
                 continue;
             } else if (intersection.volume_intersection) {
@@ -51,7 +53,7 @@ public:
             // emission after there is an intersection
             //if (current_depth == 1) 
             if (in_volume) {
-                weight *= pow(volume_absorbtion, volume_travel_dist);
+                weight *= exp(-volume_absorbtion * volume_travel_dist);
 //logger(EError, "hitting something in the volume: hitpoint (%f %f %f)", intersection.position.x(), intersection.position.y(), intersection.position.z());
             }
             Li += weight * intersection.evaluateEmission();
