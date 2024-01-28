@@ -37,13 +37,13 @@ public:
                 intersection.volume_intersection = false;
                 volume_travel_dist = intersection.t;
                 weight *= pow(volume_absorbtion, volume_travel_dist);
-                current_ray.origin = Point(current_ray.origin + current_ray.direction * Epsilon);                
+                current_ray.origin = Point(intersection.position + current_ray.direction * Epsilon);                
                 continue;
             } else if (intersection.volume_intersection) {
                 // entering volumes
                 in_volume = true;
                 intersection.volume_intersection = false;
-                current_ray.origin = Point(current_ray.origin + current_ray.direction * Epsilon);                
+                current_ray.origin = Point(intersection.position + current_ray.direction * Epsilon);                
                 continue;
             }
 
@@ -52,7 +52,7 @@ public:
             //if (current_depth == 1) 
             if (in_volume) {
                 weight *= pow(volume_absorbtion, volume_travel_dist);
-logger(EError, "hitting something in the volume: hitpoint (%f %f %f)", intersection.position.x(), intersection.position.y(), intersection.position.z());
+//logger(EError, "hitting something in the volume: hitpoint (%f %f %f)", intersection.position.x(), intersection.position.y(), intersection.position.z());
             }
             Li += weight * intersection.evaluateEmission();
 

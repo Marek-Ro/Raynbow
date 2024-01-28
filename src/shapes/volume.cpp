@@ -64,6 +64,7 @@ protected:
     /// returning Infinity in case the ray misses.
     float intersectAABB(const Bounds &bounds, const Ray &ray) const
     {
+        float Epsilon = 1e-8f;
         // but this only saves us ~1%, so let's not do it. intersect all axes at
         // once with the minimum slabs of the bounding box
         const auto t1 = (bounds.min() - ray.origin) / ray.direction;

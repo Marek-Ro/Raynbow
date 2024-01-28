@@ -20,6 +20,7 @@
                 <texture type="constant" value="1"/>
             </light>
             <light type="directional" direction="-0.8,-1,-1" intensity="2.1,1.88,1.65"/>
+            <light type="point" position="0,-0.5,0.5" power="55, 0, 2" />
 
             <instance>
                 <shape type="mesh" filename="./tests/meshes/bunny.ply"/>
@@ -50,6 +51,6 @@
                 </transform>
             </instance>
         </scene>
-        <sampler type="independent" count="64"/>
+        <sampler type="independent" count="256"/>
         <image id="foggy"/>
     </integrator>
