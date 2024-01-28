@@ -81,13 +81,12 @@ protected:
         if (tFar < Epsilon)
             return Infinity; // the bounding box lies behind the ray origin
 
-
+//        logger(EInfo, "tNear %f tFar%f", tNear, tFar);
 
         // for volumes they cant be negative
-        if (tNear > 0) return tNear;
-        if (tFar > 0) return tFar;
+        if (tNear > Epsilon) return tNear;
 
-        return Infinity;
+        return tFar;
     }
 
     Bounds getBoundingBox() const override {

@@ -17,7 +17,7 @@ public:
      * This will be run for each pixel of the image, potentially with multiple samples for each pixel.
      */
     Color Li(const Ray &ray, Sampler &rng) override {
-        float volume_absorbtion = 0.9;
+        float volume_absorbtion = 0.99;
         bool in_volume = false;
         float volume_travel_dist = 0;   // metric is t
         Ray current_ray = ray;
@@ -31,14 +31,16 @@ public:
                 return Li;
             }
 
-            // traveling in volumes
+            // escaping volumes
             if (intersection.volume_intersection && in_volume) {
                 in_volume = false;
                 intersection.volume_intersection = false;
-//                Li -= weight * pow(volume_absorbtion, intersection.t);
                 volume_travel_dist = intersection.t;
+                weight *= pow(volume_absorbtion, volume_travel_dist);
+                current_ray.origin = Point(current_ray.origin + current_ray.direction * Epsilon);                
+                continue;
             } else if (intersection.volume_intersection) {
-                // intersected a volume from outside, shoot further
+                // entering volumes
                 in_volume = true;
                 intersection.volume_intersection = false;
                 current_ray.origin = Point(current_ray.origin + current_ray.direction * Epsilon);                
@@ -50,6 +52,7 @@ public:
             //if (current_depth == 1) 
             if (in_volume) {
                 weight *= pow(volume_absorbtion, volume_travel_dist);
+logger(EError, "hitting something in the volume: hitpoint (%f %f %f)", intersection.position.x(), intersection.position.y(), intersection.position.z());
             }
             Li += weight * intersection.evaluateEmission();
 
