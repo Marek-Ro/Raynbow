@@ -1,4 +1,4 @@
-<test type="image" id="emission">
+<test type="image" id="area_lights_on">
     <integrator type="pathtracer" depth="5">
         <scene id="scene">
             <camera type="perspective" id="camera">
@@ -20,7 +20,7 @@
                     <texture name="emission" type="constant" value="2,0.5,0.1"/>
                 </emission>
                 <transform>
-                    <scale value="2"/>
+                    <scale value="1.0"/>
                     <translate x="2.5" y="-2" z="1"/>
                 </transform>
             </instance>
@@ -32,7 +32,7 @@
                     <texture name="emission" type="constant" value="0.2,0.7,3"/>
                 </emission>
                 <transform>
-                    <scale value="2"/>
+                    <scale value="1.0"/>
                     <translate x="-2.5" y="-2" z="1"/>
                 </transform>
             </instance>
