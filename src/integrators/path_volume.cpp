@@ -69,8 +69,7 @@ public:
 
                     if (!m_scene->intersect(check_for_visibility_ray, dls.distance, rng) && 
                         // also check if the fog eats it
-                        dls.distance < nee_distance_sample)
-                    {
+                        dls.distance < nee_distance_sample) {
                         // the light is visible
                         BsdfEval eval = intersection.evaluateBsdf(dls.wi);
                         Li += dls.weight * eval.value / light_sample.probability * weight;
@@ -79,17 +78,11 @@ public:
                         assert(light_sample.probability > 0);
                         assert(!std::isnan(light_sample.probability));
                     }
-
-
-                continue;
-            }
+                    continue;
+                }
             // take the intersection as usual
-
-            // handle escaping rays
-            if (!intersection) {
-                Li += weight * m_scene->evaluateBackground(current_ray.direction).value;
-                return Li;
             }
+
             // emission after there is an intersection
             //if (current_depth == 1) 
             Li += weight * intersection.evaluateEmission();
@@ -138,7 +131,7 @@ public:
             //current_ray = ray;
         }
         return Li;
-    }}
+    }
 
     /// @brief An optional textual representation of this class, which can be useful for debugging. 
     std::string toString() const override {
