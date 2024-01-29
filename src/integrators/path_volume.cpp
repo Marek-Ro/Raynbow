@@ -50,11 +50,40 @@ public:
                 // random angle
                 current_ray.direction = sample_random_angle(rng);
                 current_ray.origin = current_ray(sampled_distance);
+
+                // NEE fpr volumes
+                float nee_distance_sample = sample_distance(rng, density);
+                
+                
+                LightSample light_sample =  m_scene->sampleLight(rng);
+                DirectLightSample dls = light_sample.light->sampleDirect(intersection.position, rng);
+                if (dls.isInvalid()) {
+                    return Li;
+                }
+                // avoid double counting
+                if (light_sample.light->canBeIntersected() == false) {
+                    // check if the light source is visible
+                    // therefore create a ray and shoot it in the direction of the light source to see if intersects
+                    // something before that light source
+                    Ray check_for_visibility_ray = Ray(intersection.position, dls.wi);
+
+                    if (!m_scene->intersect(check_for_visibility_ray, dls.distance, rng) && 
+                        // also check if the fog eats it
+                        dls.distance < nee_distance_sample)
+                    {
+                        // the light is visible
+                        BsdfEval eval = intersection.evaluateBsdf(dls.wi);
+                        Li += dls.weight * eval.value / light_sample.probability * weight;
+                        assert(dls.weight.r() >= 0 && dls.weight.g() >= 0 && dls.weight.b() >= 0);
+                        assert(eval.value.r() >= 0 && eval.value.g() >= 0 && eval.value.b() >= 0);
+                        assert(light_sample.probability > 0);
+                        assert(!std::isnan(light_sample.probability));
+                    }
+
+
                 continue;
             }
             // take the intersection as usual
-
-
 
             // handle escaping rays
             if (!intersection) {
@@ -109,7 +138,7 @@ public:
             //current_ray = ray;
         }
         return Li;
-    }
+    }}
 
     /// @brief An optional textual representation of this class, which can be useful for debugging. 
     std::string toString() const override {
