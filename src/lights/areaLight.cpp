@@ -4,48 +4,31 @@ namespace lightwave {
 
 class AreaLight final : public Light {
 public:
-    Color weight;
-    //Point position;
     ref<Instance> instance;
-    //ref<Texture> m_emission;
     
     AreaLight(const Properties &properties) {
-        instance = properties.getChild<Instance>(true);
-        //position = properties.get<Point>("position");        
-        //weight = properties.get<Color>("power");
-        //m_emission = properties.get<Texture>("emission");
+        instance = properties.getChild<Instance>("Instance");
     }
 
     DirectLightSample sampleDirect(const Point &origin,
                                    Sampler &rng) const override {
-        // get random point on shape -> implement in shape itself
-        // wi = randomPoint-origin.normalized
-        // distance = origin - randomPoint).length 
-        // weight = (evaluate emission?) / probability_of_sampling_that_point * (length² / cos  theta)
-        
-        // cos theta angle between normal and incoming (wi)?
 
-        // sample a random point on the shape 
         AreaSample area_sample = instance.get()->sampleArea(rng);
-        float pdf = area_sample.pdf;
-        Point random_point_on_light = area_sample.position;
-        Point2 uv = area_sample.uv;
-        Vector wi = (random_point_on_light - origin).normalized();
-        float cos_theta = area_sample.frame.cosTheta(wi);
-        
-        float length = (origin - random_point_on_light).length();
-        
-        float scalar = (pdf * (sqr(length)/ cos_theta));
+        Vector wi = (area_sample.position - origin).normalized();
+        float cos_theta = Frame::absCosTheta(area_sample.frame.toLocal(wi));
+        float length = (origin - area_sample.position).length();
+        float scalar = (area_sample.pdf * (sqr(length)/ cos_theta));
+
         return DirectLightSample {
             .wi = wi,
-            .weight = (instance.get()->emission()->evaluate(uv, -wi)).value / scalar,
-            .distance = (origin - random_point_on_light).length(),
+            .weight = (instance.get()->emission()->evaluate(area_sample.uv, area_sample.frame.toLocal(-wi))).value / scalar,
+            .distance = (origin - area_sample.position).length(),
         };
-                                   }
+        }
     
 
     bool canBeIntersected() const override { 
-        return true; 
+        return false; 
         }
 
     std::string toString() const override {

@@ -28,7 +28,7 @@ namespace lightwave
         surf.frame.normal = Vector(0, 0, 1); */
 
         // since we sample the area uniformly, the pdf is given by 1/surfaceArea
-        surf.pdf = 1.0f / 4;
+        surf.pdf = Inv4Pi;
     }
         bool intersect(const Ray &ray, Intersection &its, Sampler &rng) const override
         {

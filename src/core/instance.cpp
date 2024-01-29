@@ -13,7 +13,7 @@ void Instance::transformFrame(SurfaceEvent &surf) const {
 
         Vector tangent = m_transform->apply(surf.frame.tangent);
         Vector bitangent = m_transform->apply(surf.frame.bitangent);
-
+        surf.pdf = surf.pdf / tangent.cross(bitangent).length();
         if (m_flipNormal) {
             bitangent = - bitangent;
         }
