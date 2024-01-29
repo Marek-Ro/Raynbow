@@ -53,5 +53,5 @@
 <integrator type="pathtracer" depth="12" nee="true" mis="true">
   <ref id="scene"/>
   <image id="noisy"/>
-  <sampler type="independent" count="4096"/>
+  <sampler type="independent" count="60"/>
 </integrator>

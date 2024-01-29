@@ -7,6 +7,29 @@ namespace lightwave
         Sphere(const Properties &properties)
         {
         }
+        /**
+     * @brief Constructs a surface event for a given position, used by @ref intersect to populate the @ref Intersection
+     * and by @ref sampleArea to populate the @ref AreaSample .
+     * @param surf The surface event to populate with texture coordinates, shading frame and area pdf
+     * @param position The hitpoint (i.e., point in [-1,-1,0] to [+1,+1,0]), found via intersection or area sampling
+     */
+    inline void populate(SurfaceEvent &surf, const Point &position) const {
+        surf.position = position;
+        float u = 0.5 + (atan2(position.x(), position.z()) / (2 * Pi));
+        float v = 0.5 - (asin(position.y()) / Pi);
+        surf.uv = Point2(u, v);
+        
+        surf.frame = Frame((position - Point(0)).normalized());
+        /*// the tangent always points in positive x direction
+        surf.frame.tangent = Vector(1, 0, 0);
+        // the bitagent always points in positive y direction
+        surf.frame.bitangent = Vector(0, 1, 0);
+        // and accordingly, the normal always points in the positive z direction
+        surf.frame.normal = Vector(0, 0, 1); */
+
+        // since we sample the area uniformly, the pdf is given by 1/surfaceArea
+        surf.pdf = 1.0f / 4;
+    }
         bool intersect(const Ray &ray, Intersection &its, Sampler &rng) const override
         {
             // define a new epsilon to pass furnace
@@ -84,13 +107,10 @@ namespace lightwave
                     return false;
                 }
             }
-            // populate its
-            // ensures that its is only changed if intersection actually occurs
             its.t = t_candidate;
-            its.position = position_hit_point;
+            populate(its,position_hit_point);
             // calculate the normal vector of the hit point
-            its.frame = Frame((ray(its.t) - Point(0)).normalized());
-            its.uv = uv;
+            
             return true;
         }
         Bounds getBoundingBox() const override
@@ -102,8 +122,14 @@ namespace lightwave
             return Point{0, 0, 0};
         }
         AreaSample sampleArea(Sampler &rng) const override{
-            NOT_IMPLEMENTED} std::string toString() const override
-        {
+            Point2 rnd = rng.next2D(); // sample a random point in [0,0]..[1,1]
+            Point position { squareToUniformSphere(rnd)}; // stretch the random point to [-1,-1]..[+1,+1] and set z=0
+
+            AreaSample sample;
+            populate(sample, position); // compute the shading frame, texture coordinates and area pdf (same as intersection)
+            return sample;
+        }
+        std::string toString() const override {
             return "Sphere[]";
         }
     };
