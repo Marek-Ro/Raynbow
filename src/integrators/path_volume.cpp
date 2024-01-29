@@ -12,8 +12,8 @@ public:
         : SamplingIntegrator(properties) {
         depth = properties.get<int>("depth", 1);
         nee = m_scene->hasLights();
-        density = 0.5;
-        color = Color(0);
+        density = properties.get<float>("density");
+        color = properties.get<Color>("color");
     }
 
     float sample_distance(Sampler &rng, float density) {
@@ -71,10 +71,8 @@ public:
                         // also check if the fog eats it
                         dls.distance < nee_distance_sample) {
                         // the light is visible
-                        BsdfEval eval = intersection.evaluateBsdf(dls.wi);
-                        Li += dls.weight * eval.value / light_sample.probability * weight;
+                        Li += dls.weight * color / light_sample.probability * weight;
                         assert(dls.weight.r() >= 0 && dls.weight.g() >= 0 && dls.weight.b() >= 0);
-                        assert(eval.value.r() >= 0 && eval.value.g() >= 0 && eval.value.b() >= 0);
                         assert(light_sample.probability > 0);
                         assert(!std::isnan(light_sample.probability));
                     }

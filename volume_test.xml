@@ -1,5 +1,5 @@
 
-    <integrator type="path_volume">
+    <integrator type="path_volume" density="5" color="1,0.55,0.8">
         <scene id="scene">
             <camera type="perspective" id="camera">
                 <integer name="width" value="400"/>
@@ -81,6 +81,6 @@
                 </transform>
             </instance>
         </scene>
-        <sampler type="independent" count="128"/>
+        <sampler type="independent" count="512"/>
         <image id="all_fog"/>
     </integrator>
