@@ -22,7 +22,11 @@ public:
     }
 
     Vector sample_random_angle(Sampler &rng) {
-        return Vector(0);
+        // random values between -1 and 1
+        float r1 = (rng.next()*2)-1;
+        float r2 = (rng.next()*2)-1;
+        float r3 = (rng.next()*2)-1;
+        return Vector(r1,r2,r3).normalized();
     }
 
     /**
