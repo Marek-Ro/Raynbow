@@ -79,10 +79,10 @@ bool Instance::intersect(const Ray &worldRay, Intersection &its, Sampler &rng) c
 
     // Volumes (ugly as fuck I know)
     if (this->bsdf() != nullptr) {
-        VolumeType type = this->bsdf()->getVolumeType();
-        if (type != NOT_A_VOLUME) {
+        std::string type = this->bsdf()->getVolumeType();
+        if (type != "NOT_A_VOLUME") {
 
-            if (type == HETEROGENEOUS) {
+            if (type == "heterogeneous") {
                 NOT_IMPLEMENTED;
             }
 

@@ -7,14 +7,14 @@ namespace lightwave
     {
         Color color;
         float density;
-        VolumeType volume_type;
+        std::string volume_type;
 
     public:
         VolumeBsdf(const Properties &properties)
         {
             density = properties.get<float>("density", 0);
             color = properties.get<Color>("color", Color(0));
-            volume_type = properties.get<VolumeType>("type", HOMOGENEOUS);
+            volume_type = properties.get<std::string>("volumeType", "homogeneous");
         }
 
         Vector sample_random_angle(Sampler &rng) const {
@@ -51,7 +51,7 @@ namespace lightwave
             return eval;
         } 
 
-        VolumeType getVolumeType() const override { return volume_type; }
+        std::string getVolumeType() const override { return volume_type; }
 
         // Volumes only, otherwise Color(0)
         Color getColor() const override { return color; }
