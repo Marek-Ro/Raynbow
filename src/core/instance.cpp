@@ -70,7 +70,71 @@ bool alpha_masking_check(Texture *m_alpha_mask, Intersection *its, Sampler &rng,
     return true;
 }
 
+float sample_distance(Sampler &rng, float density) {
+    float t = (std::log(1 - rng.next())) / - density;
+    return t;
+}
+
 bool Instance::intersect(const Ray &worldRay, Intersection &its, Sampler &rng) const {
+
+    // Volumes (ugly as fuck I know)
+    if (this->bsdf() != nullptr) {
+        VolumeType type = this->bsdf()->getVolumeType();
+        if (type != NOT_A_VOLUME) {
+
+            if (type == HETEROGENEOUS) {
+                NOT_IMPLEMENTED;
+            }
+
+            Ray localRay = !m_transform ? worldRay : m_transform->inverse(worldRay);
+
+            // so homogeneous volumes
+
+            // note, this only properly works for konvex objects
+
+
+            float distance = sample_distance(rng, this->bsdf()->getDensity());
+
+            bool intersectionHappens = m_shape->intersect(worldRay, its, rng);
+            if (intersectionHappens == false) {
+                return false;
+            }
+            // so we know there is a volume intersection in front of us
+
+            // checks if we are currently inside the volume (there is an intersection behind us)
+            Ray reversed_ray = localRay;
+            reversed_ray.direction = -localRay.direction;
+            Intersection dummyIntersection = Intersection();
+            // just to verify. We do not alter the intersection
+            bool inside_volume = m_shape->intersect(reversed_ray, dummyIntersection, rng);
+
+            if (inside_volume) {
+                // TODO populate intersectin
+                its.t = distance;
+                its.position = localRay(its.t);
+
+                return its.t > distance;
+            } else {
+                // we are not inside the volume, it is in front of us
+                // using some rough epsilon offset to avoid self intersections
+                Ray testing_if_inside_volume = Ray(localRay(distance * (1 + Epsilon)), localRay.direction);
+                // this ray tests now, if the distance sampled is in the volume
+                Intersection dummyIntersection = Intersection();
+                if (m_shape->intersect(testing_if_inside_volume, dummyIntersection, rng) == false) {
+                    // the distance sampled is outside of the volume, so we did not intersect it
+                    return false;
+                } else {
+                    // the distance is inside the volume, so we say that our intersection is 'distance' further than hitting the volume
+                    // TODO populate intersectin
+                    its.t += distance;
+                    its.position = localRay(its.t);
+                    return true;
+                }
+            }
+        }
+    }
+
+
     // write the alpha mask in the intersection
     its.alpha_mask = m_alpha_mask.get();
     if (!m_transform) {
