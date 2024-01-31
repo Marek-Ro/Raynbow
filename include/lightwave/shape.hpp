@@ -11,6 +11,7 @@
 #include <lightwave/properties.hpp>
 #include <lightwave/shape.hpp>
 #include <lightwave/bsdf.hpp>
+#include <lightwave/medium.hpp>
 #include <lightwave/emission.hpp>
 #include <lightwave/texture.hpp>
 #include <lightwave/transform.hpp>

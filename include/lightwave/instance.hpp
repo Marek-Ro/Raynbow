@@ -54,7 +54,7 @@ public:
         m_transform = properties.getOptionalChild<Transform>();
         m_normalMap = properties.get<Texture>("normal", nullptr);
         m_alpha_mask = properties.get<Texture>("alpha", nullptr);
-        //m_medium = properties.getOptionalChild<Medium>();
+        m_medium = properties.getOptionalChild<Medium>();
         m_visible = false;
 
         m_flipNormal = false;
