@@ -6,14 +6,14 @@ class path_volume : public SamplingIntegrator {
 int depth;
 bool nee;
 float density;
-Color color;
+Color volumeAbsorption;
 public:
     path_volume(const Properties &properties)
         : SamplingIntegrator(properties) {
         depth = properties.get<int>("depth", 1);
         nee = m_scene->hasLights();
         density = properties.get<float>("density");
-        color = properties.get<Color>("color");
+        volumeAbsorption = properties.get<Color>("color");
     }
 
     float sample_distance(Sampler &rng, float density) {
@@ -22,11 +22,7 @@ public:
     }
 
     Vector sample_random_angle(Sampler &rng) {
-        // random values between -1 and 1
-        float r1 = (rng.next()*2)-1;
-        float r2 = (rng.next()*2)-1;
-        float r3 = (rng.next()*2)-1;
-        return Vector(r1,r2,r3).normalized();
+        return squareToUniformSphere(rng.next2D());
     }
 
     /**
@@ -44,9 +40,6 @@ public:
             if (intersection.t > sampled_distance) {
                 // scatter
                 
-
-                // bsdf
-                weight *= color;
                 // random angle
                 current_ray.direction = sample_random_angle(rng);
                 current_ray.origin = current_ray(sampled_distance);
@@ -71,13 +64,16 @@ public:
                         // also check if the fog eats it
                         dls.distance < nee_distance_sample) {
                         // the light is visible
-                        Li += dls.weight * color / light_sample.probability * weight;
+                        Li += dls.weight * volumeAbsorption / light_sample.probability * weight;
                         assert(dls.weight.r() >= 0 && dls.weight.g() >= 0 && dls.weight.b() >= 0);
                         assert(light_sample.probability > 0);
                         assert(!std::isnan(light_sample.probability));
                     }
-                    continue;
                 }
+
+                // bsdf
+                weight *= volumeAbsorption;
+                continue;
             // take the intersection as usual
             }
 

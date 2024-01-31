@@ -50,13 +50,6 @@ struct BsdfEval {
     bool isInvalid() const { return value == Color(0); }
 };
 
-// conversions from string to enum type sucked it
-//enum VolumeType {
-//    HETEROGENEOUS,
-//    HOMOGENEOUS,
-//    NOT_A_VOLUME
-//};
-
 /// @brief A Bsdf, representing the scattering distribution of a surface.
 class Bsdf : public Object {
 public:
