@@ -84,22 +84,6 @@ public:
      * Helpful for denoising.
      */
     virtual BsdfEval evaluateAlbedo(const Point2 &uv) const { NOT_IMPLEMENTED };
-
-    /**
-     * @brief returns, that this is a bsdf and not a volume
-     * VolumeBsdf overwrites this
-     */
-    virtual std::string getVolumeType() const { return "NOT_A_VOLUME"; };
-
-    /**
-     * @brief returns a volume's color or Color(0)
-     */
-    virtual Color getColor() const { return Color(0); };
-
-    /**
-     * @brief returns a volume's density or 0
-     */
-    virtual float getDensity() const { return 0; };
 };
 
 } // namespace lightwave
