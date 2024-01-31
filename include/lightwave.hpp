@@ -31,6 +31,7 @@
 #include <lightwave/postprocess.hpp>
 #include <lightwave/sampler.hpp>
 #include <lightwave/shape.hpp>
+#include <lightwave/medium.hpp>
 #include <lightwave/test.hpp>
 #include <lightwave/texture.hpp>
 
