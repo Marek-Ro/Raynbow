@@ -56,11 +56,13 @@
 
         <instance>
             <shape type="sphere"/>
-            <bsdf type="volumebsdf" color="1,0.55,0.8"/>
-            <medium type="homogeneous" density="0"/>            
+            <bsdf type="diffuse">
+                <texture name="albedo" type="constant" value="1"/>
+            </bsdf>
+            <medium type="homogeneous" density="0.5"/>
             <transform>
                 <scale value="1"/>
-                <translate y="0" z="0" x="-0.2"/>
+                <translate y="-0.8" z="0" x="-0.8"/>
             </transform>
         </instance>
     </scene>

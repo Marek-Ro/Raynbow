@@ -10,11 +10,13 @@ namespace lightwave
     public:
         Homogeneous(const Properties &properties)
         {
-            density = properties.get<float>("density", 0);
+            // 0 is bad
+            density = properties.get<float>("density", 1);
         }
 
         float sample_distance(Sampler &rng) const override {
-            return std::log(1 - rng.next()) / - density;;
+            float res = std::log(1 - rng.next()) / - density;
+            return res;
         };
 
         std::string toString() const override

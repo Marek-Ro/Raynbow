@@ -17,7 +17,7 @@ namespace lightwave
                           Sampler &rng) const override{
                             // Sample a random ray
                             BsdfSample sample = {
-                                .wi = squareToUniformSphere(rng.next2D()),
+                                .wi = squareToCosineHemisphere(rng.next2D()),
                                 .weight = color
                             };
                             return sample;
@@ -28,7 +28,7 @@ namespace lightwave
             BsdfEval eval = { .value = color };            
 // idk if this makes sense for volumes
             // avoid negative numbers 
-//            eval.value *= max(Frame::cosTheta(wi), 0) * InvPi;
+            eval.value *= abs(Frame::cosTheta(wi)) * InvPi;
             return eval;
         }
 

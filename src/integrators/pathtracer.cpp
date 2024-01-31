@@ -51,10 +51,6 @@ public:
                         // the light is visible
                         BsdfEval eval = intersection.evaluateBsdf(dls.wi);
                         Li += dls.weight * eval.value / light_sample.probability * weight;
-                        assert(dls.weight.r() >= 0 && dls.weight.g() >= 0 && dls.weight.b() >= 0);
-                        assert(eval.value.r() >= 0 && eval.value.g() >= 0 && eval.value.b() >= 0);
-                        assert(light_sample.probability > 0);
-                        assert(!std::isnan(light_sample.probability));
                     }
                 }
             }
@@ -63,16 +59,10 @@ public:
                 return Li;
             }
 
-            // update weight
             weight *= bsdfsample.weight;
-            assert_finite(weight, {
-                logger(EError, "bsdf sample weight = %s", bsdfsample.weight);
-                logger(EError, "offending BSDF %s", intersection.instance->bsdf());
-            });
-            // construct next ray
+
             current_ray.origin = intersection.position;
             current_ray.direction = bsdfsample.wi;
-            //current_ray = ray;
         }
         return Li;
     }

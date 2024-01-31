@@ -2,6 +2,7 @@
 #include <lightwave/instance.hpp>
 #include <lightwave/registry.hpp>
 #include <lightwave/sampler.hpp>
+#include <lightwave/warp.hpp>
 
 namespace lightwave {
 
@@ -70,10 +71,10 @@ bool alpha_masking_check(Texture *m_alpha_mask, Intersection *its, Sampler &rng,
     return true;
 }
 
-void populateVolumeIntersection(Intersection &its, Ray &ray, float distance) {
+void populateVolumeIntersection(Intersection &its, Ray &ray, float distance, Sampler &rng) {
     its.t = distance;
     its.position = ray(its.t);
-    its.frame = Frame(ray.direction);
+    its.frame = Frame(squareToUniformSphere(rng.next2D()));
     its.pdf = 0;
 }
 
@@ -92,7 +93,7 @@ bool Instance::intersect(const Ray &worldRay, Intersection &its, Sampler &rng) c
         bool inside_volume = its.frame.normal.dot(localRay.direction) > 0 ? false : true;
 
         float distance = m_medium->sample_distance(rng);
-
+/*
         if (inside_volume) {
             if (its.t < distance) {
                 // ray escapes
@@ -100,26 +101,27 @@ bool Instance::intersect(const Ray &worldRay, Intersection &its, Sampler &rng) c
             } else {
                 // populate intersection
                 its.instance = this;
-                populateVolumeIntersection(its, localRay, distance);
+                populateVolumeIntersection(its, localRay, distance, rng);
                 return true;
             }
         } else {
+*/
             // find the back side of the mesh (only konvex meshes so far)
             Ray backsideRay = localRay;
-            backsideRay.origin = localRay(its.t * (1 + Epsilon));
+            backsideRay.origin = localRay(its.t);
             Intersection dummyIntersection = Intersection();
             m_shape->intersect(backsideRay, dummyIntersection, rng);
-            if (its.t < distance) {
+            if (dummyIntersection.t < distance) {
                 // ray escapes
                 return false;
             } else {
                 its.instance = this;
                 // case where we start outside of the volume, so the hitpoint
                 // is the sampled distance + the distance to get to the volume (its.t)
-                populateVolumeIntersection(its, localRay, its.t + distance);
+                populateVolumeIntersection(its, localRay, its.t + distance, rng);
                 return true;
             }
-        }
+//        }
     }
 
     // write the alpha mask in the intersection
