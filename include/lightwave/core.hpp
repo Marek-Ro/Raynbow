@@ -110,6 +110,7 @@ struct Intersection;
 class Color;
 class Image;
 class Texture;
+class Medium;
 class Bsdf;
 struct BsdfSample;
 struct BsdfEval;

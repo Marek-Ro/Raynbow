@@ -37,8 +37,10 @@ class Instance : public Shape {
     
     /// @brief The texture for the normal mapping
     ref<Texture> m_normalMap;
-    /// @brief The texture for the normal mapping
+    /// @brief The texture for the alpha masking
     ref<Texture> m_alpha_mask;
+    /// @brief The medium type
+    ref<Medium> m_medium;
     
     /// @brief Transforms the frame from object coordinates to world coordinates.
     inline void transformFrame(SurfaceEvent &surf) const;
@@ -52,8 +54,9 @@ public:
         m_transform = properties.getOptionalChild<Transform>();
         m_normalMap = properties.get<Texture>("normal", nullptr);
         m_alpha_mask = properties.get<Texture>("alpha", nullptr);
+        //m_medium = properties.getOptionalChild<Medium>();
         m_visible = false;
-        
+
         m_flipNormal = false;
         if (m_transform && m_transform->determinant() < 0) {
             m_flipNormal = !m_flipNormal;

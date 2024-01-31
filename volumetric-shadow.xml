@@ -56,8 +56,8 @@
 
         <instance>
             <shape type="sphere"/>
-            <bsdf type="volumebsdf" volumeType="homogeneous" density="0.5" color="1,0.55,0.8"/>
-            
+            <bsdf type="volumebsdf" color="1,0.55,0.8"/>
+            <medium type="homogeneous" density="0"/>            
             <transform>
                 <scale value="1"/>
                 <translate y="0" z="0" x="-0.2"/>
