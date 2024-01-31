@@ -80,7 +80,7 @@ void populateVolumeIntersection(Intersection &its, Ray &ray, float distance) {
 bool Instance::intersect(const Ray &worldRay, Intersection &its, Sampler &rng) const {
 
     // better volumes (m_medium is a ref, get() to get a pointer out of it)
-    if (m_medium.get() != nullptr) {
+    if (m_medium) {
 
         Ray localRay = !m_transform ? worldRay : m_transform->inverse(worldRay);
 
@@ -91,7 +91,7 @@ bool Instance::intersect(const Ray &worldRay, Intersection &its, Sampler &rng) c
 
         bool inside_volume = its.frame.normal.dot(localRay.direction) > 0 ? false : true;
 
-        float distance = m_medium.get()->sample_distance(rng);
+        float distance = m_medium->sample_distance(rng);
 
         if (inside_volume) {
             if (its.t < distance) {
@@ -108,7 +108,7 @@ bool Instance::intersect(const Ray &worldRay, Intersection &its, Sampler &rng) c
             Ray backsideRay = localRay;
             backsideRay.origin = localRay(its.t * (1 + Epsilon));
             Intersection dummyIntersection = Intersection();
-            m_shape->intersect(localRay, dummyIntersection, rng);
+            m_shape->intersect(backsideRay, dummyIntersection, rng);
             if (its.t < distance) {
                 // ray escapes
                 return false;
