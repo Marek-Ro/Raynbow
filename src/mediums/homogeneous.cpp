@@ -28,4 +28,4 @@ namespace lightwave
 
 }
 
-REGISTER_MEDIUM(Homogeneous, "homogeneousVolume")
+REGISTER_MEDIUM(Homogeneous, "homogeneous")
