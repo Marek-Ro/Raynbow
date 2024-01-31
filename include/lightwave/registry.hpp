@@ -64,3 +64,4 @@ private:
 #define REGISTER_LIGHT(     Class, Name) REGISTER_CLASS(Class, "light"     , Name)
 #define REGISTER_TEST(      Class, Name) REGISTER_CLASS(Class, "test"      , Name)
 #define REGISTER_POST(      Class, Name) REGISTER_CLASS(Class, "postprocess", Name)
+#define REGISTER_MEDIUM( Class, Name) REGISTER_CLASS(Class, "medium", Name)
