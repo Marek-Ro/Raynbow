@@ -746,10 +746,7 @@ struct Intersection : public SurfaceEvent {
     /// @brief The intersection distance, which can also be used to specify a maximum distance when querying intersections.
     float t;
     /// @brief The alpha masked, which can be used to check if an intersection should occur
-    Texture *alpha_mask;
-
-    ///@brief volume flag, true if the intersection was made with a volume box
-    bool volume_intersection = false;
+    Texture *alpha_mask = nullptr;
 
     /// @brief Statistics recorded while traversing acceleration structures.
     struct {
