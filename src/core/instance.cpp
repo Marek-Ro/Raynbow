@@ -77,6 +77,48 @@ float sample_distance(Sampler &rng, float density) {
 
 bool Instance::intersect(const Ray &worldRay, Intersection &its, Sampler &rng) const {
 
+    // better volumes (m_medium is a ref, get() to get a pointer out of it)
+    if (m_medium.get() != nullptr) {
+
+        Ray localRay = !m_transform ? worldRay : m_transform->inverse(worldRay);
+
+        
+        bool intersectionHappens = m_shape->intersect(worldRay, its, rng);
+        if (intersectionHappens == false) {
+            return false;
+        }
+
+        bool inside_volume = its.frame.normal.dot(localRay.direction) > 0 ? false : true;
+
+        float distance = m_medium.get()->sample_distance(rng);
+
+
+            if (inside_volume) {
+                // TODO populate intersectin
+                its.t = distance;
+                its.position = localRay(its.t);
+
+                return its.t > distance;
+            } else {
+                // we are not inside the volume, it is in front of us
+                // using some rough epsilon offset to avoid self intersections
+                Ray testing_if_inside_volume = Ray(localRay(distance * (1 + Epsilon)), localRay.direction);
+                // this ray tests now, if the distance sampled is in the volume
+                Intersection dummyIntersection = Intersection();
+                if (m_shape->intersect(testing_if_inside_volume, dummyIntersection, rng) == false) {
+                    // the distance sampled is outside of the volume, so we did not intersect it
+                    return false;
+                } else {
+                    // the distance is inside the volume, so we say that our intersection is 'distance' further than hitting the volume
+                    // TODO populate intersectin
+                    its.t += distance;
+                    its.position = localRay(its.t);
+                    return true;
+                }
+            }
+    }
+
+
     // Volumes (ugly as fuck I know)
     if (this->bsdf() != nullptr) {
         std::string type = this->bsdf()->getVolumeType();
