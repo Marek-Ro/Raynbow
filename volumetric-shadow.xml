@@ -61,7 +61,7 @@
             </bsdf>
             <medium type="homogeneous" density="0.5"/>
             <transform>
-                <scale value="2"/>
+                <scale value="1"/>
                 <translate y="-0.8" z="0" x="-0.8"/>
             </transform>
         </instance>
