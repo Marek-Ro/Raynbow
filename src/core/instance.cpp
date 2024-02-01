@@ -82,20 +82,23 @@ void populateVolumeIntersection(Intersection &its, Ray &ray, float new_t, Sample
 
 bool Instance::intersect(const Ray &worldRay, Intersection &its, Sampler &rng) const {
 
+    const float previous_t = its.t;
+    Ray localRay = !m_transform ? worldRay : m_transform->inverse(worldRay);
+
+    // The length of the direction vector changes by factor localRay.direction.length() / worldRay.direction.length()
+    // when going from world space to local space. The localRay is not normalized but the worldRay is so the length is 1.
+    float scaling = localRay.direction.length();
+
+    localRay.direction = localRay.direction.normalized();
+
+    // The t changes by the same factor the direction vector length changed
+    // Now its.t is in according to the localRay
+    its.t = previous_t * scaling;
+
+
     // better volumes (m_medium is a ref, get() to get a pointer out of it)
     if (m_medium) {
-
-        Ray localRay = !m_transform ? worldRay : m_transform->inverse(worldRay);
-        // see below
-        float scaling = localRay.direction.length();
-        localRay.direction = localRay.direction.normalized();
-
         Intersection its_incoming_state = its;
-
-
-        its.t *= scaling;
-
-
         bool intersectionHappens = m_shape->intersect(localRay, its, rng);
         if (intersectionHappens == false) {
             return false;
@@ -153,19 +156,6 @@ bool Instance::intersect(const Ray &worldRay, Intersection &its, Sampler &rng) c
         }
     }
 
-    const float previous_t = its.t;
-
-    Ray localRay = m_transform->inverse(worldRay);
-
-    // The length of the direction vector changes by factor localRay.direction.length() / worldRay.direction.length()
-    // when going from world space to local space. The localRay is not normalized but the worldRay is so the length is 1.
-    float scaling = localRay.direction.length();
-
-    localRay.direction = localRay.direction.normalized();
-
-    // The t changes by the same factor the direction vector length changed
-    // Now its.t is in according to the localRay
-    its.t = previous_t * scaling;
 
     const bool wasIntersected = m_shape->intersect(localRay, its, rng);
 
