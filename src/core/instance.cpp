@@ -114,9 +114,9 @@ bool Instance::intersect(const Ray &worldRay, Intersection &its, Sampler &rng) c
             // find the back side of the mesh (only konvex meshes so far)
             Ray backsideRay = localRay;
             backsideRay.origin = localRay(its.t);
-            Intersection dummyIntersection = Intersection();
-            m_shape->intersect(backsideRay, dummyIntersection, rng);
-            if (dummyIntersection.t < distance) {
+            Intersection backface_Intersection = Intersection();
+            m_shape->intersect(backsideRay, backface_Intersection, rng);
+            if (backface_Intersection.t < distance) {
                 // ray escapes
                 its = its_alt;
                 return false;
