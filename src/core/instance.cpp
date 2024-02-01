@@ -74,7 +74,8 @@ bool alpha_masking_check(Texture *m_alpha_mask, Intersection *its, Sampler &rng,
 void populateVolumeIntersection(Intersection &its, Ray &ray, float distance, Sampler &rng) {
     its.t = distance;
     its.position = ray(its.t);
-    its.frame = Frame(squareToUniformSphere(rng.next2D()));
+    //its.frame = Frame(squareToUniformSphere(rng.next2D()));
+    its.frame = Frame(ray.direction);
     its.pdf = 0;
 }
 
