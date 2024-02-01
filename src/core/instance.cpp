@@ -72,7 +72,8 @@ bool alpha_masking_check(Texture *m_alpha_mask, Intersection *its, Sampler &rng,
 }
 
 void populateVolumeIntersection(Intersection &its, Ray &ray, float new_t, Sampler &rng) {
-    its.t = new_t;
+    // divide by localRay direction length to translate back to world space
+    its.t = new_t / ray.direction.length();
     its.position = ray(its.t);
     //its.frame = Frame(squareToUniformSphere(rng.next2D()));
     its.frame = Frame(ray.direction);
@@ -106,6 +107,8 @@ bool Instance::intersect(const Ray &worldRay, Intersection &its, Sampler &rng) c
                 // populate intersection
                 its.instance = this;
                 populateVolumeIntersection(its, localRay, distance, rng);
+                
+                transformFrame(its);
                 return true;
             }
         } else {
@@ -123,6 +126,8 @@ bool Instance::intersect(const Ray &worldRay, Intersection &its, Sampler &rng) c
                 // case where we start outside of the volume, so the hitpoint
                 // is the sampled distance + the distance to get to the volume (its.t)
                 populateVolumeIntersection(its, localRay, its.t + distance, rng);
+
+                transformFrame(its);
                 return true;
             }
         }
@@ -141,7 +146,7 @@ bool Instance::intersect(const Ray &worldRay, Intersection &its, Sampler &rng) c
         }
     }
 
-    const float previousT = its.t;
+    const float previous_t = its.t;
 
     Ray localRay = m_transform->inverse(worldRay);
 
@@ -153,7 +158,7 @@ bool Instance::intersect(const Ray &worldRay, Intersection &its, Sampler &rng) c
 
     // The t changes by the same factor the direction vector length changed
     // Now its.t is in according to the localRay
-    its.t = previousT * scaling;
+    its.t = previous_t * scaling;
 
     const bool wasIntersected = m_shape->intersect(localRay, its, rng);
 
@@ -165,7 +170,7 @@ bool Instance::intersect(const Ray &worldRay, Intersection &its, Sampler &rng) c
         return true;
     } else {
         // We got no intersection so we assign the previousT, which was already correct for world space
-        its.t = previousT;
+        its.t = previous_t;
         return false;
     }
 }
