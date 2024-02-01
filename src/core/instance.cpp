@@ -71,8 +71,8 @@ bool alpha_masking_check(Texture *m_alpha_mask, Intersection *its, Sampler &rng,
     return true;
 }
 
-void populateVolumeIntersection(Intersection &its, Ray &ray, float distance, Sampler &rng) {
-    its.t = distance;
+void populateVolumeIntersection(Intersection &its, Ray &ray, float new_t, Sampler &rng) {
+    its.t = new_t;
     its.position = ray(its.t);
     //its.frame = Frame(squareToUniformSphere(rng.next2D()));
     its.frame = Frame(ray.direction);
@@ -86,7 +86,7 @@ bool Instance::intersect(const Ray &worldRay, Intersection &its, Sampler &rng) c
 
         Ray localRay = !m_transform ? worldRay : m_transform->inverse(worldRay);
 
-        Intersection its_alt = its;
+        Intersection its_incoming_state = its;
 
         bool intersectionHappens = m_shape->intersect(localRay, its, rng);
         if (intersectionHappens == false) {
@@ -100,7 +100,7 @@ bool Instance::intersect(const Ray &worldRay, Intersection &its, Sampler &rng) c
         if (inside_volume) {
             if (its.t < distance) {
                 // ray escapes
-                its = its_alt;
+                its = its_incoming_state;
                 return false;
             } else {
                 // populate intersection
@@ -109,16 +109,14 @@ bool Instance::intersect(const Ray &worldRay, Intersection &its, Sampler &rng) c
                 return true;
             }
         } else {
-
-
             // find the back side of the mesh (only konvex meshes so far)
             Ray backsideRay = localRay;
-            backsideRay.origin = localRay(its.t);
+            backsideRay.origin = its.position;
             Intersection backface_Intersection = Intersection();
             m_shape->intersect(backsideRay, backface_Intersection, rng);
             if (backface_Intersection.t < distance) {
                 // ray escapes
-                its = its_alt;
+                its = its_incoming_state;
                 return false;
             } else {
                 its.instance = this;
