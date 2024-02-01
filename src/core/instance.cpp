@@ -75,8 +75,8 @@ void populateVolumeIntersection(Intersection &its, Ray &ray, float new_t, Sample
     // back to world space
     its.t = new_t / scaling;
     its.position = ray(its.t);
-    //its.frame = Frame(squareToUniformSphere(rng.next2D()));
-    its.frame = Frame(ray.direction);
+    its.frame = Frame(squareToUniformSphere(rng.next2D()));
+    //its.frame = Frame(ray.direction);
     its.pdf = 0;
 }
 
