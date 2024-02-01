@@ -71,9 +71,9 @@ bool alpha_masking_check(Texture *m_alpha_mask, Intersection *its, Sampler &rng,
     return true;
 }
 
-void populateVolumeIntersection(Intersection &its, Ray &ray, float new_t, Sampler &rng) {
-    // divide by localRay direction length to translate back to world space
-    its.t = new_t / ray.direction.length();
+void populateVolumeIntersection(Intersection &its, Ray &ray, float new_t, Sampler &rng, float scaling) {
+    // back to world space
+    its.t = new_t / scaling;
     its.position = ray(its.t);
     //its.frame = Frame(squareToUniformSphere(rng.next2D()));
     its.frame = Frame(ray.direction);
@@ -86,8 +86,15 @@ bool Instance::intersect(const Ray &worldRay, Intersection &its, Sampler &rng) c
     if (m_medium) {
 
         Ray localRay = !m_transform ? worldRay : m_transform->inverse(worldRay);
+        // see below
+        float scaling = localRay.direction.length();
+        localRay.direction = localRay.direction.normalized();
 
         Intersection its_incoming_state = its;
+
+
+        its.t *= scaling;
+
 
         bool intersectionHappens = m_shape->intersect(localRay, its, rng);
         if (intersectionHappens == false) {
@@ -106,7 +113,7 @@ bool Instance::intersect(const Ray &worldRay, Intersection &its, Sampler &rng) c
             } else {
                 // populate intersection
                 its.instance = this;
-                populateVolumeIntersection(its, localRay, distance, rng);
+                populateVolumeIntersection(its, localRay, distance, rng, scaling);
                 
                 transformFrame(its);
                 return true;
@@ -125,7 +132,7 @@ bool Instance::intersect(const Ray &worldRay, Intersection &its, Sampler &rng) c
                 its.instance = this;
                 // case where we start outside of the volume, so the hitpoint
                 // is the sampled distance + the distance to get to the volume (its.t)
-                populateVolumeIntersection(its, localRay, its.t + distance, rng);
+                populateVolumeIntersection(its, localRay, its.t + distance, rng, scaling);
 
                 transformFrame(its);
                 return true;
