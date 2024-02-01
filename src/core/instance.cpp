@@ -86,6 +86,8 @@ bool Instance::intersect(const Ray &worldRay, Intersection &its, Sampler &rng) c
 
         Ray localRay = !m_transform ? worldRay : m_transform->inverse(worldRay);
 
+        Intersection its_alt = its;
+
         bool intersectionHappens = m_shape->intersect(localRay, its, rng);
         if (intersectionHappens == false) {
             return false;
@@ -94,10 +96,11 @@ bool Instance::intersect(const Ray &worldRay, Intersection &its, Sampler &rng) c
         bool inside_volume = its.frame.normal.dot(localRay.direction) < 0 ? false : true;
 
         float distance = m_medium->sample_distance(rng);
-/*
+
         if (inside_volume) {
             if (its.t < distance) {
                 // ray escapes
+                its = its_alt;
                 return false;
             } else {
                 // populate intersection
@@ -107,7 +110,7 @@ bool Instance::intersect(const Ray &worldRay, Intersection &its, Sampler &rng) c
             }
         } else {
 
-*/
+
             // find the back side of the mesh (only konvex meshes so far)
             Ray backsideRay = localRay;
             backsideRay.origin = localRay(its.t);
@@ -115,6 +118,7 @@ bool Instance::intersect(const Ray &worldRay, Intersection &its, Sampler &rng) c
             m_shape->intersect(backsideRay, dummyIntersection, rng);
             if (dummyIntersection.t < distance) {
                 // ray escapes
+                its = its_alt;
                 return false;
             } else {
                 its.instance = this;
@@ -123,7 +127,7 @@ bool Instance::intersect(const Ray &worldRay, Intersection &its, Sampler &rng) c
                 populateVolumeIntersection(its, localRay, its.t + distance, rng);
                 return true;
             }
-        //}
+        }
     }
 
     // write the alpha mask in the intersection
