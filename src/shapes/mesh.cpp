@@ -182,7 +182,11 @@ public:
 
     AreaSample sampleArea(Sampler &rng) const override {
         // only implement this if you need triangle mesh area light sampling for your rendering competition
-        NOT_IMPLEMENTED
+        float u = rng.next();
+        float v = 1 - u;
+        NOT_IMPLEMENTED;
+
+        
     }
 
     std::string toString() const override {

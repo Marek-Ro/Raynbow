@@ -20,7 +20,9 @@
                 <bsdf type="diffuse">
                     <texture name="albedo" type="constant" value="0.9"/>
                 </bsdf>
+<!-- 
                 <texture name="normal" type="image" filename="../textures/bricks_nor.png" linear="true"/>
+-->
                 <transform>
                     <rotate axis="0,1,0" angle="180"/>
                     <rotate axis="0,0,1" angle="120"/>

@@ -58,7 +58,9 @@
 
             <instance>
                 <shape type="sphere"/>
+<!-- 
                 <medium type="homogeneous" density="0.5"/>
+-->
                 <bsdf type="diffuse">
                     <texture name="albedo" type="constant" value="1"/>
                 </bsdf>

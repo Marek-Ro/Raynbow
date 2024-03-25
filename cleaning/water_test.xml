@@ -1,0 +1,44 @@
+<scene id="scene">
+  <camera type="perspective">
+    <integer name="width" value="1920"/>
+    <integer name="height" value="1080"/>
+    <float name="fov" value="39.598"/>
+    <string name="fovAxis" value="x"/>
+    <transform>
+      <matrix value="0.071274,0.062735,0.99548,-31.635,  -0.99737,0.017709,0.070293,-0.96755,  -0.013219,-0.99787,0.063832,1.7127,  0,0,0,1"/>
+    </transform>
+  </camera>
+  <instance>
+    <bsdf type="dielectric">
+      <texture name="ior" type="constant" value="1.3"/>
+      <texture name="reflectance" type="constant" value="1,0.8,0.7"/>
+      <texture name="transmittance" type="constant" value="0.7,0.8,1"/>
+    </bsdf>
+    <texture name="normal" id="water" type="image" filename="textures/water_drops.jpg"/>
+    <shape type="mesh" filename="meshes/Plane.ply"/>
+    <transform>
+      <matrix value="14.909,0,0,0,  0,14.909,0,0,  0,0,14.909,0,  0,0,0,1"/>
+    </transform>
+  </instance>
+  <instance>
+    <bsdf type="diffuse">
+      <texture name="albedo" type="image" filename="textures/water_color.jpg"/>
+    </bsdf>
+    <shape type="mesh" filename="meshes/Plane.001.ply"/>
+    <transform>
+      <matrix value="13.918,0,0,0,  0,13.918,0,0,  0,0,13.918,0.32543,  0,0,0,1"/>
+    </transform>
+  </instance>
+  <light type="directional" direction="0.1314,0.04822,0.99016" intensity="1,1,1"/>
+  <light type="envmap">
+    <texture type="constant" value="0.050876,0.050876,0.050876"/>
+    <transform>
+      <matrix value="1,0,0,0,  0,0,1,0,  0,-1,0,0,  0,0,0,1"/>
+    </transform>
+  </light>
+</scene>
+<integrator type="pathtracer" depth="10" nee="true" mis="true">
+  <ref id="scene"/>
+  <image id="noisy"/>
+  <sampler type="independent" count="64"/>
+</integrator>

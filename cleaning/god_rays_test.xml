@@ -1,0 +1,58 @@
+<scene id="scene">
+
+  <camera type="thinlens">
+    <float name="lensRadius" value="0.01"/>
+    <float name="focalDistance" value="7.6"/>
+    <integer name="width" value="1920"/>
+    <integer name="height" value="1080"/>
+    <float name="fov" value="39.6"/>
+    <string name="fovAxis" value="x"/>
+    <transform>
+      <matrix value="0.459,-0.0366,-0.888,7.5,  0.889,0.0189,0.458,-4.24,  1.02e-07,-0.999,0.0412,1.93,  0,0,0,1"/>
+    </transform>
+  </camera>
+
+  <instance>
+    <medium type="homogeneous" density="0.1"/>
+    <bsdf type="volumebsdf">
+        <texture name="albedo" type="constant" value="1,1,1"/>
+    </bsdf>
+    <shape type="mesh" filename="meshes/Cube.001.ply"/>
+    <transform>
+      <matrix value="1,0,0,0,  0,1,0,0,  0,0,1,2.85,  0,0,0,1"/>
+    </transform>
+  </instance>
+
+  <instance>
+    <bsdf type="principled">
+      <texture name="baseColor" type="constant" value="0.8,0.8,0.8"/>
+      <texture name="roughness" type="constant" value="1"/>
+      <texture name="metallic" type="constant" value="0"/>
+      <texture name="specular" type="constant" value="0"/>
+    </bsdf>
+    <texture name="alpha" type="image" filename="textures/image2.jpg"/>
+    <shape type="mesh" filename="meshes/Plane.ply"/>
+    <transform>
+      <matrix value="4.4,0,0,0,  0,4.4,0,0,  0,0,4.4,3.09,  0,0,0,1"/>
+    </transform>
+  </instance>
+
+  <instance>
+    <bsdf type="principled">
+      <texture name="baseColor" type="constant" value="0.8, 0.2, 0.6"/>
+      <texture name="roughness" type="constant" value="0.5"/>
+      <texture name="metallic" type="constant" value="0"/>
+      <texture name="specular" type="constant" value="0.5"/>
+    </bsdf>
+    <shape type="mesh" filename="meshes/Plane.001.ply"/>
+    <transform>
+      <matrix value="4.75,0,0,0,  0,4.75,0,0,  0,0,4.75,1,  0,0,0,1"/>
+    </transform>
+  </instance>
+  <light type="directional" direction="0,0,1" intensity="2.1,1.88,1.65"/>
+  </scene>
+<integrator type="pathtracer" depth="15" nee="true" mis="true">
+  <ref id="scene"/>
+  <image id="unscharf_small"/>
+  <sampler type="independent" count="128"/>
+</integrator>

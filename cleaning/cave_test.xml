@@ -1,0 +1,61 @@
+<scene id="scene">
+  <camera type="perspective">
+    <integer name="width" value="1280"/>
+    <integer name="height" value="720"/>
+    <float name="fov" value="39.598"/>
+    <string name="fovAxis" value="x"/>
+    <transform>
+      <matrix value="0.015671,0.07755,0.99687,-44.79,  -0.99979,0.014383,0.014598,-1.3959,  -0.013205,-0.99688,0.077759,3.0956,  0,0,0,1"/>
+    </transform>
+  </camera>
+  <instance>
+    <bsdf type="dielectric">
+      <texture name="ior" type="constant" value="1.33"/>
+      <texture name="transmittance" type="constant" value="1,1,1"/>
+      <texture name="reflectance" type="constant" value="1,1,1"/>
+      <texture name="roughness" type="constant" value="0"/>
+    </bsdf>
+    <texture name="normal" type="image" filename="textures/water_drops.jpg"/>
+    <shape type="mesh" filename="meshes/Plane.ply"/>
+    <transform>
+      <matrix value="14.909,0,0,0,  0,14.909,0,0,  0,0,14.909,0,  0,0,0,1"/>
+    </transform>
+  </instance>
+  <instance>
+    <bsdf type="principled">
+      <texture name="baseColor" type="image" filename="textures/water_color.jpg"/>
+      <texture name="roughness" type="constant" value="0.5"/>
+      <texture name="metallic" type="constant" value="0"/>
+      <texture name="specular" type="constant" value="0"/>
+    </bsdf>
+    <shape type="mesh" filename="meshes/Plane.001.ply"/>
+    <transform>
+      <matrix value="13.918,0,0,0,  0,13.918,0,0,  0,0,13.918,0.32543,  0,0,0,1"/>
+    </transform>
+  </instance>
+  <instance>
+    <bsdf type="principled">
+      <texture name="baseColor" id="Image Texture" type="image" filename="textures/rock_boulder_dry_diff_4k.jpg"/>
+      <texture name="roughness" type="constant" value="0.5"/>
+      <texture name="metallic" type="constant" value="0"/>
+      <texture name="specular" type="constant" value="0"/>
+    </bsdf>
+    <ref name="normal" id="Image Texture"/>
+    <shape type="mesh" filename="meshes/Cube.002.ply"/>
+    <transform>
+      <matrix value="14.307,0,0,0.083203,  0,1.2269,0,14.989,  0,0,8.3408,3.1597,  0,0,0,1"/>
+    </transform>
+  </instance>
+  <light type="point" position="0,0,5.6594" power="10,10,10"/>
+  <light type="envmap">
+    <texture type="constant" value="0.6"/>
+    <transform>
+      <matrix value="1,0,0,0,  0,0,1,0,  0,-1,0,0,  0,0,0,1"/>
+    </transform>
+  </light>
+</scene>
+<integrator type="pathtracer" depth="8" nee="true" mis="true">
+  <ref id="scene"/>
+  <image id="noisy"/>
+  <sampler type="independent" count="64"/>
+</integrator>
