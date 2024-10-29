@@ -1,6 +1,6 @@
 # Ray Tracer
 
-This project is a ray tracer built as part of a Computer Graphics course. It implements standard ray tracing capabilities and several advanced features to enhance the realism and flexibility of rendered scenes.
+This project is a ray tracer built as part of a Computer Graphics [course](https://graphics.cg.uni-saarland.de/courses/cg1-2023/index.html). It implements standard ray tracing capabilities and several advanced features to enhance the realism and flexibility of rendered scenes.
 
 ## Final Render
 ![](final_result/Final.jpg) 
@@ -8,7 +8,7 @@ This project is a ray tracer built as part of a Computer Graphics course. It imp
 ## Features
 
 ### Alpha Masking
-Alpha masking allows for transparency effects, giving materials a realistic translucent appearance. Ideal for rendering objects like glass, water, or other partially transparent materials.  
+Alpha masking allows for transparency effects, giving materials a realistic translucent appearance. Ideal for rendering objects like grass, leaves, or other partially transparent materials.  
 #### Before
 ![Alpha Masking - Before](features/alpha/without_alpha_mask.png)  
 #### After
@@ -33,7 +33,7 @@ Utilizes shading normals for improved surface appearance, enhancing the realism 
 #### Before
 ![Shading Normals - Before](features/shading_normals/without_normalmap.png)  
 #### After
-![Shading Normals - After](features/shading_normals/with_normalmap.png)
+![Shading Normals - After](features/shading_normals/with_normal_map.png)
 
 ### Thin Lens
 Simulates depth of field effects with a thin lens model, providing realistic focus and blurring effects in scenes.  
